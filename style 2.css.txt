@@ -1,0 +1,352 @@
+body {  
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #3D8D7A,  #F8FBEF, #A8D0C6);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+  color: black;
+  scroll-behavior: smooth;
+}
+
+
+/* Navbar */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 10px 30px 40px; /* Top: 20px | Right: 100px | Bottom: 30px | Left: 80px */
+  background: rgba(61, 141, 122, 0.8);
+  position: fixed;
+  width: 100%;
+  top: 0;
+  z-index: 1000;
+}
+
+/* Adjust Logo Alignment */
+.logo {
+  font-size: 24px;
+  color: white;
+  font-weight: bold;
+  margin-left: 150px; /* Adds space to the left */
+}
+
+/* Navigation Menu */
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 15px; /* Adds spacing between items */
+  margin: 0;
+  padding: 10px 50px; /* Top & Bottom: 10px | Right: 50px */
+}
+
+nav ul li a {
+  text-decoration: none;
+  color: white;
+  font-size: 18px;
+  transition: 0.3s;
+  padding-right: 20px; /* Adds right-side padding to each menu item */
+}
+
+nav ul li a:hover {
+  color: black;
+}
+
+
+/* Home Section */
+#home {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content:top;
+  text-align: left;
+  padding: 40px;
+}
+
+/* Profile Image */
+.profile-img {
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  border: 3px solid white;
+  animation: fadeIn 2s ease-in-out;
+}
+
+/* Highlight Color */
+.highlight { color: #3D8D7A; }
+
+/* Spline */
+.spline {
+  width: 50px;
+  height: 50px;
+  border: none;
+}
+
+/* Sections */
+section {
+  padding: 80px 50px;
+  text-align: center;
+  transition: all 0.5s ease-in-out;
+}
+
+/* Sliding Projects */
+.project-slider {
+  overflow: hidden;
+  white-space: nowrap;
+  position: relative;
+  width: 100%;
+}
+
+.slide-track {
+  display: flex;
+  animation: slide 10s linear infinite;
+}
+
+.project-card {
+  background: rgba(61, 141, 122, 0.5);
+  padding: 20px;
+  border-radius: 10px;
+  margin: 10px;
+  min-width: 200px;
+  text-align: center;
+}
+
+/* Gradient Animation */
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Animations */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(-20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slide {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+/* Gradient Color Blocks */
+.color-block { width: 100%; height: 100px; }
+.color1 { background-color: #3D8D7A; }
+.color2 { background-color: #F8FBEF; }
+.color3 { background-color: #A8D0C6; }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  #home { flex-direction: column; text-align: center; }
+  .profile-img { width: 120px; height: 120px; }
+  .spline { width: 300px; height: 300px; }
+}
+/* Linear Gradient Background */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #3D8D7A, #F8FBEF, #A8D0C6);
+  background-size: 400% 400%;
+  animation: gradientAnimation 10s ease infinite;
+  color: black;
+  scroll-behavior: smooth;
+}
+
+/* Spline Container - Merging Background */
+.spline-container {
+  width: 100%;
+  height: 500px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #3D8D7A, #F8FBEF, #A8D0C6);
+  background-size: cover;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Spline Iframe */
+.spline-frame {
+  width: 80%;
+  height: 100%;
+  border: none;
+  mix-blend-mode: multiply;
+  opacity: 0.9;
+}
+
+/* Soft Blur for Smooth Transition */
+.spline-container::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #3D8D7A, #F8FBEF, #A8D0C6);
+  opacity: 0.6;
+  filter: blur(20px);
+  z-index: -1;
+}
+
+/* Gradient Animation */
+@keyframes gradientAnimation {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+/* About Me Section */
+.about-me {
+  display: flex;
+  align-items: center;
+  text-align: center;
+  gap: 20px;
+  max-width: 800px;
+  padding: 250px;
+  background-color: rgba(0, 255, 255, 0.1);
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 1.5s ease-in-out;
+}
+.about-content {
+  text-align: center;
+  padding-left: 10px; /* Ensures text doesn’t stick too close */
+}
+
+/* Profile Image */
+.profile-img {
+  position: absolute;
+  left: 65px;
+  top: 30%;
+  transform: translateY(-50%);
+  transition: all 0.4s ease-in-out;
+}
+
+.profile-img img {
+  width: 120px;
+  height: 120px;
+  border-radius: 80%;
+  border: 3px solid aqua;
+  object-fit: cover;
+  transition: transform 0.4s ease-in-out;
+}
+
+/* Hover Effect */
+.profile-img img:hover {
+  transform: scale(1.1);
+  box-shadow: 0 0 10px aqua;
+}
+
+/* Fade-in Animation */
+@keyframes fadeIn {
+  from {
+      opacity: 0;
+      transform: translateX(-50px);
+  }
+  to {
+      opacity: 1;
+      transform: translateX(0);
+  }
+}
+/* Skills Styling */
+.skills-container {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.skill-card {
+  background: #74c7d3;
+  color: white;
+  padding: 1rem 2rem;
+  border-radius: 5px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s;
+}
+
+.skill-card:hover {
+  transform: translateY(-10px);
+}
+
+
+
+
+
+<template>
+<div class="sui-god-ray relative flex h-screen w-screen">
+  <div class="ray absolute inset-x-0 inset-y-0 opacity-50"></div>
+</div>
+</template>
+
+<script lang="ts" setup></script>
+
+<style scoped>
+.sui-god-ray {
+--sui-ray-bg: rgba(255, 255, 255, 0.92);
+--stripes: repeating-linear-gradient(
+  100deg,
+  var(--sui-ray-bg) 0%,
+  var(--sui-ray-bg) 7%,
+  transparent 10%,
+  transparent 12%,
+  var(--sui-ray-bg) 16%
+);
+--rainbow: repeating-linear-gradient(
+  100deg,
+  #60a5fa 10%,
+  #e879f9 15%,
+  #60a5fa 20%,
+  #5eead4 25%,
+  #60a5fa 30%
+);
+--aurora: repeating-linear-gradient(
+  100deg,
+  #3b82f6 10%,
+  #a5b4fc 15%,
+  #93c5fd 20%,
+  #ddd6fe 25%,
+  #60a5fa 30%
+);
+background-color: var(--sui-ray-bg);
+transition: background-color 0.3s;
+}
+
+@keyframes ray {
+from {
+  background-position: 50% 50%, 50% 50%;
+}
+
+to {
+  background-position: 350% 50%, 350% 50%;
+}
+}
+
+.ray {
+background-image: var(--stripes), var(--rainbow);
+background-size: 300%, 200%;
+background-position: 50% 50%, 50% 50%;
+filter: blur(10px) invert(100%);
+mask-image: radial-gradient(ellipse at 100% 0%, black 40%, transparent 70%);
+pointer-events: none;
+}
+
+.ray::after {
+content: '';
+position: absolute;
+inset: 0;
+background-image: var(--stripes), var(--rainbow);
+background-size: 200%, 100%;
+animation: ray 60s linear infinite;
+background-attachment: fixed;
+mix-blend-mode: difference;
+}
+
+.dark .sui-god-ray {
+--sui-ray-bg: rgba(0, 0, 0, 0.92);
+}
+
+.dark .ray,
+.dark .ray::after {
+background-image: var(--stripes), var(--aurora);
+filter: blur(12px) invert(10%);
+}
+</style>
