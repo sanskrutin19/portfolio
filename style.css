@@ -2,7 +2,7 @@
 body {  
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #3D8D7A,  #F8FBEF, #A8D0C6);
+  background: linear-gradient(135deg,#000033, #3D521C);
   background-size: 400% 400%;
   animation: gradientAnimation 10s ease infinite;
   color: black;
@@ -16,7 +16,7 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 20px 10px 30px 40px; /* Top: 20px | Right: 100px | Bottom: 30px | Left: 80px */
-  background: rgba(61, 141, 122, 0.8);
+  background: #e785a6,#EDEDED(61, 141, 122, 0.8);
   position: fixed;
   width: 100%;
   top: 0;
@@ -26,7 +26,7 @@ header {
 /* Adjust Logo Alignment */
 .logo {
   font-size: 24px;
-  color: white;
+  color: #EDEDED;
   font-weight: bold;
   margin-left: 150px; /* Adds space to the left */
 }
@@ -73,7 +73,7 @@ nav ul li a:hover {
 }
 
 /* Highlight Color */
-.highlight { color: #3D8D7A; }
+.highlight { color: #fff7fa; }
 
 /* Spline */
 .spline {
@@ -103,7 +103,7 @@ section {
 }
 
 .project-card {
-  background: rgba(61, 141, 122, 0.5);
+  background:#EDEDED #f1afc5(61, 141, 122, 0.5);
   padding: 20px;
   border-radius: 10px;
   margin: 10px;
@@ -131,9 +131,9 @@ section {
 
 /* Gradient Color Blocks */
 .color-block { width: 100%; height: 100px; }
-.color1 { background-color: #3D8D7A; }
+.color1 { background-color: #f05a89; }
 .color2 { background-color: #F8FBEF; }
-.color3 { background-color: #A8D0C6; }
+.color3 { background-color: #fbb5cc; }
 
 /* Responsive Design */
 @media (max-width: 768px) {
@@ -145,7 +145,7 @@ section {
 body {
   margin: 0;
   font-family: 'Poppins', sans-serif;
-  background: linear-gradient(135deg, #3D8D7A, #F8FBEF, #A8D0C6);
+  background: linear-gradient(135deg, #f1779e, #fba4c1, #EDEDED);
   background-size: 400% 400%;
   animation: gradientAnimation 10s ease infinite;
   color: black;
@@ -163,7 +163,7 @@ body {
   text-align: right;
   text-align: center;
   justify-content: center;
-  background: linear-gradient(135deg, #3D8D7A, #F8FBEF, #A8D0C6);
+  background: linear-gradient(135deg,#f196b3, #fea3c1, #EDEDED);
   background-size: cover;
   border-radius: 20px;
   overflow: hidden;
@@ -184,7 +184,7 @@ body {
   position: absolute;
   width: 100%;
   height: 100%;
-  background: linear-gradient(135deg, #3D8D7A, #F8FBEF, #A8D0C6);
+  background: linear-gradient(135deg, #f5aec4, #f4417c, #EDEDED);
   opacity: 0.6;
   filter: blur(20px);
   z-index: -1;
@@ -204,9 +204,9 @@ body {
   gap: 20px;
   max-width: 800px;
   padding: 250px;
-  background-color: rgba(0, 255, 255, 0.1);
+  background-color: #ec7097(0, 255, 255, 0.1);
   border-radius: 15px;
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.5);
+  box-shadow: 0 0 10px #8B002Ea(0, 255, 255, 0.5);
   position: relative;
   overflow: hidden;
   animation: fadeIn 1.5s ease-in-out;
@@ -229,7 +229,7 @@ body {
   width: 120px;
   height: 120px;
   border-radius: 80%;
-  border: 3px solid aqua;
+  border: 3px solid rgb(184, 120, 153);
   object-fit: cover;
   transition: transform 0.4s ease-in-out;
 }
@@ -237,7 +237,7 @@ body {
 /* Hover Effect */
 .profile-img img:hover {
   transform: scale(1.1);
-  box-shadow: 0 0 10px aqua;
+  box-shadow: 0 0 10px rgb(254, 161, 209);
 }
 
 /* Fade-in Animation */
@@ -259,7 +259,7 @@ body {
 }
 
 .skill-card {
-  background: #74c7d3;
+  background: #851663;
   color: white;
   padding: 1rem 2rem;
   border-radius: 5px;
@@ -293,7 +293,7 @@ body {
   border: none;
   border-radius: 5px;
   background: transparent;
-  color: white;
+  color:#f8f1f3;
   border: 2px solid white;
   cursor: pointer;
   transition: all 0.3s ease-in-out;
@@ -310,7 +310,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background: white;
+  background:#EDEDED;
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.3s ease-in-out;
@@ -322,10 +322,10 @@ body {
 }
 
 .welcome-btn:hover {
-  color: black;
+  color: #f3b0c6;
 }
 Keep Fill Color After Click */
 .welcome-btn.clicked::before {
     transform: scaleX(1);
 }
-}
+
