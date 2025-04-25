@@ -1,132 +1,271 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sanskruti's Portfolio</title>
-    <link rel="stylesheet" href="style.css">
-    <script src="https://unpkg.com/scrollreveal"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sanskruti's Portfolio</title>
+  <link rel="stylesheet" href="style.css" />
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://unpkg.com/scrollreveal"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init();
+</script>
 </head>
+
 <body>
+  <!-- Navbar -->
+  <header>
+    <h2 class="logo">Sanskruti!</h2>
+    <div class="profile-img">
+      <img src="ac.jpg" alt="Your Image" />
+    </div>
+    <nav>
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#about">AboutMe</a></li>
+        <li><a href="#skills">Skills</a></li>
+        <li><a href="#github">github-Repos</a></li>
+        <li><a href="#education">Education</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact Me</a></li>
+      </ul>
+    </nav>
+  </header>
 
-    <!-- Navbar -->
-    <header>
-         <h2 class="logo">Sanskruti!</h2>
-         <div class="profile-img">
-            <img src="IMG_20250201_151516.jpg" alt="Your Image">
+  <!-- Background Gradient -->
+  <div class="color-block color1"></div>
+
+  <!-- Home Section -->
+  <section id="home" class="reveal">
+    <div class="spline-container">
+      <h1>HI!</h1>
+      <h1><span class="highlight">Sanskruti here!</span></h1>
+      <h3>21 YEARS | YOUTHFUL</h3>
+      <div class="spline-content-text">
+        <div class="spline-content">
+          <button class="welcome-btn" onclick="scrollToAbout()">Welcome to my Portfolio!</button>
         </div>
-        <nav>
+        <iframe
+          class="spline-frame"
+          src="https://my.spline.design/untitled-03083893c4d12d5806b5aac9cfee201c/"
+          frameborder="0"
+        ></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section id="about" class="about-me">
+    <div class="abstract-shapes">
+      <div class="circle-shape"></div>
+      <div class="line-shape"></div>
+    </div>
+    <div class="about-container">
+      <div class="about-text">
+        <h2>About Me</h2>
+        <p>
+          Hello! I'm <strong>Sanskruti</strong>, a passionate developer with a flair for
+          <strong>web-design</strong>. I enjoy building creative, functional, and
+          user-centric websites. I believe in turning ideas into beautifully crafted
+          digital experiences.
+        </p>
+  
+        <div class="about-columns">
+          <div class="about-box">
+            <h3>🎯 Mission</h3>
+            <p>Design with purpose, code with creativity, and inspire through innovation.</p>
+          </div>
+          <div class="about-box">
+            <h3>🎨 Creative Zone</h3>
+            <p>UI/UX | Webflow | Canva | Storyboarding | Visuals & Interactions</p>
+          </div>
+          <div class="about-box">
+            <h3>🛠 Tools I Love</h3>
             <ul>
-                <li><a href="#home">Home</a></li>
-                <li><a href="#about">AboutMe</a></li> <!-- Now scrolls smoothly -->
-                <li><a href="#education">Education</a></li>
-                <li><a href="#projects">Projects</a></li>
-                <li><a href="#contact">Contact Me</a></li>
+              <li>Figma</li>
+              <li>HTML & CSS</li>
+              <li>JavaScript</li>
+              <li>Webflow</li>
             </ul>
-        </nav>
-        
-    </header>
-
-    <!-- Color Gradient Background -->
-    <div class="color-block color1"></div>
-    
-
-    <!-- Home Section with Smooth Animation -->
-    <section id="home">
-        <!-- Spline Wrapper -->
-        <div class="spline-container">
-            <spline-conten>
-                <h1>HI!</h1>
-                <h1><span class="highlight">Sanskruti here!</span></h1>
-                <h3>21 YEARS |YOUTHFUL</h3>
-            </spline-conten>
-                <div class="spline-content">
-                    <button class="welcome-btn">Welcome to my Portfolio!</button>
-                </div>
-        <iframe src='https://my.spline.design/untitled-03083893c4d12d5806b5aac9cfee201c/' frameborder='0' width='100%' height='100%'></iframe>
+          </div>
+          <div class="about-box">
+            <h3>🎈 Fun Facts</h3>
+            <p>I sketch designs before coding. Obsessed with pastel aesthetics!</p>
+          </div>
         </div>
-    </section>
-    
-
-    <!-- About Section with Slide Animation -->
-    <section id="about" class="aboutme">
-                <div class="about-content">
-            <h2>About Me</h2>
-            <p>Hello! I'm Sanskruti, a passionate developer with a love for UI/UX design. 
-                I enjoy creating interactive and visually appealing websites. 
-                My goal is to craft seamless digital experiences with a creative touch.</p>
-                <section class="skills" id="skills">
-                    <h2>My Skills</h2>
-                    <div class="skills-container">
-                      <div class="skill-card">HTML</div>
-                      <div class="skill-card">CSS</div>
-                      <div class="skill-card">Webflow</div>
-                      <div class="skill-card">Figma</div>
-                      <div class="skill-card">Canva</div>
-                    </div>
-                  </section>
+  
+        <div class="resume-btn">
+          <a href="your-resume.pdf" download>Download My Resume</a>
         </div>
-    </section>
-     <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const aboutBtn = document.querySelector(".welcome-btn");
-            aboutBtn.addEventListener("click", function () {
-                this.classList.add("clicked");
-                setTimeout(() => {
-                    document.getElementById("about").scrollIntoView({ behavior: "smooth" });
-                }, 300);
-            });
-        });
-    </script>
-
-
-    <!-- Education Section with Timeline Animation -->
-    <section id="education">
-        <h2>Education</h2>
-        <div class="timeline">
-            <div class="edu-box"> <h3></h3> <p>Sanjay Ghodawat University, Kolhapur - Year : 2023 - 2026</p> </div>
+      </div>
+    </div>
+  </section>
+  
+  <section id="skills" class="skills-section">
+    <h2 class="section-title">Skills</h2>
+    <div class="skills-grid">
+      <div class="skill-card">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma" class="skill-icon-img" />
+        <h3>Figma</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" data-fill="80%"></div>
+          <span class="skill-percent">80%</span>
         </div>
-    </section>
-
-    <!-- Projects Section with Scrolling Cards -->
-    <section id="projects">
-        <h2>Projects</h2>
-        <div class="project-slider">
-            <div class="slide-track">
-                <div class="project-card">Project 1</div>
-                <div class="project-card">Project 2</div>
-                <div class="project-card">Project 3</div>
-                <div class="project-card">Project 4</div>
-                <div class="project-card">Project 5</div>
-            </div>
+      </div>
+  
+      <div class="skill-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/888/888859.png" alt="HTML" class="skill-icon-img" />
+        <h3>HTML</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" data-fill="90%"></div>
+          <span class="skill-percent">90%</span>
         </div>
-    </section>
+      </div>
+  
+      <div class="skill-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/919/919826.png" alt="CSS" class="skill-icon-img" />
+        <h3>CSS</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" data-fill="85%"></div>
+          <span class="skill-percent">85%</span>
+        </div>
+      </div>
+  
+      <div class="skill-card">
+        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968292.png" alt="JavaScript" class="skill-icon-img" />
+        <h3>JavaScript</h3>
+        <div class="skill-bar">
+          <div class="skill-fill" data-fill="75%"></div>
+          <span class="skill-percent">75%</span>
+        </div>
+      </div>
+    </div>
+  </section>
+  <section id="github">
+    <h2 class="section-title">📦 GitHub Repositories</h2>
+    <div id="repo-container" class="repo-grid"></div>
+  </section>
+  <section id="education" class="education-section">
+    <h2 class="section-title">🎓 Education</h2>
+    <div class="timeline-wrapper">
+  
+      <div class="timeline-item">
+        <div class="timeline-dot">🎓</div>
+        <div class="timeline-line"></div>
+        <div class="timeline-content">
+          <h3>B.Tech in Computer Engineering</h3>
+          <span>2022 – 2026</span>
+          <p>Sanjay Ghodawat University, Kolhapur</p>
+        </div>
+      </div>
+  
+      <div class="timeline-item">
+        <div class="timeline-dot">📘</div>
+        <div class="timeline-line"></div>
+        <div class="timeline-content">
+          <h3>Higher Secondary - Science</h3>
+          <span>2020 – 2021</span>
+          <p>Vivekanand College, Kolhapur</p>
+        </div>
+      </div>
+  
+      <div class="timeline-item">
+        <div class="timeline-dot">📖</div>
+        <div class="timeline-line"></div>
+        <div class="timeline-content">
+          <h3>Secondary School</h3>
+          <span>2018 – 2019</span>
+          <p>RSEMS, Kolhapur</p>
+        </div>
+      </div>
+  
+    </div>
+  </section>
+  
+  
+  
 
-    <!-- Contact Section -->
-    <section id="contact">
-        <h2>Contact Me</h2>
-        <p>Email: naiksanskruti03@gmail.com</p>
-        <p>LinkedIn: https://www.linkedin.com/in/sanskruti-naik-924843255 </p>
-    </section>
-
-    <!-- Smooth Scrolling Effect -->
-    <script>
-        $(document).ready(function(){
-            $("nav ul li a").on('click', function(event) {
-                if (this.hash !== "") {
-                    event.preventDefault();
-                    var hash = this.hash;
-                    $('html, body').animate({ scrollTop: $(hash).offset().top }, 800);
-                }
-            });
-        });
-
-        // Scroll Reveal Animations
-        ScrollReveal().reveal('.profile-img, .intro, .spline, .edu-box, .project-card', {
-            delay: 200, duration: 1000, reset: true, distance: '50px', origin: 'bottom'
-        });
-    </script>
-
+  <section id="projects" class="reveal">
+    <h2>💻 My DevLab</h2>
+  
+    <div class="code-snippet">
+      <pre>
+  <span style="color:#888">// Project: Portfolio Website</span>
+  function <span class="code-button" onclick="toggleProject('project1')">Run_Portfolio()</span> {
+    // Reveal details...
+  }</pre>
+      <div id="project1" class="project-content">
+        <h3>🌐 Sanskruti's Personal Portfolio</h3>
+        <p>A vibrant and developer-centric portfolio featuring terminal-style animations, 3D elements via Spline, and GitHub repo integration.</p>
+        <a href="#" style="color: #00ff99; text-decoration: underline;">🔗 Live Demo</a>
+      </div>
+    </div>
+  
+    <div class="code-snippet">
+      <pre>
+  <span style="color:#888">// Project: College ERP System</span>
+  function <span class="code-button" onclick="toggleProject('project2')">Run_ERP()</span> {
+    // Reveal details...
+  }</pre>
+      <div id="project2" class="project-content">
+        <h3>🏫 College ERP System</h3>
+        <p>An all-in-one solution for managing student records, grades, schedules, and faculty operations. Built with React and Firebase.</p>
+        <a href="#" style="color: #00ff99; text-decoration: underline;">🔗 Explore Project</a>
+      </div>
+    </div>
+  
+    <div class="code-snippet">
+      <pre>
+  <span style="color:#888">// Project: AI Art Transformer</span>
+  function <span class="code-button" onclick="toggleProject('project3')">Run_AIArt()</span> {
+    // Reveal details...
+  }</pre>
+      <div id="project3" class="project-content">
+        <h3>🎨 AI Art Transformer</h3>
+        <p>Upload an image and transform it using neural style transfer into watercolor, sketch, or oil painting art styles. Pure creativity meets code.</p>
+        <a href="#" style="color: #00ff99; text-decoration: underline;">🔗 Try It Out</a>
+      </div>
+    </div>
+  </section>
+  
+  
+  <section id="contact" class="contact-section">
+    <div class="terminal-contact">
+      <div class="terminal-window">
+        <div class="terminal-header">
+          <span class="circle red"></span>
+          <span class="circle yellow"></span>
+          <span class="circle green"></span>
+          <span class="terminal-title">contact_me@portfolio</span>
+        </div>
+        <div class="terminal-body">
+          <p class="cmd">> Hi, let's connect!</p>
+          <form id="contactForm">
+            <p><span class="cmd">Name:</span></p>
+            <input type="text" name="name" required placeholder="Enter your name" />
+  
+            <p><span class="cmd">Email:</span></p>
+            <input type="email" name="email" required placeholder="Enter your email" />
+  
+            <p><span class="cmd">Message:</span></p>
+            <textarea name="message" required placeholder="Write your message..."></textarea>
+  
+            <button type="submit" class="run-btn">Send ↵</button>
+          </form>
+        </div>
+      </div>
+  
+      <div class="social-icons">
+        <a href="mailto:naiksanskruti03@gmail.com"><img src="https://img.icons8.com/fluency/48/gmail.png" alt="Email"></a>
+        <a href="https://www.linkedin.com/in/sanskruti-naik-924843255" target="_blank"><img src="https://img.icons8.com/fluency/48/linkedin.png" alt="LinkedIn"></a>
+      </div>
+    </div>
+  </section>
+  
+  <script src="scripts.js"></script>
+  
 </body>
 </html>
