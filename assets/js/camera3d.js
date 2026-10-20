@@ -93,15 +93,23 @@ shadow.rotation.x = -Math.PI / 2; shadow.position.y = -1.55; shadow.scale.set(1,
 
 /* ---------------- sizing: the camera fills the screen ---------------- */
 let SW = 0, SH = 0;
-const narrow = () => SW < 760;
+// layout adapts to the shape of the screen: tall screens stack camera → button →
+// two rows of polaroids; wide screens keep the camera central with polaroids at the sides
+const portrait = () => SW / SH < 1.15;
+const clampN = (v, a, b) => Math.max(a, Math.min(b, v));
 function resize() {
   SW = lens.clientWidth; SH = lens.clientHeight;
   renderer.setSize(SW, SH, false);
   cam.aspect = SW / SH; cam.updateProjectionMatrix();
   const visH = 2 * 10 * Math.tan(THREE.MathUtils.degToRad(15)), visW = visH * cam.aspect;
-  const s = Math.min((narrow() ? 0.86 : 0.5) * visW / 3.6, (narrow() ? 0.36 : 0.52) * visH / 2.1);
+  const tall = portrait();
+  lens.classList.toggle('portrait', tall);
+  const s = tall ? Math.min(0.8 * visW / 3.6, 0.24 * visH / 2.1) : Math.min(0.44 * visW / 3.6, 0.5 * visH / 2.1);
   rig.scale.setScalar(s);
-  rig.position.y = narrow() ? visH * 0.12 : 0;
+  rig.position.y = (0.5 - (tall ? 0.39 : 0.5)) * visH;
+  const pw = tall ? clampN(Math.min(SW * 0.27, SH * 0.155), 84, 160) : clampN(Math.min(SW * 0.115, SH * 0.21), 92, 175);
+  lens.style.setProperty('--pw', `${Math.round(pw)}px`);
+  lens.style.setProperty('--ctrl-top', '55%');
 }
 const v = new THREE.Vector3();
 function toScreen(x, y, z) {
@@ -111,12 +119,14 @@ function toScreen(x, y, z) {
 
 /* ---------------- polaroid slots around the camera ---------------- */
 function slot(i, el) {
-  const w = el.offsetWidth, h = el.offsetHeight;
-  const desk = [[0.1, 0.54, -8], [0.17, 0.8, 5], [0.33, 0.87, -3], [0.67, 0.87, 4], [0.83, 0.8, -6], [0.9, 0.54, 7]];
-  const mob = [[0.2, 0.72, -6], [0.5, 0.71, 3], [0.8, 0.72, -3], [0.2, 0.89, 5], [0.5, 0.88, -4], [0.8, 0.89, 6]];
-  const [fx, fy, r] = (narrow() ? mob : desk)[i];
+  const w = el.offsetWidth, h = el.offsetHeight, short = SH < 520;
+  const tall = [[0.2, 0.71, -6], [0.5, 0.7, 3], [0.8, 0.71, -3], [0.2, 0.89, 5], [0.5, 0.88, -4], [0.8, 0.89, 6]];
+  const wide = short
+    ? [[0.08, 0.52, -8], [0.17, 0.72, 5], [0.08, 0.9, -3], [0.92, 0.32, 4], [0.83, 0.58, -6], [0.92, 0.84, 7]]
+    : [[0.1, 0.42, -8], [0.15, 0.64, 5], [0.1, 0.86, -3], [0.9, 0.3, 4], [0.85, 0.55, -6], [0.9, 0.8, 7]];
+  const [fx, fy, r] = (portrait() ? tall : wide)[i];
   const x = Math.min(SW - w - 8, Math.max(8, fx * SW - w / 2));
-  const y = Math.min(SH - h - 8, Math.max(70, fy * SH - h / 2));
+  const y = Math.min(SH - h - 8, Math.max(60, fy * SH - h / 2));
   return { x, y, r };
 }
 const place = (el, i) => { const s = slot(i, el); el.style.transform = `translate(${s.x}px, ${s.y}px) rotate(${s.r}deg)`; };

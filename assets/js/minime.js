@@ -295,16 +295,47 @@ function resize() {
 }
 resize();
 window.addEventListener('resize', resize);
-const companionPx = () => (narrowScreen() ? 100 : 135);
+const companionPx = () => (W < 640 ? 84 : W < 1024 ? 110 : 135);
 const nameEl = document.getElementById('hero-title');
 const skipBtn = document.getElementById('skip-intro');
 const outfitBtn = document.getElementById('mini-outfit');
-const heroPx = () => (narrowScreen() ? Math.min(H * 0.42, W * 0.95) : Math.min(H * 0.6, 560));
-function heroAnchor() {
-  if (narrowScreen() || !nameEl) return { x: W * 0.62, y: H - 74 };
-  const r = nameEl.getBoundingClientRect(), hp = heroPx();
-  return { x: Math.min(W - hp * 0.3, r.right + hp * 0.26), y: Math.min(H - 30, r.bottom + hp * 0.14) };
+// where she stands in the hero, measured from the real layout on every screen size:
+// beside the name when there is room, otherwise below the tagline on the right
+const stageEl = document.getElementById('hero-stage');
+const heroQ = s => document.querySelector(s);
+let layoutCache = null, layoutAt = -1;
+function heroLayout() {
+  const now = performance.now();
+  if (layoutCache && now - layoutAt < 120) return layoutCache;
+  layoutAt = now;
+  if (!stageEl || !nameEl) return (layoutCache = { x: W * 0.62, y: H - 40, px: Math.min(H * 0.42, W * 0.9), below: true });
+  const st = stageEl.getBoundingClientRect();
+  const nameBottom = st.top + nameEl.offsetHeight;
+  const vis = el => el && el.offsetParent !== null ? el.getBoundingClientRect() : null;
+  const roles = vis(heroQ('.hero-roles')), right = vis(heroQ('.hero-right')), tag = vis(heroQ('.hero-tag'));
+  // beside the name
+  let px = Math.min(H * 0.62, 560);
+  let feet = Math.min(H - 30, nameBottom + px * 0.12);
+  let x = st.right + px * 0.27;
+  const headroom = r => (r && x + px * 0.25 > r.left && x - px * 0.25 < r.right ? r.bottom + 10 : 64);
+  px = Math.min(px, feet - headroom(roles));
+  feet = Math.min(H - 30, nameBottom + px * 0.12);
+  x = Math.min(W - px * 0.26, st.right + px * 0.27);
+  if (W - st.right - 12 >= px * 0.46 && px > H * 0.34) {
+    root.classList.remove('hero-below');
+    return (layoutCache = { x, y: feet, px, below: false });
+  }
+  // below the tagline, on the right-hand side
+  const top = (tag ? tag.bottom : nameBottom) + 14;
+  const floor = (right ? Math.min(H - 24, right.top - 6) : H - 24);
+  px = Math.max(90, Math.min(floor - top, W * 0.9, H * 0.52));
+  x = Math.max(px * 0.3, Math.min(W - px * 0.3, W * (W < 640 ? 0.66 : 0.7)));
+  root.classList.add('hero-below');
+  return (layoutCache = { x, y: floor, px, below: true });
 }
+const heroPx = () => heroLayout().px;
+const heroAnchor = () => heroLayout();
+window.addEventListener('resize', () => { layoutAt = -1; });
 
 /* ---------------- speech ---------------- */
 let bubbleTimer = 0, lastLine = '';
@@ -330,6 +361,7 @@ const sectionIO = new IntersectionObserver(entries => {
   for (const en of entries) {
     if (!en.isIntersecting) continue;
     if (en.target.id === 'home' && root.classList.contains('intro')) continue;
+    if (W < 640 && en.target.id !== 'home') continue;   // on phones she only chats in the hero, so she never covers text
     say(LINES[en.target.id]);
     if (en.target.id === 'contact' && !playClip('bow')) act('wave');
   }
@@ -523,7 +555,7 @@ if (outfitBtn) outfitBtn.addEventListener('click', async () => {
 });
 
 /* ---------------- opening scene (after huyml.co): she drags her name onto the page ---------------- */
-const intro = { on: root.classList.contains('intro') && !!nameEl && !narrowScreen(), stage: 'pull', t: 0, x: 0, dx: 0, r: null };
+const intro = { on: root.classList.contains('intro') && !!nameEl && !narrowScreen() && !heroLayout().below, stage: 'pull', t: 0, x: 0, dx: 0, r: null };
 function endIntro() {
   if (!intro.on) return;
   intro.on = false;
@@ -862,7 +894,10 @@ function frame(now) {
   hit.style.width = `${hw}px`; hit.style.height = `${px}px`;
   hit.style.transform = `translate(${(d.x - hw / 2).toFixed(1)}px, ${(d.y - px).toFixed(1)}px)`;
   const bw = bubble.offsetWidth, bh = bubble.offsetHeight;
-  const bx = clamp(d.x - 14, 8, W - bw - 8), by = Math.max(60, d.y - px * (heroBlend > 0.5 ? 0.92 : 1.02) - bh - 8);
+  let bx = clamp(d.x - 14, 8, W - bw - 8), by = Math.max(60, d.y - px * (heroBlend > 0.5 ? 0.92 : 1.02) - bh - 8);
+  if (heroBlend > 0.5 && heroLayout().below) {   // keep the bubble off the name: beside her shoulder
+    bx = clamp(d.x - px * 0.22 - bw, 8, W - bw - 8); by = clamp(d.y - px * 0.82, 60, H - bh - 8);
+  }
   bubble.style.transform = `translate(${bx.toFixed(1)}px, ${by.toFixed(1)}px)`;
 }
 requestAnimationFrame(frame);
