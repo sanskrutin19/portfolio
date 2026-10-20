@@ -1,271 +1,806 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Sanskruti's Portfolio</title>
-  <link rel="stylesheet" href="style.css" />
-  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://unpkg.com/scrollreveal"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-<script>
-  AOS.init();
-</script>
-</head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sanskruti Naik — AI / ML Engineer</title>
+  <meta name="description" content="Sanskruti Naik is an AI/ML engineer building private, citation-grounded RAG systems, explainable computer vision and secure offline-first applications.">
+  <meta name="author" content="Sanskruti Naik">
+  <meta name="theme-color" content="#e6e6e6">
+  <link rel="canonical" href="https://portfolio-green-nine-58.vercel.app/">
 
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Sanskruti Naik — AI / ML Engineer">
+  <meta property="og:description" content="I build intelligence into real products: offline RAG with sentence-level citations, explainable vision models, and secure offline-first apps.">
+  <meta property="og:url" content="https://portfolio-green-nine-58.vercel.app/">
+  <meta property="og:image" content="https://portfolio-green-nine-58.vercel.app/assets/img/og.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Sanskruti Naik — AI / ML Engineer">
+  <meta name="twitter:description" content="Offline RAG with sentence-level citations, explainable vision models, secure offline-first apps.">
+  <meta name="twitter:image" content="https://portfolio-green-nine-58.vercel.app/assets/img/og.png">
+
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/site.css">
+  <script type="importmap">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.min.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+      }
+    }
+  </script>
+
+  <script>
+    document.documentElement.classList.add('js');
+    try { var t = localStorage.getItem('site-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
+    (function () {
+      try {
+        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        var save = navigator.connection && navigator.connection.saveData;
+        var c = document.createElement('canvas');
+        if (!reduce && !save && (c.getContext('webgl2') || c.getContext('webgl'))) {
+          document.documentElement.classList.add('webgl3d');
+          var seen = false; try { seen = sessionStorage.getItem('intro-seen') === '1'; } catch (e) {}
+          if (!seen && !location.hash) document.documentElement.classList.add('intro');
+        }
+      } catch (e) {}
+    })();
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "Person",
+    "name": "Sanskruti Naik",
+    "jobTitle": "AI / ML Engineer",
+    "email": "mailto:naiksanskruti03@gmail.com",
+    "address": { "@type": "PostalAddress", "addressLocality": "Kolhapur", "addressCountry": "IN" },
+    "alumniOf": "Sanjay Ghodawat University",
+    "sameAs": ["https://github.com/sanskrutin19", "https://www.linkedin.com/in/sanskruti-naik-475322341"]
+  }
+  </script>
+</head>
 <body>
-  <!-- Navbar -->
-  <header>
-    <h2 class="logo">Sanskruti!</h2>
-    <div class="profile-img">
-      <img src="ac.jpg" alt="Your Image" />
-    </div>
-    <nav>
-      <ul>
-        <li><a href="#home">Home</a></li>
-        <li><a href="#about">AboutMe</a></li>
-        <li><a href="#skills">Skills</a></li>
-        <li><a href="#github">github-Repos</a></li>
-        <li><a href="#education">Education</a></li>
-        <li><a href="#projects">Projects</a></li>
-        <li><a href="#contact">Contact Me</a></li>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <!-- opening scene: mini-me drags the name onto the page (see minime.js) -->
+  <button class="skip-intro" id="skip-intro" type="button">Skip intro</button>
+
+  <!-- ============ NAV ============ -->
+  <header class="nav" id="nav">
+    <a class="wordmark" href="#home" aria-label="Sanskruti Naik, back to top">Sanskruti Naik</a>
+    <nav aria-label="Primary">
+      <ul class="nav-links" id="nav-links">
+        <li><a href="#home" data-nav>Home</a></li>
+        <li><a href="#about" data-nav>About</a></li>
+        <li><a href="#work" data-nav>Work</a></li>
+        <li><a href="#skills" data-nav>Skills</a></li>
+        <li><a href="#experience" data-nav>Experience</a></li>
+        <li><a href="#contact" data-nav>Contact</a></li>
+        <li class="nav-resume"><a href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a></li>
       </ul>
     </nav>
+    <div class="nav-tools">
+      <div class="swatches" role="group" aria-label="Site colour theme">
+        <button type="button" class="swatch" data-theme-set="paper" aria-label="Grey theme" aria-pressed="true"></button>
+        <button type="button" class="swatch" data-theme-set="blue" aria-label="Blue theme" aria-pressed="false"></button>
+        <button type="button" class="swatch" data-theme-set="ink" aria-label="Black theme" aria-pressed="false"></button>
+        <button type="button" class="swatch" data-theme-set="sage" aria-label="Sage theme" aria-pressed="false"></button>
+      </div>
+      <button class="menu-btn chip-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-links"><span class="menu-label">Menu</span></button>
+    </div>
   </header>
 
-  <!-- Background Gradient -->
-  <div class="color-block color1"></div>
+  <main id="main">
 
-  <!-- Home Section -->
-  <section id="home" class="reveal">
-    <div class="spline-container">
-      <h1>HI!</h1>
-      <h1><span class="highlight">Sanskruti here!</span></h1>
-      <h3>21 YEARS | YOUTHFUL</h3>
-      <div class="spline-content-text">
-        <div class="spline-content">
-          <button class="welcome-btn" onclick="scrollToAbout()">Welcome to my Portfolio!</button>
+    <!-- ============ HERO ============ -->
+    <section class="hero" id="home" aria-labelledby="hero-title">
+      <ul class="chips hero-left hero-fx" style="--d:.2s">
+        <li>AI / ML Intern at Endureva Innovations · Jan – Jun 2026</li>
+        <li>B.Tech AI &amp; ML · Sanjay Ghodawat University</li>
+      </ul>
+      <ul class="chips hero-roles hero-fx" style="--d:.3s" aria-label="Roles">
+        <li>AI / ML Engineer</li><li>Generative AI</li><li>Applied Research</li><li>Explainable Vision</li>
+      </ul>
+
+      <div class="hero-stage" id="hero-stage">
+        <h1 class="hero-name" id="hero-title"><span class="hn-line">Sanskruti</span><span class="hn-line">Naik</span></h1>
+        <p class="hero-tag hero-fx" style="--d:.5s">I build intelligence into real products.</p>
+
+        <!-- hand-drawn notes, after Adrien Lamy's portfolio -->
+        <div class="doodle d-me" aria-hidden="true">
+          <span>that's me!<br><small>(in 3D)</small></span>
+          <svg viewBox="0 0 120 90"><path class="draw" d="M8 14 C 46 6, 86 18, 104 62"/><path class="draw" d="M92 54 L104 64 L108 48"/></svg>
         </div>
-        <iframe
-          class="spline-frame"
-          src="https://my.spline.design/untitled-03083893c4d12d5806b5aac9cfee201c/"
-          frameborder="0"
-        ></iframe>
+        <div class="doodle d-drag" aria-hidden="true">
+          <svg viewBox="0 0 90 60"><path class="draw" d="M84 10 C 60 6, 40 30, 54 40 C 66 48, 72 26, 52 24 C 34 22, 22 44, 8 52"/><path class="draw" d="M8 40 L8 52 L20 54"/></svg>
+          <span>drag me around!</span>
+        </div>
       </div>
-    </div>
-  </section>
 
-  <section id="about" class="about-me">
-    <div class="abstract-shapes">
-      <div class="circle-shape"></div>
-      <div class="line-shape"></div>
-    </div>
-    <div class="about-container">
-      <div class="about-text">
-        <h2>About Me</h2>
-        <p>
-          Hello! I'm <strong>Sanskruti</strong>, a passionate developer with a flair for
-          <strong>web-design</strong>. I enjoy building creative, functional, and
-          user-centric websites. I believe in turning ideas into beautifully crafted
-          digital experiences.
-        </p>
-  
-        <div class="about-columns">
-          <div class="about-box">
-            <h3>🎯 Mission</h3>
-            <p>Design with purpose, code with creativity, and inspire through innovation.</p>
+      <ul class="chips hero-right hero-fx" style="--d:.4s">
+        <li>Seeking an AI Engineer role</li>
+        <li>Based in Kolhapur, India</li>
+      </ul>
+      <ul class="chips hero-links hero-fx" style="--d:.6s" aria-label="Links">
+        <li><a href="https://github.com/sanskrutin19" target="_blank" rel="noopener">GitHub</a></li>
+        <li><a href="https://www.linkedin.com/in/sanskruti-naik-475322341" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="resume.pdf" target="_blank" rel="noopener">Résumé</a></li>
+        <li><a href="mailto:naiksanskruti03@gmail.com">Email</a></li>
+      </ul>
+      <a class="scroll-doodle hero-fx" style="--d:.9s" href="#results">
+        <span>scroll for my story</span>
+        <svg viewBox="0 0 30 60" aria-hidden="true"><path class="draw" d="M15 4 C 10 20, 20 34, 15 54"/><path class="draw" d="M6 44 L15 56 L24 44"/></svg>
+      </a>
+    </section>
+
+    <!-- ============ STATEMENT + RESULTS ============ -->
+    <section class="statement band" id="results" data-scene="results" aria-labelledby="statement-title">
+      <div class="wrap">
+        <p class="label reveal">00 — Statement</p>
+        <h2 class="statement-title reveal" id="statement-title">I build intelligence <span class="serif">into real products.</span></h2>
+        <div class="statement-foot">
+          <p class="statement-lede reveal">From private, citation-grounded AI systems to explainable computer vision and secure offline-first applications, I turn complex engineering problems into products people can use.</p>
+          <div class="hero-ctas reveal">
+            <a class="btn btn-lime" href="#work"><span>Explore my work</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
+            <a class="btn btn-ghost" href="resume.pdf" target="_blank" rel="noopener"><span>View résumé</span><span class="btn-arrow" aria-hidden="true">↗</span></a>
           </div>
-          <div class="about-box">
-            <h3>🎨 Creative Zone</h3>
-            <p>UI/UX | Webflow | Canva | Storyboarding | Visuals & Interactions</p>
+        </div>
+
+        <div class="metrics-head reveal">
+          <p class="chip">Results</p>
+          <h3 class="metrics-title">Plant-disease classifier, <span class="serif">Endureva internship</span></h3>
+        </div>
+        <dl class="metrics-row">
+          <div class="metric reveal">
+            <dt class="mono">Classification accuracy</dt>
+            <dd><span class="count" data-to="92">92</span><span class="unit">%</span></dd>
           </div>
-          <div class="about-box">
-            <h3>🛠 Tools I Love</h3>
-            <ul>
-              <li>Figma</li>
-              <li>HTML & CSS</li>
-              <li>JavaScript</li>
-              <li>Webflow</li>
+          <div class="metric reveal">
+            <dt class="mono">Training images</dt>
+            <dd><span class="count" data-to="50">50</span><span class="unit">K</span></dd>
+          </div>
+          <div class="metric reveal">
+            <dt class="mono">Disease classes</dt>
+            <dd><span class="count" data-to="38">38</span></dd>
+          </div>
+          <div class="metric reveal">
+            <dt class="mono">Inference latency</dt>
+            <dd><span class="unit pre">&lt;</span><span class="count" data-to="200">200</span><span class="unit">ms</span></dd>
+          </div>
+          <div class="metric reveal">
+            <dt class="mono">Inference-time reduction</dt>
+            <dd><span class="count" data-to="30">30</span><span class="unit">%</span></dd>
+          </div>
+        </dl>
+        <p class="footnote mono reveal">Figures as reported for that system. Latency and speed-up came from quantization and batch optimization and will vary with hardware and load.</p>
+      </div>
+    </section>
+
+    <!-- ============ ABOUT ============ -->
+    <section class="about paper" id="about" aria-labelledby="about-title">
+      <div class="wrap">
+        <p class="label mono reveal">01 — About</p>
+        <h2 class="about-title reveal" id="about-title">I care about what happens <span class="serif">after the demo.</span></h2>
+
+        <div class="about-grid">
+          <figure class="about-photo reveal">
+            <picture>
+              <source srcset="assets/img/sanskruti-cutout.webp" type="image/webp">
+              <img src="assets/img/sanskruti-cutout.png" alt="Sanskruti Naik" width="1030" height="1600" loading="lazy" decoding="async">
+            </picture>
+            <figcaption class="doodle-note">the real me, hi! <svg viewBox="0 0 60 40" aria-hidden="true"><path class="draw" d="M56 6 C 40 4, 20 14, 10 34"/><path class="draw" d="M4 24 L10 35 L20 30"/></svg></figcaption>
+          </figure>
+          <div class="about-body">
+            <p class="about-lede reveal">A demo shows that a model can answer. A product has to show <em>why</em> it answered, keep private data where it belongs, and keep working on an ordinary phone with a patchy connection. That is the part of AI engineering I like most.</p>
+
+            <ol class="principles">
+              <li class="reveal"><span class="p-num mono">/01</span><div><h3>Evidence over eloquence</h3><p>Retrieval answers should cite the exact source sentence and page, and retrieval quality should be measured against a golden question set rather than judged by eye.</p></div></li>
+              <li class="reveal"><span class="p-num mono">/02</span><div><h3>Privacy by architecture</h3><p>I prefer local models and end-to-end encryption, so sensitive documents and conversations never have to leave the device.</p></div></li>
+              <li class="reveal"><span class="p-num mono">/03</span><div><h3>Explainability for real people</h3><p>Grad-CAM and SHAP are only useful when the person reading the result, whether a field user or a caregiver, can see what the model looked at.</p></div></li>
+              <li class="reveal"><span class="p-num mono">/04</span><div><h3>Deployment is part of the model</h3><p>Latency, quantization, offline sync and APIs belong in the design from the start.</p></div></li>
+            </ol>
+          </div>
+
+          <aside class="about-facts reveal" aria-label="Quick facts">
+            <dl>
+              <div><dt class="mono">Degree</dt><dd>B.Tech, Artificial Intelligence &amp; Machine Learning</dd></div>
+              <div><dt class="mono">University</dt><dd>Sanjay Ghodawat University · Oct 2026</dd></div>
+              <div><dt class="mono">CGPA</dt><dd>8.36 / 10</dd></div>
+              <div><dt class="mono">Internship</dt><dd>AI / ML Intern, Endureva Innovations LLP · Jan – Jun 2026</dd></div>
+              <div><dt class="mono">Also</dt><dd>Presenting model results and trade-offs to non-technical stakeholders</dd></div>
+              <div><dt class="mono">Languages</dt><dd>English · Hindi · Marathi · German (basic)</dd></div>
+            </dl>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ WORK ============ -->
+    <section class="work" id="work" aria-labelledby="work-title">
+      <div class="lens is-static" id="lens">
+        <canvas class="lens-canvas" id="lens-canvas" aria-hidden="true"></canvas>
+        <div class="lens-head">
+          <p class="label">02 — Selected work</p>
+          <h2 class="lens-title" id="work-title">Six systems, <span class="serif">one shutter.</span></h2>
+        </div>
+        <p class="lens-hint chip" id="lens-hint">Click the camera to develop my projects</p>
+        <div class="lens-controls">
+          <button class="btn btn-lime btn-sm" id="lens-shoot" type="button"><span>Press the shutter</span><span class="btn-arrow" aria-hidden="true">◉</span></button>
+          <span class="mono lens-count" id="lens-count" aria-live="polite">0 / 6 developed</span>
+        </div>
+        <ol class="prints" id="prints" aria-label="Projects. Open one to enter its world.">
+          <li><a class="print" href="#case-rag" data-world="rag"><span class="ph-art ph-rag" aria-hidden="true"><i></i><i></i><i class="hl"></i><i></i><i class="short"></i></span><span class="ph-cap">01 · Offline RAG Platform</span></a></li>
+          <li><a class="print" href="#case-securechat" data-world="chat"><span class="ph-art ph-chat" aria-hidden="true"><i></i><i class="out"></i><i></i><b>E2EE</b></span><span class="ph-cap">02 · SecureChat</span></a></li>
+          <li><a class="print" href="#case-geo" data-world="geo"><span class="ph-art ph-geo" aria-hidden="true"><b></b></span><span class="ph-cap">03 · Construction Detection</span></a></li>
+          <li><a class="print" href="#case-plant" data-world="plant"><span class="ph-art ph-leaf" aria-hidden="true"><svg viewBox="0 0 100 120"><path d="M50 6 C 84 26, 96 74, 51 114 C 6 74, 18 26, 50 6 Z" fill="#2f5a2a" stroke="#85ad5d"/><path d="M50 12 L51 110" stroke="#85ad5d" fill="none"/><circle cx="66" cy="52" r="16" fill="#cfe0b6" opacity=".6"/><circle cx="66" cy="52" r="6" fill="#fbfff0" opacity=".85"/></svg></span><span class="ph-cap">04 · Plant Classifier</span></a></li>
+          <li><a class="print" href="#case-xai" data-world="xai"><span class="ph-art ph-xai" aria-hidden="true"><i style="--w:88%"></i><i style="--w:64%"></i><i style="--w:47%"></i><i class="neg" style="--w:18%"></i></span><span class="ph-cap">05 · XAI-Care</span></a></li>
+          <li><a class="print" href="#case-water" data-world="water"><span class="ph-art ph-water" aria-hidden="true"><i></i><i></i><i></i><b>synced ✓</b></span><span class="ph-cap">06 · Water Survey</span></a></li>
+        </ol>
+      </div>
+
+      <!-- Case studies live inside the project worlds (opened from the polaroids).
+           With JavaScript this store is hidden and its interactive pieces are moved
+           into the world when it opens; without JavaScript it shows as normal content. -->
+      <div class="case-store" id="case-store">
+      <!-- ---------- A · RAG (flagship) ---------- -->
+      <article class="case case-rag" id="case-rag" data-scene="funnel" aria-labelledby="rag-title">
+        <div class="wrap">
+          <header class="case-head">
+            <div class="case-index mono reveal"><span class="big-num">01</span><span>Flagship · 2026</span></div>
+            <div>
+              <p class="case-cat mono reveal">Private AI · RAG · Document Intelligence</p>
+              <h3 class="case-title reveal" id="rag-title">Answers you can <span class="serif">actually verify.</span></h3>
+              <p class="case-sub reveal">Offline RAG platform for civil tender documents</p>
+            </div>
+          </header>
+
+          <div class="case-cols">
+            <div class="case-text reveal">
+              <h4 class="mono k">Problem</h4>
+              <p>Tender documents run to hundreds of pages, and one missed clause on eligibility, EMD or penalties can sink a bid. A chatbot that sounds confident without evidence is worse than useless. The documents are also confidential.</p>
+              <h4 class="mono k">What I built</h4>
+              <p>A fully offline RAG platform that answers eligibility, EMD, scope, risk and penalty questions with the <strong>exact source sentence and page number</strong>. It runs on Ollama, ChromaDB and SQLite, and no document or question leaves the machine.</p>
+            </div>
+            <ul class="spec mono reveal" aria-label="Stack">
+              <li>Python</li><li>FastAPI</li><li>Ollama</li><li>ChromaDB</li><li>SQLite FTS5</li><li>Cross-encoder reranking</li><li>MCP</li>
             </ul>
           </div>
-          <div class="about-box">
-            <h3>🎈 Fun Facts</h3>
-            <p>I sketch designs before coding. Obsessed with pastel aesthetics!</p>
+
+          <!-- Interactive pipeline -->
+          <div class="rag-lab reveal tilt-in" id="rag-lab">
+            <div class="rag-lab-head">
+              <p class="mono k">Architecture · click a stage, or run a query</p>
+              <button class="btn btn-lime btn-sm" id="rag-run" type="button"><span>Run query</span><span class="btn-arrow" aria-hidden="true">▶</span></button>
+            </div>
+
+            <div class="pipeline" role="tablist" aria-label="RAG pipeline stages">
+              <button class="stage" role="tab" aria-selected="true" aria-controls="stage-panel" data-stage="0"><span class="mono">01</span>Ingest</button>
+              <button class="stage" role="tab" aria-selected="false" aria-controls="stage-panel" data-stage="1"><span class="mono">02</span>Parse &amp; index</button>
+              <button class="stage stage-split" role="tab" aria-selected="false" aria-controls="stage-panel" data-stage="2"><span class="mono">03</span>Hybrid retrieval<em class="lanes"><i>dense</i><i>keyword</i></em></button>
+              <button class="stage" role="tab" aria-selected="false" aria-controls="stage-panel" data-stage="3"><span class="mono">04</span>Rerank</button>
+              <button class="stage" role="tab" aria-selected="false" aria-controls="stage-panel" data-stage="4"><span class="mono">05</span>Evidence select</button>
+              <button class="stage" role="tab" aria-selected="false" aria-controls="stage-panel" data-stage="5"><span class="mono">06</span>Cited answer</button>
+            </div>
+
+            <div class="rag-split">
+              <div class="stage-panel" id="stage-panel" role="tabpanel" aria-live="polite">
+                <h5 class="stage-title">Ingest</h5>
+                <p class="stage-copy">Tender documents are loaded and processed on the local machine. Nothing is uploaded to a third-party API.</p>
+              </div>
+
+              <div class="rag-demo" data-tilt="3" aria-label="Illustrative demonstration">
+                <p class="demo-flag mono">Illustrative demo · fictional tender text, not product output</p>
+                <div class="demo-q"><span class="mono k">Q</span>What is the EMD and how must it be submitted?</div>
+                <div class="demo-doc">
+                  <p class="mono doc-meta">sample_tender.pdf · page 7 · clause 4.2</p>
+                  <p class="doc-text">
+                    <span class="sent" data-s="1">4.2 Earnest Money Deposit.</span>
+                    <span class="sent ev" data-s="2">The bidder shall furnish an Earnest Money Deposit of ₹2,50,000 by bank guarantee or online transfer along with the technical bid.</span>
+                    <span class="sent" data-s="3">The EMD of unsuccessful bidders shall be returned after award of contract.</span>
+                    <span class="sent ev2" data-s="4">Bids not accompanied by the EMD shall be summarily rejected.</span>
+                  </p>
+                </div>
+                <div class="demo-a">
+                  <span class="mono k">A</span>
+                  <p>₹2,50,000, by bank guarantee or online transfer, submitted with the technical bid. Bids without it are rejected.</p>
+                  <p class="cite mono"><span>❝ The bidder shall furnish an Earnest Money Deposit of ₹2,50,000… ❞</span> sample_tender.pdf · p.7 · cl. 4.2</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="case-cols case-cols-3">
+            <div class="reveal">
+              <h4 class="mono k">Decision · hybrid retrieval</h4>
+              <p>Embeddings catch paraphrases, and keyword search catches exact clause numbers, amounts and defined terms that embeddings blur. I run both, <strong>fuse them by rank</strong>, then let a <strong>cross-encoder reranker</strong> read each query–passage pair before anything reaches the model.</p>
+            </div>
+            <div class="reveal">
+              <h4 class="mono k">Decision · sentence-level evidence</h4>
+              <p>Citing a whole chunk is not enough to verify an answer. <strong>Sentence-level span selection</strong> picks the specific sentence that supports the answer, so the citation is verbatim and comes with a page number.</p>
+            </div>
+            <div class="reveal">
+              <h4 class="mono k">Decision · measure it</h4>
+              <p>I measured retrieval against a <strong>golden question set</strong> on recall, rank and latency, so changes to chunking or reranking could be compared instead of eyeballed.</p>
+            </div>
+          </div>
+
+          <div class="modules reveal">
+            <h4 class="mono k">Modules built on the retrieval layer</h4>
+            <ul>
+              <li>Go / No-Go</li><li>Risk finder</li><li>Synopsis</li><li>Pre-bid queries</li><li>Contradiction finder</li><li>Redmine via MCP server</li>
+            </ul>
+          </div>
+
+          <div class="case-links reveal">
+            <a class="btn btn-ghost" href="https://promptivo.live/app" target="_blank" rel="noopener"><span>Open live app · promptivo.live</span><span class="btn-arrow" aria-hidden="true">↗</span></a>
           </div>
         </div>
-  
-        <div class="resume-btn">
-          <a href="your-resume.pdf" download>Download My Resume</a>
-        </div>
-      </div>
-    </div>
-  </section>
-  
-  <section id="skills" class="skills-section">
-    <h2 class="section-title">Skills</h2>
-    <div class="skills-grid">
-      <div class="skill-card">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/3/33/Figma-logo.svg" alt="Figma" class="skill-icon-img" />
-        <h3>Figma</h3>
-        <div class="skill-bar">
-          <div class="skill-fill" data-fill="80%"></div>
-          <span class="skill-percent">80%</span>
-        </div>
-      </div>
-  
-      <div class="skill-card">
-        <img src="https://cdn-icons-png.flaticon.com/512/888/888859.png" alt="HTML" class="skill-icon-img" />
-        <h3>HTML</h3>
-        <div class="skill-bar">
-          <div class="skill-fill" data-fill="90%"></div>
-          <span class="skill-percent">90%</span>
-        </div>
-      </div>
-  
-      <div class="skill-card">
-        <img src="https://cdn-icons-png.flaticon.com/512/919/919826.png" alt="CSS" class="skill-icon-img" />
-        <h3>CSS</h3>
-        <div class="skill-bar">
-          <div class="skill-fill" data-fill="85%"></div>
-          <span class="skill-percent">85%</span>
-        </div>
-      </div>
-  
-      <div class="skill-card">
-        <img src="https://cdn-icons-png.flaticon.com/512/5968/5968292.png" alt="JavaScript" class="skill-icon-img" />
-        <h3>JavaScript</h3>
-        <div class="skill-bar">
-          <div class="skill-fill" data-fill="75%"></div>
-          <span class="skill-percent">75%</span>
-        </div>
-      </div>
-    </div>
-  </section>
-  <section id="github">
-    <h2 class="section-title">📦 GitHub Repositories</h2>
-    <div id="repo-container" class="repo-grid"></div>
-  </section>
-  <section id="education" class="education-section">
-    <h2 class="section-title">🎓 Education</h2>
-    <div class="timeline-wrapper">
-  
-      <div class="timeline-item">
-        <div class="timeline-dot">🎓</div>
-        <div class="timeline-line"></div>
-        <div class="timeline-content">
-          <h3>B.Tech in Computer Engineering</h3>
-          <span>2022 – 2026</span>
-          <p>Sanjay Ghodawat University, Kolhapur</p>
-        </div>
-      </div>
-  
-      <div class="timeline-item">
-        <div class="timeline-dot">📘</div>
-        <div class="timeline-line"></div>
-        <div class="timeline-content">
-          <h3>Higher Secondary - Science</h3>
-          <span>2020 – 2021</span>
-          <p>Vivekanand College, Kolhapur</p>
-        </div>
-      </div>
-  
-      <div class="timeline-item">
-        <div class="timeline-dot">📖</div>
-        <div class="timeline-line"></div>
-        <div class="timeline-content">
-          <h3>Secondary School</h3>
-          <span>2018 – 2019</span>
-          <p>RSEMS, Kolhapur</p>
-        </div>
-      </div>
-  
-    </div>
-  </section>
-  
-  
-  
+      </article>
 
-  <section id="projects" class="reveal">
-    <h2>💻 My DevLab</h2>
-  
-    <div class="code-snippet">
-      <pre>
-  <span style="color:#888">// Project: Portfolio Website</span>
-  function <span class="code-button" onclick="toggleProject('project1')">Run_Portfolio()</span> {
-    // Reveal details...
-  }</pre>
-      <div id="project1" class="project-content">
-        <h3>🌐 Sanskruti's Personal Portfolio</h3>
-        <p>A vibrant and developer-centric portfolio featuring terminal-style animations, 3D elements via Spline, and GitHub repo integration.</p>
-        <a href="#" style="color: #00ff99; text-decoration: underline;">🔗 Live Demo</a>
-      </div>
-    </div>
-  
-    <div class="code-snippet">
-      <pre>
-  <span style="color:#888">// Project: College ERP System</span>
-  function <span class="code-button" onclick="toggleProject('project2')">Run_ERP()</span> {
-    // Reveal details...
-  }</pre>
-      <div id="project2" class="project-content">
-        <h3>🏫 College ERP System</h3>
-        <p>An all-in-one solution for managing student records, grades, schedules, and faculty operations. Built with React and Firebase.</p>
-        <a href="#" style="color: #00ff99; text-decoration: underline;">🔗 Explore Project</a>
-      </div>
-    </div>
-  
-    <div class="code-snippet">
-      <pre>
-  <span style="color:#888">// Project: AI Art Transformer</span>
-  function <span class="code-button" onclick="toggleProject('project3')">Run_AIArt()</span> {
-    // Reveal details...
-  }</pre>
-      <div id="project3" class="project-content">
-        <h3>🎨 AI Art Transformer</h3>
-        <p>Upload an image and transform it using neural style transfer into watercolor, sketch, or oil painting art styles. Pure creativity meets code.</p>
-        <a href="#" style="color: #00ff99; text-decoration: underline;">🔗 Try It Out</a>
-      </div>
-    </div>
-  </section>
-  
-  
-  <section id="contact" class="contact-section">
-    <div class="terminal-contact">
-      <div class="terminal-window">
-        <div class="terminal-header">
-          <span class="circle red"></span>
-          <span class="circle yellow"></span>
-          <span class="circle green"></span>
-          <span class="terminal-title">contact_me@portfolio</span>
+      <!-- ---------- B · SecureChat ---------- -->
+      <article class="case case-chat paper" id="case-securechat" aria-labelledby="chat-title">
+        <div class="wrap">
+          <header class="case-head">
+            <div class="case-index mono reveal"><span class="big-num">02</span><span>2026 – present</span></div>
+            <div>
+              <p class="case-cat mono reveal">Secure Messaging · Cryptography · Real-Time Systems</p>
+              <h3 class="case-title reveal" id="chat-title">Privacy is an <span class="serif">architectural decision.</span></h3>
+              <p class="case-sub reveal">SecureChat: an end-to-end encrypted messaging platform</p>
+            </div>
+          </header>
+
+          <div class="chat-grid">
+            <div class="phone reveal tilt-in" data-tilt="9" aria-label="Illustrative messaging interface with fictional conversation">
+              <div class="phone-bar mono"><span>Priya · design</span><span class="lock">🔒 E2EE · OMEMO2</span></div>
+              <div class="phone-body">
+                <p class="msg in">Can you send the site survey before the call?</p>
+                <p class="msg out">Sending now. It's 48 MB.</p>
+                <div class="msg out file">
+                  <p class="mono">site_survey.pdf · 48 MB</p>
+                  <div class="chunks" id="chunks" aria-hidden="true"></div>
+                  <p class="mono chunk-label" id="chunk-label">chunked AES-GCM · encrypting</p>
+                </div>
+                <p class="msg in">Got it. Starting a video call.</p>
+                <div class="call mono"><span class="pulse"></span>WebRTC call · TURN/STUN via coturn</div>
+              </div>
+              <div class="phone-store mono">
+                <span>Local store</span>
+                <span class="store-pill">IndexedDB · history</span>
+                <span class="store-pill">Encrypted key store</span>
+              </div>
+              <p class="demo-flag mono">Fictional conversation · interface concept</p>
+            </div>
+
+            <div class="chat-text">
+              <div class="reveal">
+                <h4 class="mono k">What I built</h4>
+                <ul class="bullets">
+                  <li>Architected the platform with <strong>OMEMO2 (Signal Protocol) Double Ratchet</strong> encryption across messages, media and calls.</li>
+                  <li>A <strong>local-first storage layer</strong> (IndexedDB plus an encrypted key store) for offline history and media caching, so the app stays fully usable without a persistent connection.</li>
+                  <li><strong>WebRTC voice and video</strong> through coturn TURN/STUN, and encrypted file sharing up to <strong>500 MB</strong> via chunked AES-GCM streaming.</li>
+                  <li>Android and iOS builds from one React codebase with <strong>Capacitor</strong>. The full stack runs in <strong>Docker Compose</strong>.</li>
+                </ul>
+              </div>
+              <ul class="spec mono reveal" aria-label="Stack">
+                <li>React 18</li><li>XMPP / ejabberd</li><li>OMEMO2</li><li>WebRTC</li><li>PostgreSQL</li><li>Docker</li><li>Capacitor</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="arch reveal tilt-in" aria-label="SecureChat system architecture">
+            <p class="mono k">System architecture</p>
+            <div class="arch-row">
+              <div class="arch-node arch-device">
+                <p class="mono arch-tag">Device A</p>
+                <strong>React 18 · Capacitor</strong>
+                <span>Encrypt / decrypt (OMEMO2)</span>
+                <span>IndexedDB + encrypted key store</span>
+              </div>
+              <div class="arch-link" aria-hidden="true"><span class="mono">ciphertext only</span></div>
+              <div class="arch-node arch-server">
+                <p class="mono arch-tag">Docker Compose</p>
+                <div class="arch-services">
+                  <span>Nginx</span><span>ejabberd · XMPP</span><span>PostgreSQL</span><span>coturn · TURN/STUN</span>
+                </div>
+              </div>
+              <div class="arch-link" aria-hidden="true"><span class="mono">ciphertext only</span></div>
+              <div class="arch-node arch-device">
+                <p class="mono arch-tag">Device B</p>
+                <strong>Android / iOS / Web</strong>
+                <span>Keys never leave the device</span>
+                <span>Voice &amp; video via WebRTC</span>
+              </div>
+            </div>
+            <p class="arch-note mono">Built on established protocols. No independent security audit or formal verification is claimed.</p>
+          </div>
         </div>
-        <div class="terminal-body">
-          <p class="cmd">> Hi, let's connect!</p>
-          <form id="contactForm">
-            <p><span class="cmd">Name:</span></p>
-            <input type="text" name="name" required placeholder="Enter your name" />
-  
-            <p><span class="cmd">Email:</span></p>
-            <input type="email" name="email" required placeholder="Enter your email" />
-  
-            <p><span class="cmd">Message:</span></p>
-            <textarea name="message" required placeholder="Write your message..."></textarea>
-  
-            <button type="submit" class="run-btn">Send ↵</button>
-          </form>
+      </article>
+
+      <!-- ---------- C · Satellite ---------- -->
+      <article class="case case-geo" id="case-geo" data-scene="globe" aria-labelledby="geo-title">
+        <div class="wrap">
+          <header class="case-head">
+            <div class="case-index mono reveal"><span class="big-num">03</span><span>2026 – present</span></div>
+            <div>
+              <p class="case-cat mono reveal">Geospatial AI · Remote Sensing · Computer Vision</p>
+              <h3 class="case-title reveal" id="geo-title">Finding change <span class="serif">from above.</span></h3>
+              <p class="case-sub reveal">Imagery-based unauthorised construction detection</p>
+            </div>
+          </header>
+
+          <div class="geo-grid">
+            <figure class="geo-map reveal tilt-in" data-tilt="4">
+              <div class="geo-toolbar" role="group" aria-label="Map layer">
+                <button type="button" class="chip is-on" data-layer="optical" aria-pressed="true">Optical · S-2</button>
+                <button type="button" class="chip" data-layer="sar" aria-pressed="false">SAR · S-1</button>
+                <button type="button" class="chip" data-layer="index" aria-pressed="false">NDVI / NDBI</button>
+              </div>
+              <svg id="geo-svg" class="layer-optical" viewBox="0 0 600 400" role="img" aria-labelledby="geo-svg-title">
+                <title id="geo-svg-title">Illustrative map of land parcels along a pipeline corridor with two flagged change candidates</title>
+                <g id="geo-parcels"></g>
+                <path class="corridor-buf" d="M-10 330 C 120 300, 200 240, 300 210 S 480 120, 610 70"/>
+                <path class="corridor" d="M-10 330 C 120 300, 200 240, 300 210 S 480 120, 610 70"/>
+                <g class="detect">
+                  <rect x="262" y="168" width="54" height="40"/>
+                  <text x="262" y="160">CANDIDATE · A</text>
+                </g>
+                <g class="detect d2">
+                  <rect x="452" y="96" width="44" height="36"/>
+                  <text x="452" y="88">CANDIDATE · B</text>
+                </g>
+                <g class="ticks">
+                  <text x="6" y="14">16.71°N</text><text x="6" y="394">16.69°N</text><text x="540" y="394">74.26°E</text>
+                </g>
+              </svg>
+              <figcaption class="demo-flag mono">Generated illustration · not real imagery or real detections</figcaption>
+            </figure>
+
+            <div class="geo-text">
+              <ol class="flow mono reveal" aria-label="Workflow">
+                <li>Satellite imagery<small>Sentinel-2 · Sentinel-1 SAR · Cartosat-3</small></li>
+                <li>Preprocessing<small>NDVI / NDBI indices</small></li>
+                <li>Model ensemble<small>3 models · YOLOv8</small></li>
+                <li>Spatial analysis<small>PostGIS</small></li>
+                <li>Web GIS dashboard</li>
+                <li>SMS / email alerts<small>5-day monitoring cycle</small></li>
+              </ol>
+              <div class="reveal">
+                <h4 class="mono k">My contribution</h4>
+                <p>I architected the <strong>PostGIS spatial database and Web GIS dashboard</strong> for a three-model ensemble that fuses Sentinel-2, SAR and Cartosat-3 imagery to detect encroachment along pipelines. I also designed the <strong>five-day automated monitoring cycle</strong> with SMS and email alerts.</p>
+              </div>
+              <div class="targets reveal">
+                <div><span class="tag mono">Target</span><strong>~95%</strong><span class="mono">accuracy</span></div>
+                <div><span class="tag mono">Target</span><strong>&lt;4%</strong><span class="mono">false-positive rate</span></div>
+              </div>
+              <p class="footnote mono reveal">These are project targets, not achieved results. The project is ongoing.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------- F · Plant (internship) ---------- -->
+      <article class="case case-plant" id="case-plant" data-scene="helix" aria-labelledby="plant-title">
+        <div class="wrap">
+          <header class="case-head">
+            <div class="case-index mono reveal"><span class="big-num">04</span><span>Internship · 2026</span></div>
+            <div>
+              <p class="case-cat mono reveal">Computer Vision · Explainability · MLOps</p>
+              <h3 class="case-title reveal" id="plant-title">A diagnosis <span class="serif">that shows its work.</span></h3>
+              <p class="case-sub reveal">CNN plant-disease classifier · Endureva Innovations LLP</p>
+            </div>
+          </header>
+
+          <div class="plant-grid">
+            <div class="plant-viz reveal tilt-in">
+              <div class="scan-frame" data-tilt="8">
+                <span class="scan-line" aria-hidden="true"></span>
+                <svg viewBox="0 0 300 360" role="img" aria-labelledby="leaf-title" id="leaf-svg">
+                  <title id="leaf-title">Illustrative leaf with a heatmap overlay showing where a model might focus</title>
+                  <defs>
+                    <radialGradient id="hot" cx="50%" cy="50%" r="50%">
+                      <stop offset="0" stop-color="#fbfff0" stop-opacity=".95"/>
+                      <stop offset=".3" stop-color="#c6f432" stop-opacity=".85"/>
+                      <stop offset=".65" stop-color="#3be2ff" stop-opacity=".45"/>
+                      <stop offset="1" stop-color="#3be2ff" stop-opacity="0"/>
+                    </radialGradient>
+                  </defs>
+                  <path class="leaf" d="M150 22 C 246 78, 282 214, 152 336 C 22 214, 54 78, 150 22 Z"/>
+                  <g class="veins">
+                    <path d="M150 30 L152 330"/>
+                    <path d="M151 90 L100 70 M151 90 L202 70 M151 140 L84 112 M151 140 L218 112 M152 190 L80 166 M152 190 L224 166 M152 240 L94 222 M152 240 L210 222 M152 285 L116 270 M152 285 L190 270"/>
+                  </g>
+                  <g class="lesions">
+                    <circle cx="198" cy="150" r="9"/><circle cx="210" cy="168" r="6"/><circle cx="186" cy="172" r="5"/>
+                    <circle cx="112" cy="232" r="7"/><circle cx="124" cy="248" r="4"/>
+                  </g>
+                  <g class="heat" id="heat">
+                    <circle cx="200" cy="162" r="52" fill="url(#hot)"/>
+                    <circle cx="116" cy="238" r="38" fill="url(#hot)"/>
+                  </g>
+                </svg>
+                <div class="scan-hud mono" aria-hidden="true">
+                  <span>INPUT · leaf.jpg</span>
+                  <span>GRAD-CAM · overlay</span>
+                </div>
+              </div>
+              <label class="slider mono" for="heat-range">Grad-CAM overlay
+                <input type="range" id="heat-range" min="0" max="100" value="70">
+              </label>
+              <p class="demo-flag mono">Illustrative graphic · not a real model output or dataset image</p>
+            </div>
+
+            <div class="plant-text">
+              <div class="reveal">
+                <h4 class="mono k">What I built</h4>
+                <ul class="bullets">
+                  <li>Built and deployed a <strong>CNN plant-disease classifier</strong>: <strong>92% accuracy</strong> on <strong>50K images across 38 classes</strong>.</li>
+                  <li>Added <strong>Grad-CAM</strong> explainability so each prediction shows which region of the leaf drove it.</li>
+                  <li>Served it via <strong>FastAPI</strong> with <strong>&lt;200 ms</strong> inference latency to a <strong>Flutter</strong> mobile app.</li>
+                  <li>Cut inference time by <strong>30%</strong> with quantization and batch optimization, and owned the pipeline end to end, from preprocessing to production.</li>
+                </ul>
+              </div>
+              <ol class="flow flow-inline mono reveal" aria-label="Serving path">
+                <li>Flutter app</li><li>FastAPI</li><li>CNN</li><li>Grad-CAM</li><li>Result + heatmap</li>
+              </ol>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <!-- ---------- D · XAI-Care + E · Water (split) ---------- -->
+      <div class="case-pair" data-scene="helix">
+        <article class="case case-xai" id="case-xai" aria-labelledby="xai-title">
+          <div class="case-pad">
+            <div class="case-index mono reveal"><span class="big-num">05</span><span>2025 – 2026</span></div>
+            <p class="case-cat mono reveal">Explainable AI · Multimodal · Assistive Tech</p>
+            <h3 class="case-title case-title-sm reveal" id="xai-title">AI that <span class="serif">explains why.</span></h3>
+            <p class="reveal">XAI-Care fuses wearable-sensor data with a camera feed for real-time fall detection in elderly care. I built the <strong>Flutter caregiver dashboard</strong> and the <strong>multimodal fusion logic</strong>, and used <strong>Grad-CAM and SHAP</strong> to make each alert explain itself.</p>
+
+            <ol class="flow mono reveal" aria-label="Workflow">
+              <li>Camera + wearable sensors</li>
+              <li>Multimodal fusion</li>
+              <li>Fall detection</li>
+              <li>Caregiver alert<small>with Grad-CAM / SHAP explanation</small></li>
+            </ol>
+
+            <figure class="shap reveal tilt-in" data-tilt="5" aria-label="Illustrative SHAP-style contribution chart">
+              <p class="mono k">Why this alert? · illustrative</p>
+              <div class="shap-row"><span>Sudden acceleration spike</span><i style="--w:88%"></i></div>
+              <div class="shap-row"><span>Body orientation: horizontal</span><i style="--w:64%"></i></div>
+              <div class="shap-row"><span>Stillness after event</span><i style="--w:47%"></i></div>
+              <div class="shap-row neg"><span>Normal gait before event</span><i style="--w:18%"></i></div>
+              <figcaption class="demo-flag mono">Example features only, not model output. No clinical validation is claimed.</figcaption>
+            </figure>
+            <ul class="spec mono reveal" aria-label="Stack"><li>Python</li><li>TensorFlow</li><li>FastAPI</li><li>Grad-CAM</li><li>SHAP</li><li>Flutter</li><li>Wearable sensors</li></ul>
+          </div>
+        </article>
+
+        <article class="case case-water paper" id="case-water" aria-labelledby="water-title">
+          <div class="case-pad">
+            <div class="case-index mono reveal"><span class="big-num">06</span><span>2026</span></div>
+            <p class="case-cat mono reveal">Mobile · Offline-first · Field Data</p>
+            <h3 class="case-title case-title-sm reveal" id="water-title">Designed for the real world, <span class="serif">not perfect connectivity.</span></h3>
+            <p class="reveal">Water Survey is a Flutter app that lets field surveyors capture water-connection data offline, with <strong>geo-tagging</strong> and <strong>structured export</strong>. Records persist in <strong>SQLite</strong> and <strong>auto-sync</strong> through a REST API when the network returns.</p>
+
+            <div class="survey reveal tilt-in" data-tilt="7" aria-label="Interactive concept of offline sync">
+              <div class="survey-top mono">
+                <span id="net-state" class="net off">● Offline</span>
+                <button type="button" class="chip" id="net-toggle" aria-pressed="false">Restore network</button>
+              </div>
+              <ul class="records mono" id="records">
+                <li><span>CONN-0141 · 16.705, 74.243</span><b>queued</b></li>
+                <li><span>CONN-0142 · 16.706, 74.241</span><b>queued</b></li>
+                <li><span>CONN-0143 · 16.708, 74.240</span><b>queued</b></li>
+                <li><span>CONN-0144 · 16.709, 74.238</span><b>queued</b></li>
+              </ul>
+              <p class="demo-flag mono">UI concept · sample records</p>
+            </div>
+            <ul class="spec mono reveal" aria-label="Stack"><li>Flutter</li><li>SQLite</li><li>REST API</li><li>Offline-first</li></ul>
+          </div>
+        </article>
+      </div>
+
+      </div>
+
+      <!-- ---------- Index of other work ---------- -->
+      <div class="wrap">
+        <div class="index reveal">
+          <p class="label mono">Also built</p>
+          <ul class="index-list">
+            <li>
+              <span class="mono">2026</span>
+              <strong>Restaurant POS</strong>
+              <span>Offline-first Flutter + FastAPI + SQLite app with JWT role-based access (Admin / Staff), inventory management and a live analytics dashboard. Built at Endureva Innovations.</span>
+            </li>
+            <li>
+              <span class="mono">SIH</span>
+              <strong>Sign-language learning app</strong>
+              <span>English and Gujarati Sign Language conversion. Won 3rd Prize at the Smart India Hackathon (college level).</span>
+            </li>
+          </ul>
         </div>
       </div>
-  
-      <div class="social-icons">
-        <a href="mailto:naiksanskruti03@gmail.com"><img src="https://img.icons8.com/fluency/48/gmail.png" alt="Email"></a>
-        <a href="https://www.linkedin.com/in/sanskruti-naik-924843255" target="_blank"><img src="https://img.icons8.com/fluency/48/linkedin.png" alt="LinkedIn"></a>
+    </section>
+
+    <!-- ============ SKILLS ============ -->
+    <section class="skills band" id="skills" data-scene="clusters" aria-labelledby="skills-title">
+      <div class="wrap">
+        <p class="label mono reveal">03 — Skills</p>
+        <h2 class="section-title reveal" id="skills-title">A map, <span class="serif">not a percentage.</span></h2>
+        <p class="skills-intro reveal">Choose a project to light up the tools it used.</p>
+
+        <div class="skill-filter reveal" role="group" aria-label="Filter skills by project">
+          <button type="button" class="chip is-on" data-p="all" aria-pressed="true">All</button>
+          <button type="button" class="chip" data-p="rag" aria-pressed="false">Offline RAG</button>
+          <button type="button" class="chip" data-p="chat" aria-pressed="false">SecureChat</button>
+          <button type="button" class="chip" data-p="geo" aria-pressed="false">Construction detection</button>
+          <button type="button" class="chip" data-p="plant" aria-pressed="false">Plant classifier</button>
+          <button type="button" class="chip" data-p="xai" aria-pressed="false">XAI-Care</button>
+          <button type="button" class="chip" data-p="water" aria-pressed="false">Water Survey</button>
+          <button type="button" class="chip" data-p="pos" aria-pressed="false">Restaurant POS</button>
+        </div>
+
+        <div class="skill-map" id="skill-map">
+          <div class="skill-group reveal">
+            <h3 class="mono">AI / ML</h3>
+            <ul>
+              <li data-p="rag">LLMs</li><li data-p="rag">RAG</li><li data-p="rag">Hybrid retrieval</li><li data-p="rag">Reranking</li><li data-p="rag">Ollama</li><li data-p="rag">ChromaDB</li><li data-p="rag">MCP</li><li>LangChain</li><li>Hugging Face</li><li data-p="xai">TensorFlow</li><li>PyTorch</li><li>scikit-learn</li><li data-p="plant">CNNs</li><li data-p="plant xai">Grad-CAM</li><li data-p="xai">SHAP</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h3 class="mono">Programming</h3>
+            <ul>
+              <li data-p="rag geo plant xai pos">Python</li><li data-p="chat">JavaScript</li><li data-p="plant xai water pos">Dart</li><li data-p="rag geo water pos">SQL</li><li>R</li><li>HTML</li><li>CSS</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h3 class="mono">Application engineering</h3>
+            <ul>
+              <li data-p="rag plant xai pos">FastAPI</li><li data-p="plant xai water pos">REST APIs</li><li data-p="chat">React</li><li data-p="plant xai water pos">Flutter</li><li data-p="rag water pos">SQLite</li><li data-p="chat geo">PostgreSQL</li><li data-p="chat">Docker</li><li>Git</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h3 class="mono">Security &amp; real-time</h3>
+            <ul>
+              <li data-p="chat">OMEMO2</li><li data-p="chat">Signal Protocol</li><li data-p="chat">WebRTC</li><li data-p="chat">XMPP</li><li data-p="chat">WebCrypto</li>
+            </ul>
+          </div>
+          <div class="skill-group reveal">
+            <h3 class="mono">Additional</h3>
+            <ul>
+              <li data-p="geo">Satellite imagery analysis</li><li data-p="geo">Object detection</li><li data-p="geo">PostGIS</li><li data-p="chat">Nginx</li><li>Node-RED</li><li>Figma</li><li>Blender</li>
+            </ul>
+          </div>
+        </div>
       </div>
+    </section>
+
+    <!-- ============ EXPERIENCE ============ -->
+    <section class="experience paper" id="experience" aria-labelledby="exp-title">
+      <div class="wrap">
+        <p class="label mono reveal">04 — Experience</p>
+        <h2 class="section-title reveal" id="exp-title">Record, <span class="serif">with evidence.</span></h2>
+
+        <ol class="timeline">
+          <li class="tl-item reveal">
+            <p class="tl-date mono">Jan – Jun 2026</p>
+            <div>
+              <h3>AI / ML Intern <span class="at">· Endureva Innovations LLP</span></h3>
+              <ul class="bullets">
+                <li>Built and deployed a CNN plant-disease classifier: 92% accuracy, 50K images, 38 classes, Grad-CAM explainability, served via FastAPI (&lt;200 ms) to a Flutter app.</li>
+                <li>Cut inference time by 30% through quantization and batch optimization, and owned the ML pipeline end to end.</li>
+                <li>Built an offline-first Restaurant POS (Flutter + FastAPI + SQLite) with JWT role-based access, inventory and live analytics.</li>
+                <li>Presented model results and technical trade-offs to non-technical stakeholders.</li>
+              </ul>
+            </div>
+          </li>
+          <li class="tl-item reveal">
+            <p class="tl-date mono">Oct 2026</p>
+            <div>
+              <h3>B.Tech, AI &amp; Machine Learning <span class="at">· Sanjay Ghodawat University</span></h3>
+              <p>CGPA 8.36 / 10.</p>
+            </div>
+          </li>
+          <li class="tl-item reveal">
+            <p class="tl-date mono">Leadership</p>
+            <div>
+              <h3>Management Team Lead <span class="at">· Prabal Hackathon, GDG SGU</span></h3>
+              <p>Led management for a 40-hour national hackathon with 600+ participants.</p>
+              <h3>Core Member <span class="at">· Google Developer Group SGU</span></h3>
+              <p>Facilitated AI/ML workshops, design sprints and peer-learning sessions.</p>
+            </div>
+          </li>
+          <li class="tl-item reveal">
+            <p class="tl-date mono">Award</p>
+            <div>
+              <h3>3rd Prize <span class="at">· Smart India Hackathon (college level)</span></h3>
+              <p>Sign-language learning app for English and Gujarati Sign Language conversion.</p>
+            </div>
+          </li>
+          <li class="tl-item reveal">
+            <p class="tl-date mono">Certifications</p>
+            <div>
+              <ul class="certs">
+                <li>ISRO · Remote Sensing &amp; Digital Image Analysis</li>
+                <li>Accenture · Software Engineering Job Simulation</li>
+                <li>C++ · Object-Oriented Programming</li>
+              </ul>
+            </div>
+          </li>
+          <li class="tl-item reveal">
+            <p class="tl-date mono">2022</p>
+            <div>
+              <h3>12th Standard, Science <span class="at">· Vivekanand College, Kolhapur</span></h3>
+            </div>
+          </li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- ============ CONTACT ============ -->
+    <section class="contact band" id="contact" data-scene="ring" aria-labelledby="contact-title">
+      <div class="wrap">
+        <p class="label mono reveal">05 — Contact</p>
+        <h2 class="contact-title reveal" id="contact-title">Have a difficult problem <span class="serif">worth solving?</span></h2>
+        <div class="contact-row reveal">
+          <a class="contact-email" href="mailto:naiksanskruti03@gmail.com">naiksanskruti03@gmail.com<span aria-hidden="true">↗</span></a>
+          <button type="button" class="chip" id="copy-email" data-email="naiksanskruti03@gmail.com">Copy email</button>
+          <span class="copy-status mono" id="copy-status" role="status" aria-live="polite"></span>
+        </div>
+        <ul class="contact-links mono reveal">
+          <li><a href="https://github.com/sanskrutin19" target="_blank" rel="noopener">GitHub ↗</a></li>
+          <li><a href="https://www.linkedin.com/in/sanskruti-naik-475322341" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+          <li><a href="resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a></li>
+          <li><a href="https://promptivo.live/app" target="_blank" rel="noopener">RAG live app ↗</a></li>
+        </ul>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="wrap footer-row mono">
+      <span>© <span id="year">2026</span> Sanskruti Naik</span>
+      <span>N 16.70° / E 74.24° · Kolhapur, India</span>
+      <a href="#home" class="to-top-link">Back to top ↑</a>
     </div>
-  </section>
-  
-  <script src="scripts.js"></script>
-  
+  </footer>
+
+  <a class="to-top" href="#home" id="to-top" aria-label="Back to top">
+    <svg viewBox="0 0 44 44" aria-hidden="true"><circle class="ring-bg" cx="22" cy="22" r="20"/><circle class="ring" id="to-top-ring" cx="22" cy="22" r="20"/></svg>
+    <span aria-hidden="true">↑</span>
+  </a>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
+  <script src="assets/js/site.js" defer></script>
+  <!-- Project worlds: full-screen 3D case-study overlays opened from the polaroids -->
+  <div class="world" id="world" role="dialog" aria-modal="true" aria-labelledby="world-title" hidden>
+    <canvas class="world-canvas" id="world-canvas" aria-hidden="true"></canvas>
+    <div class="world-ui" id="world-ui" data-lenis-prevent></div>
+    <button class="world-close" id="world-close" type="button">Close <span aria-hidden="true">✕</span></button>
+  </div>
+
+  <!-- Mini-me: a 3D Sanskruti who stars in the hero, then roams the page -->
+  <canvas class="avatar-canvas" id="avatar-canvas" data-model="assets/avatar/sanskruti-dress.glb" data-model-alt="assets/avatar/sanskruti-casual.glb" data-anims="assets/avatar" aria-hidden="true"></canvas>
+  <div class="mini-bubble" id="mini-bubble" aria-hidden="true"></div>
+  <button class="mini-hit" id="mini-hit" type="button" aria-label="Mini Sanskruti. Press to say hi, or drag her around."></button>
+  <button class="mini-outfit" id="mini-outfit" type="button" aria-label="Change mini-me's outfit" title="Change outfit">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 3h6l-1 4 4 13H6l4-13z"/><path d="M8 3l1 4M16 3l-1 4"/></svg>
+  </button>
+  <button class="mini-hide" id="mini-hide" type="button" aria-pressed="false" aria-label="Hide mini-me" title="Hide mini-me">
+    <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.2"/><path d="M6.5 20v-3.2a5.5 5.5 0 0 1 11 0V20"/><path class="slash" d="M4 4l16 16"/></svg>
+  </button>
+
+  <script type="module" src="assets/js/worlds.js"></script>
+  <script type="module">
+    if (document.documentElement.classList.contains('webgl3d')) {
+      import('./assets/js/camera3d.js').catch(function (e) { console.warn('3D camera unavailable:', e); });
+      import('./assets/js/minime.js').catch(function (e) { console.warn('Mini-me unavailable:', e); });
+    }
+  </script>
 </body>
 </html>
