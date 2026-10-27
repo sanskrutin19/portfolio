@@ -350,6 +350,7 @@ function say(text, ms = 4200) {
 // she only speaks on a few sections, so she never talks over the content
 const LINES = {
   home: "Hi! I'm Sanskruti. Drag me around, or scroll and I'll tag along.",
+  work: 'More in the collection below.',
   about: 'Hi again! My projects are just below.',
   lens: "Ask my portfolio anything. I'll show you the evidence.",
   contact: "Say hi! I'd love to hear from you."
@@ -668,6 +669,11 @@ function frame(now) {
   const t = now / 1000;
   if (hidden) { renderer.clear(); return; }
   if (realPending) { renderer.clear(); return; }   // wait for the real avatar before the opening scene
+  if (root.classList.contains('in-museum')) {   // she is inside the museum there, so the companion steps out
+    renderer.clear(); bubble.classList.remove('show'); hit.style.pointerEvents = 'none'; canvas.style.opacity = '0';
+    freed = false; return;
+  }
+  canvas.style.opacity = ''; hit.style.pointerEvents = '';
 
   // hero ↔ companion
   const heroH = heroEl ? heroEl.offsetHeight : H;

@@ -2,7 +2,7 @@
 
 **Live:** https://portfolio-green-nine-58.vercel.app
 
-A portfolio that shows the work instead of listing it. A motion-captured 3D version of me drags my name onto the page, walks along with you as you scroll, and reacts when you click, drag or drop her. Instead of a project grid, visitors **ask** questions ("Has she shipped AI to production?"): the page retrieves and cites evidence from my real work, the way my RAG systems do, and the matching project dossiers fly forward. Each one opens into its own art-directed 3D world with a live demo. The About section plays like lyrics on a glass speaker.
+The home page is a small 3D game: **the Museum of Things That Think**. My real 3D avatar is the player. Walk her round a rotunda with WASD or the arrow keys, or click or tap the floor, and visit seven exhibits, each a system I built, lit on a plinth under glass. Walk up to one and its museum placard appears; press E to enter its own art-directed 3D world with a live demo. A guided tour walks her round on her own, and a minimap shows where you are. The Sound Room plays my About story as kinetic lyrics on a glass speaker.
 
 ## Highlights
 
@@ -30,7 +30,7 @@ index.html            page
 assets/css/site.css   design tokens, layout, themes
 assets/js/site.js     navigation, reveals, demos, smooth scroll
 assets/js/minime.js   the 3D avatar: rig, motion, clips, opening scene
-assets/js/evidence.js "Ask" — in-browser retrieval over my real work, with citations
+assets/js/museum.js   the 3D museum: rotunda, exhibits, avatar controls, tour, minimap
 assets/js/speaker.js  About: a glass speaker playing kinetic lyrics
 assets/js/worlds.js   per-project 3D worlds
 assets/avatar/        compressed avatar body + animation clips

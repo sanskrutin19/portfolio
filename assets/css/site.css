@@ -1141,3 +1141,100 @@ section, .case-pair { position: relative; }
   .ticker-track { animation: none; flex-wrap: wrap; width: auto; }
   .ticker-track span:nth-child(n+10) { display: none; }
 }
+
+/* ==========================================================================
+   THE MUSEUM — palette, typography and the 3D home page
+   Fraunces (soft variable serif) for display, Geist for reading, Geist Mono
+   for museum labels. Warm ivory, ink and a terracotta accent.
+   ========================================================================== */
+:root, [data-theme] {
+  --bg: #efe9df; --surface: #f6f1e8; --surface-2: #e6ddcf;
+  --text: #1d1a16; --text-dim: #5e574d; --text-faint: #7a7166;
+  --rule: rgba(29, 26, 22, .14); --chip: #e2d8c8; --chip-text: #1d1a16;
+  --accent: #9b3d22; --on-accent: #fbf7f0; --hl: #f1d9a8;
+  --b-bg: #1d1a16; --b-surface: #26221d; --b-text: #f3ece1; --b-dim: rgba(243,236,225,.78); --b-faint: rgba(243,236,225,.6);
+  --b-rule: rgba(243,236,225,.16); --b-chip: #3a332b; --b-chip-text: #f3ece1; --b-accent: #e7a27f; --b-on-accent: #1d1a16;
+  --f-display: "Fraunces", Georgia, "Times New Roman", serif;
+  --f-serif: "Fraunces", Georgia, serif;
+}
+body { font-family: var(--f-sans); }
+
+/* headings: big, soft, editorial — no more condensed capitals */
+.about-title, .section-title, .contact-title, .statement-title, .lens-title, .ask-title {
+  font-family: var(--f-display); text-transform: none; font-weight: 340; letter-spacing: -.035em; line-height: .95;
+  font-variation-settings: "opsz" 144, "SOFT" 50; font-size: clamp(2.6rem, 6.2vw, 6.2rem); max-width: 15ch;
+}
+.serif, .about-title .serif, .section-title .serif, .contact-title .serif {
+  font-family: var(--f-display); font-style: italic; font-weight: 300; font-variation-settings: "opsz" 144, "SOFT" 100; letter-spacing: -.03em; font-size: 1em; color: var(--accent);
+}
+.band .serif { color: var(--b-accent); }
+.label, .chip, .chips > li { border-radius: 999px; padding: .18rem .65rem; }
+.label { font-family: var(--f-mono); font-size: .66rem; letter-spacing: .08em; text-transform: uppercase; background: transparent; border: 1px solid var(--rule); color: var(--text-dim); }
+.wordmark { font-family: var(--f-display); font-weight: 500; font-size: 1.05rem; background: none; padding: 0; opacity: 1; letter-spacing: -.02em; }
+.wordmark em { font-style: italic; font-weight: 300; color: var(--accent); }
+.nav-links a { font-family: var(--f-mono); font-size: .68rem; letter-spacing: .06em; text-transform: uppercase; border-radius: 999px; padding: .3rem .7rem; }
+.nav-resume a { border-radius: 999px; }
+.btn { border-radius: 999px; }
+.track b, .tl-item h3, .principles h3 { font-family: var(--f-display); font-weight: 450; letter-spacing: -.02em; }
+.track b { font-size: 1.35rem; }
+.tl-item h3 { font-size: clamp(1.4rem, 2.2vw, 1.9rem); }
+.contact-email { font-family: var(--f-display); font-style: italic; font-weight: 300; }
+
+/* ---------- the museum section ---------- */
+.museum { position: relative; height: 100vh; height: 100svh; min-height: 560px; overflow: hidden; background: #e6ddcf; color: #1d1a16; z-index: 1; }
+.museum-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; cursor: grab; touch-action: pan-y; }
+.museum-canvas:active { cursor: grabbing; }
+.mu-intro { position: absolute; left: var(--gutter); top: 86px; z-index: 3; max-width: min(560px, 80vw); transition: opacity .8s var(--ease), transform .8s var(--ease); }
+.mu-kicker { font-family: var(--f-mono); font-size: .68rem; letter-spacing: .1em; text-transform: uppercase; color: #5e574d; margin-bottom: .6rem; }
+.mu-title { font-family: var(--f-display); font-weight: 300; font-variation-settings: "opsz" 144, "SOFT" 30; letter-spacing: -.05em; line-height: .85; font-size: clamp(3.4rem, 9vw, 8.6rem); color: #1d1a16; }
+.mu-title em { font-style: italic; font-weight: 200; color: #9b3d22; font-variation-settings: "opsz" 144, "SOFT" 100; }
+.mu-sub { margin: 1rem 0 1.3rem; font-size: clamp(1rem, 1.3vw, 1.15rem); color: #3c362e; max-width: 34ch; }
+.mu-actions, .mp-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.mu-btn { display: inline-flex; align-items: center; gap: .4rem; padding: .62rem 1.05rem; border-radius: 999px; border: 1px solid rgba(29,26,22,.35); background: rgba(246,241,232,.75); color: #1d1a16;
+  font: 500 .86rem var(--f-sans); text-decoration: none; cursor: pointer; backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px); transition: background .25s, color .25s, transform .25s var(--ease); }
+.mu-btn:hover { background: #1d1a16; color: #f6f1e8; transform: translateY(-1px); }
+.mu-btn-main { background: #9b3d22; border-color: #9b3d22; color: #fbf7f0; }
+.mu-btn-main:hover { background: #1d1a16; border-color: #1d1a16; }
+.mu-btn-ghost { background: transparent; }
+.mu-started .mu-intro { opacity: 0; transform: translateY(-14px); pointer-events: none; }
+.mu-hint { position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 3; font: 400 .74rem var(--f-sans); color: #3c362e; background: rgba(246,241,232,.8); padding: .45rem .9rem; border-radius: 999px; white-space: nowrap; backdrop-filter: blur(6px); }
+.mu-hint kbd { font: 600 .66rem var(--f-mono); border: 1px solid rgba(29,26,22,.3); border-bottom-width: 2px; border-radius: 4px; padding: 0 .3rem; margin: 0 .08rem; background: #fbf7f0; }
+.mu-map { position: absolute; right: var(--gutter); top: 84px; z-index: 3; width: 128px; height: 128px; cursor: pointer; filter: drop-shadow(0 8px 18px rgba(29,26,22,.18)); }
+.mu-placard { position: absolute; right: var(--gutter); bottom: 72px; z-index: 4; width: min(380px, calc(100vw - 32px)); background: #1d1a16; color: #f3ece1; border-radius: 14px; padding: 1.2rem 1.3rem 1.25rem;
+  box-shadow: 0 30px 60px -24px rgba(29,26,22,.6); opacity: 0; transform: translateY(16px); pointer-events: none; transition: opacity .45s var(--ease), transform .45s var(--ease); }
+.mu-placard.on { opacity: 1; transform: none; pointer-events: auto; }
+.mp-no { color: #c9a26a; font-size: .64rem; margin-bottom: .35rem; }
+.mp-title { font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: clamp(1.6rem, 2.4vw, 2.1rem); line-height: 1; letter-spacing: -.03em; font-variation-settings: "opsz" 144, "SOFT" 100; }
+.mp-proj { color: rgba(243,236,225,.6); font-size: .62rem; margin: .5rem 0 .7rem; }
+.mp-desc { color: rgba(243,236,225,.86); font-size: .92rem; line-height: 1.45; margin-bottom: 1rem; }
+.mu-placard .mu-btn:not(.mu-btn-main) { background: transparent; color: #f3ece1; border-color: rgba(243,236,225,.35); }
+.mu-placard .mu-btn:not(.mu-btn-main):hover { background: #f3ece1; color: #1d1a16; }
+.mu-loading { position: absolute; inset: 0; z-index: 5; display: grid; place-items: center; background: #e6ddcf; transition: opacity 1s ease .2s; pointer-events: none; }
+.mu-loading span { font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: 1.6rem; color: #5e574d; animation: muPulse 1.6s ease-in-out infinite; }
+@keyframes muPulse { 50% { opacity: .35; } }
+.mu-loading.done { opacity: 0; }
+/* fallback list (no 3D) — hidden once the museum is running, kept for screen readers */
+.mu-fallback { position: absolute; left: var(--gutter); right: var(--gutter); bottom: 40px; z-index: 3; display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: .7rem; }
+.mu-fallback a { display: grid; gap: .2rem; padding: 1rem; border-radius: 12px; background: #f6f1e8; border: 1px solid rgba(29,26,22,.14); text-decoration: none; color: #1d1a16; }
+.mu-fallback b { font-family: var(--f-display); font-style: italic; font-weight: 300; font-size: 1.3rem; }
+.mu-fallback i { font-style: normal; font-size: .8rem; color: #5e574d; }
+.mu-on .mu-fallback { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+.museum:not(.mu-on) .mu-loading, .museum:not(.mu-on) .mu-hint, .museum:not(.mu-on) .mu-map { display: none; }
+.museum:not(.mu-on) .museum-canvas { display: none; }
+/* the nav floats over the museum */
+.in-museum .nav:not(.scrolled) { background: transparent; }
+.in-museum .mini-hit, .in-museum .mini-bubble, .in-museum .mini-hide, .in-museum .mini-outfit { visibility: hidden; }
+
+@media (max-width: 760px) {
+  .mu-intro { top: 70px; }
+  .mu-hint { display: none; }
+  .mu-map { top: auto; bottom: 14px; right: 14px; width: 96px; height: 96px; }
+  .mu-placard { left: 14px; right: 14px; bottom: 120px; width: auto; padding: 1rem 1.1rem; }
+  .mp-desc { font-size: .86rem; margin-bottom: .8rem; }
+  .mu-sub { max-width: 28ch; }
+}
+@media (max-height: 520px) and (orientation: landscape) {
+  .mu-intro { top: 58px; } .mu-title { font-size: 2.8rem; } .mu-sub { display: none; }
+  .mu-placard { bottom: 14px; } .mu-map { top: 58px; width: 88px; height: 88px; }
+}
+.mu-btn[hidden] { display: none; }

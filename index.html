@@ -6,7 +6,7 @@
   <title>Sanskruti Naik — AI / ML Engineer</title>
   <meta name="description" content="Sanskruti Naik is an AI/ML engineer building private, citation-grounded RAG systems, explainable computer vision and secure offline-first applications.">
   <meta name="author" content="Sanskruti Naik">
-  <meta name="theme-color" content="#e6e6e6">
+  <meta name="theme-color" content="#efe9df">
   <link rel="canonical" href="https://portfolio-green-nine-58.vercel.app/">
 
   <meta property="og:type" content="website">
@@ -25,7 +25,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css">
   <script type="importmap">
     {
@@ -46,8 +46,6 @@
         var c = document.createElement('canvas');
         if (!reduce && !save && (c.getContext('webgl2') || c.getContext('webgl'))) {
           document.documentElement.classList.add('webgl3d');
-          var seen = false; try { seen = sessionStorage.getItem('intro-seen') === '1'; } catch (e) {}
-          if (!seen && !location.hash) document.documentElement.classList.add('intro');
         }
       } catch (e) {}
     })();
@@ -72,129 +70,71 @@
 
   <!-- ============ NAV ============ -->
   <header class="nav" id="nav">
-    <a class="wordmark" href="#home" aria-label="Sanskruti Naik, back to top">Sanskruti Naik</a>
+    <a class="wordmark" href="#home" aria-label="Sanskruti Naik, back to the museum">Sanskruti Naik <em>museum</em></a>
     <nav aria-label="Primary">
       <ul class="nav-links" id="nav-links">
-        <li><a href="#home" data-nav>Home</a></li>
-        <li><a href="#about" data-nav>About</a></li>
-        <li><a href="#work" data-nav>Work</a></li>
-        <li><a href="#skills" data-nav>Skills</a></li>
-        <li><a href="#experience" data-nav>Experience</a></li>
-        <li><a href="#contact" data-nav>Contact</a></li>
+        <li><a href="#home" data-nav>The museum</a></li>
+        <li><a href="#about" data-nav>Sound room</a></li>
+        <li><a href="#skills" data-nav>Guidebook</a></li>
+        <li><a href="#experience" data-nav>The record</a></li>
+        <li><a href="#contact" data-nav>Visitor desk</a></li>
         <li class="nav-resume"><a href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a></li>
       </ul>
     </nav>
     <div class="nav-tools">
-      <div class="swatches" role="group" aria-label="Site colour theme">
-        <button type="button" class="swatch" data-theme-set="paper" aria-label="Grey theme" aria-pressed="true"></button>
-        <button type="button" class="swatch" data-theme-set="blue" aria-label="Blue theme" aria-pressed="false"></button>
-        <button type="button" class="swatch" data-theme-set="ink" aria-label="Black theme" aria-pressed="false"></button>
-        <button type="button" class="swatch" data-theme-set="sage" aria-label="Sage theme" aria-pressed="false"></button>
-      </div>
       <button class="menu-btn chip-btn" id="menu-btn" aria-expanded="false" aria-controls="nav-links"><span class="menu-label">Menu</span></button>
     </div>
   </header>
 
   <main id="main">
 
-    <!-- ============ HERO ============ -->
-    <section class="hero" id="home" aria-labelledby="hero-title">
-      <ul class="chips hero-left hero-fx" style="--d:.2s">
-        <li>AI / ML Intern at Endureva Innovations · Jan – Jun 2026</li>
-        <li>B.Tech AI &amp; ML · Sanjay Ghodawat University</li>
-      </ul>
-      <ul class="chips hero-roles hero-fx" style="--d:.3s" aria-label="Roles">
-        <li>AI / ML Engineer</li><li>Generative AI</li><li>Applied Research</li><li>Explainable Vision</li>
-      </ul>
+    <!-- ============ THE MUSEUM (home) ============ -->
+    <section class="museum" id="home" aria-labelledby="mu-title">
+      <canvas class="museum-canvas" id="museum-canvas" aria-label="A 3D museum. Walk Sanskruti's avatar between seven exhibits of her work." role="img"></canvas>
 
-      <div class="hero-stage" id="hero-stage">
-        <h1 class="hero-name" id="hero-title" aria-label="Sanskruti Naik"><span class="hn-line">Sanskruti</span><span class="hn-line">Naik</span></h1>
-        <p class="hero-tag hero-fx" style="--d:.5s">I build intelligence into real products.</p>
-
-        <!-- hand-drawn notes, after Adrien Lamy's portfolio -->
-        <div class="doodle d-me" aria-hidden="true">
-          <span>that's me!<br><small>(in 3D)</small></span>
-          <svg viewBox="0 0 120 90"><path class="draw" d="M8 14 C 46 6, 86 18, 104 62"/><path class="draw" d="M92 54 L104 64 L108 48"/></svg>
-        </div>
-        <div class="doodle d-drag" aria-hidden="true">
-          <svg viewBox="0 0 90 60"><path class="draw" d="M84 10 C 60 6, 40 30, 54 40 C 66 48, 72 26, 52 24 C 34 22, 22 44, 8 52"/><path class="draw" d="M8 40 L8 52 L20 54"/></svg>
-          <span>drag me around!</span>
+      <div class="mu-intro">
+        <p class="mu-kicker">The museum of things that think</p>
+        <h1 class="mu-title" id="mu-title">Sanskruti <em>Naik</em></h1>
+        <p class="mu-sub">AI / ML engineer. Seven exhibits, each a real system I built. Walk in and look around.</p>
+        <div class="mu-actions">
+          <button type="button" class="mu-btn mu-btn-main" id="mu-tour" aria-pressed="false">Guided tour</button>
+          <a class="mu-btn" href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a>
+          <a class="mu-btn mu-btn-ghost" href="#about">Skip the museum ↓</a>
         </div>
       </div>
 
-      <ul class="chips hero-right hero-fx" style="--d:.4s">
-        <li>Seeking an AI Engineer role</li>
-        <li>Based in Kolhapur, India</li>
-      </ul>
-      <ul class="chips hero-links hero-fx" style="--d:.6s" aria-label="Links">
-        <li><a href="https://github.com/sanskrutin19" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://www.linkedin.com/in/sanskruti-naik/" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href="resume.pdf" target="_blank" rel="noopener">Résumé</a></li>
-        <li><a href="mailto:naiksanskruti03@gmail.com">Email</a></li>
-      </ul>
-      <a class="scroll-doodle hero-fx" style="--d:.9s" href="#results">
-        <span>scroll for my story</span>
-        <svg viewBox="0 0 30 60" aria-hidden="true"><path class="draw" d="M15 4 C 10 20, 20 34, 15 54"/><path class="draw" d="M6 44 L15 56 L24 44"/></svg>
-      </a>
-    </section>
+      <p class="mu-hint" aria-hidden="true"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd> or arrows to walk · click the floor or an exhibit · drag to look · <kbd>E</kbd> to enter</p>
+      <canvas class="mu-map" aria-label="Map of the museum. Click an exhibit to walk there." role="img"></canvas>
 
-    <!-- speed typography: outlined / solid words that skew with scroll speed -->
-    <div class="type-band" aria-hidden="true">
-      <div class="tb-skew">
-        <div class="tb-track">
-          <span>AI / ML Engineer</span><span class="o">Generative AI</span><span>RAG</span><span class="o">Computer Vision</span><span>Explainable AI</span><span class="o">Offline-first</span>
-          <span>AI / ML Engineer</span><span class="o">Generative AI</span><span>RAG</span><span class="o">Computer Vision</span><span>Explainable AI</span><span class="o">Offline-first</span>
+      <aside class="mu-placard" aria-live="polite">
+        <p class="mp-no mono"></p>
+        <h2 class="mp-title"></h2>
+        <p class="mp-proj mono"></p>
+        <p class="mp-desc"></p>
+        <div class="mp-actions">
+          <a class="mu-btn mu-btn-main mp-enter" href="#">Enter the exhibit →</a>
+          <a class="mu-btn mp-live" href="#" target="_blank" rel="noopener" hidden>Live app ↗</a>
         </div>
-      </div>
-    </div>
+      </aside>
 
-    <!-- ============ STATEMENT + RESULTS ============ -->
-    <section class="statement band" id="results" data-scene="results" aria-labelledby="statement-title">
-      <div class="wrap">
-        <p class="label reveal">00 — Statement</p>
-        <h2 class="statement-title reveal kin" id="statement-title">I build intelligence <span class="serif">into real products.</span></h2>
-        <div class="statement-foot">
-          <p class="statement-lede reveal">From private, citation-grounded AI systems to explainable computer vision and secure offline-first applications, I turn complex engineering problems into products people can use.</p>
-          <div class="hero-ctas reveal">
-            <a class="btn btn-lime" href="#work"><span>Explore my work</span><span class="btn-arrow" aria-hidden="true">↓</span></a>
-            <a class="btn btn-ghost" href="resume.pdf" target="_blank" rel="noopener"><span>View résumé</span><span class="btn-arrow" aria-hidden="true">↗</span></a>
-          </div>
-        </div>
+      <div class="mu-loading" aria-hidden="true"><span>Opening the museum…</span></div>
 
-        <div class="metrics-head reveal">
-          <p class="chip">Results</p>
-          <h3 class="metrics-title">Plant-disease classifier, <span class="serif">Endureva internship</span></h3>
-        </div>
-        <dl class="metrics-row">
-          <div class="metric reveal">
-            <dt class="mono">Classification accuracy</dt>
-            <dd><span class="count" data-to="92">92</span><span class="unit">%</span></dd>
-          </div>
-          <div class="metric reveal">
-            <dt class="mono">Training images</dt>
-            <dd><span class="count" data-to="50">50</span><span class="unit">K</span></dd>
-          </div>
-          <div class="metric reveal">
-            <dt class="mono">Disease classes</dt>
-            <dd><span class="count" data-to="38">38</span></dd>
-          </div>
-          <div class="metric reveal">
-            <dt class="mono">Inference latency</dt>
-            <dd><span class="unit pre">&lt;</span><span class="count" data-to="200">200</span><span class="unit">ms</span></dd>
-          </div>
-          <div class="metric reveal">
-            <dt class="mono">Inference-time reduction</dt>
-            <dd><span class="count" data-to="30">30</span><span class="unit">%</span></dd>
-          </div>
-        </dl>
-        <p class="footnote mono reveal">Figures as reported for that system. Latency and speed-up came from quantization and batch optimization and will vary with hardware and load.</p>
-      </div>
+      <!-- shown when 3D isn't available, and to screen readers -->
+      <ol class="mu-fallback">
+        <li><a href="#case-rag" data-world="rag"><span class="mono">No. 01</span><b>The Archive That Thinks</b><i>Tender Intelligence · offline RAG</i></a></li>
+        <li><a href="#case-securechat" data-world="chat"><span class="mono">No. 02</span><b>The Sealed Artifact</b><i>SecureChat · end-to-end encryption</i></a></li>
+        <li><a href="#case-geo" data-world="geo"><span class="mono">No. 03</span><b>The Orbital Record</b><i>Construction detection · geospatial AI</i></a></li>
+        <li><a href="#case-plant" data-world="plant"><span class="mono">No. 04</span><b>The Living Specimen</b><i>Crop-disease AI · internship</i></a></li>
+        <li><a href="#case-xai" data-world="xai"><span class="mono">No. 05</span><b>The Talking Alarm</b><i>XAI-Care · explainable AI</i></a></li>
+        <li><a href="#case-water" data-world="water"><span class="mono">No. 06</span><b>The Field Log</b><i>Water Survey · offline-first</i></a></li>
+        <li><a href="#about"><span class="mono">No. 07</span><b>The Sound Room</b><i>About me</i></a></li>
+      </ol>
     </section>
 
     <!-- ============ ABOUT ============ -->
     <section class="about paper" id="about" aria-labelledby="about-title">
       <div class="wrap">
-        <p class="label mono reveal">01 — About</p>
+        <p class="label mono reveal">No. 07 — The sound room</p>
         <h2 class="about-title reveal kin" id="about-title">I care about what happens <span class="serif">after the demo.</span></h2>
 
         <div class="about-grid">
@@ -236,40 +176,7 @@
     </section>
 
     <!-- ============ WORK ============ -->
-    <section class="work" id="work" aria-labelledby="work-title">
-      <!-- Ask my portfolio: the portfolio works like a RAG system over my real work -->
-      <div class="ask" id="lens">
-        <div class="ask-head">
-          <p class="label">02 — Selected work</p>
-          <h2 class="ask-title kin reveal" id="work-title">Don't take my word for it. <span class="serif">Ask.</span></h2>
-          <p class="ask-lede">Ask anything about my work. My portfolio retrieves the evidence and cites where it came from, the same way my RAG systems do. Nothing is generated, so nothing is made up.</p>
-          <form class="ask-form" id="ask-form" role="search">
-            <label class="sr-only" for="ask-input">Ask a question about Sanskruti's work</label>
-            <input id="ask-input" type="text" autocomplete="off" placeholder="e.g. Has she shipped AI to production?" maxlength="140">
-            <button class="btn btn-lime btn-sm" type="submit"><span>Retrieve</span><span class="btn-arrow" aria-hidden="true">→</span></button>
-          </form>
-          <ul class="ask-chips" aria-label="Suggested questions">
-            <li><button type="button" class="chip" data-q="Has she shipped AI to production?">Shipped to production?</button></li>
-            <li><button type="button" class="chip" data-q="Can she build RAG and LLM systems?">RAG &amp; LLMs?</button></li>
-            <li><button type="button" class="chip" data-q="Does she understand security and encryption?">Security?</button></li>
-            <li><button type="button" class="chip" data-q="Can she do computer vision and explainable AI?">Computer vision?</button></li>
-            <li><button type="button" class="chip" data-q="Has she built mobile apps that work offline?">Mobile &amp; offline?</button></li>
-            <li><button type="button" class="chip" data-q="Has she led teams or worked with stakeholders?">Leadership?</button></li>
-          </ul>
-          <ol class="ask-pipe mono" id="ask-pipe" aria-hidden="true"><li>Query</li><li>Retrieve</li><li>Rerank</li><li>Cite</li></ol>
-          <div class="ask-results" id="ask-results" aria-live="polite"></div>
-        </div>
-
-        <div class="archive" id="archive">
-          <a class="dossier d-rag" href="#case-rag" data-world="rag" data-p="rag"><span class="mono">01 · Archive that thinks</span><b>Tender Intelligence</b><i>Offline RAG with citations</i></a>
-          <a class="dossier d-chat" href="#case-securechat" data-world="chat" data-p="chat"><span class="mono">02 · Sealed artifact</span><b>SecureChat</b><i>End-to-end encryption</i></a>
-          <a class="dossier d-geo" href="#case-geo" data-world="geo" data-p="geo"><span class="mono">03 · Orbital record</span><b>Change from above</b><i>Satellite detection</i></a>
-          <a class="dossier d-plant" href="#case-plant" data-world="plant" data-p="plant"><span class="mono">04 · Living specimen</span><b>Crop-disease AI</b><i>Grad-CAM in a phone</i></a>
-          <a class="dossier d-xai" href="#case-xai" data-world="xai" data-p="xai"><span class="mono">05 · Talking alarm</span><b>XAI-Care</b><i>Alerts that explain</i></a>
-          <a class="dossier d-water" href="#case-water" data-world="water" data-p="water"><span class="mono">06 · Field log</span><b>Water Survey</b><i>Offline-first field app</i></a>
-        </div>
-      </div>
-
+    <section class="work" id="work" aria-label="Also in the collection">
       <!-- Case studies live inside the project worlds (opened from the polaroids).
            With JavaScript this store is hidden and its interactive pieces are moved
            into the world when it opens; without JavaScript it shows as normal content. -->
@@ -637,7 +544,7 @@
       <!-- ---------- Index of other work ---------- -->
       <div class="wrap">
         <div class="index reveal">
-          <p class="label mono">Also built</p>
+          <p class="label mono">Also in the collection</p>
           <ul class="index-list">
             <li>
               <span class="mono">2026</span>
@@ -657,7 +564,7 @@
     <!-- ============ SKILLS ============ -->
     <section class="skills band" id="skills" data-scene="clusters" aria-labelledby="skills-title">
       <div class="wrap">
-        <p class="label mono reveal">03 — Skills</p>
+        <p class="label mono reveal">The guidebook</p>
         <h2 class="section-title reveal kin" id="skills-title">A map, <span class="serif">not a percentage.</span></h2>
         <p class="skills-intro reveal">Choose a project to light up the tools it used.</p>
 
@@ -710,7 +617,7 @@
     <!-- ============ EXPERIENCE ============ -->
     <section class="experience paper" id="experience" aria-labelledby="exp-title">
       <div class="wrap">
-        <p class="label mono reveal">04 — Experience</p>
+        <p class="label mono reveal">The record</p>
         <h2 class="section-title reveal kin" id="exp-title">Record, <span class="serif">with evidence.</span></h2>
 
         <ol class="timeline">
@@ -772,7 +679,7 @@
     <!-- ============ CONTACT ============ -->
     <section class="contact band" id="contact" data-scene="ring" aria-labelledby="contact-title">
       <div class="wrap">
-        <p class="label mono reveal">05 — Contact</p>
+        <p class="label mono reveal">The visitor desk</p>
         <h2 class="contact-title reveal kin" id="contact-title">Have a difficult problem <span class="serif">worth solving?</span></h2>
         <div class="contact-row reveal">
           <a class="contact-email" href="mailto:naiksanskruti03@gmail.com">naiksanskruti03@gmail.com<span aria-hidden="true">↗</span></a>
@@ -804,7 +711,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
   <script src="assets/js/site.js" defer></script>
-  <script src="assets/js/evidence.js" defer></script>
   <script src="assets/js/speaker.js" defer></script>
   <!-- Project worlds: full-screen 3D case-study overlays opened from the polaroids -->
   <div class="world" id="world" role="dialog" aria-modal="true" aria-labelledby="world-title" hidden>
@@ -827,6 +733,7 @@
   <script type="module" src="assets/js/worlds.js"></script>
   <script type="module">
     if (document.documentElement.classList.contains('webgl3d')) {
+      import('./assets/js/museum.js').catch(function (e) { console.warn('Museum unavailable:', e); });
       import('./assets/js/minime.js').catch(function (e) { console.warn('Mini-me unavailable:', e); });
     }
   </script>
