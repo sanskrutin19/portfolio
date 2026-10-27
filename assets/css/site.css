@@ -1238,3 +1238,32 @@ body { font-family: var(--f-sans); }
   .mu-placard { bottom: 14px; } .mu-map { top: 58px; width: 88px; height: 88px; }
 }
 .mu-btn[hidden] { display: none; }
+
+/* ==========================================================================
+   THE GALLERY WING — every section hangs on a wall of the 3D museum
+   ========================================================================== */
+.wing-on .museum { overflow: visible; background: transparent; }
+.wing-on .museum-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; height: 100lvh; z-index: 0; }
+.wing-on .museum > :not(.museum-canvas) { z-index: 3; }
+.wing-on body, html.wing-on { background: #e6ddcf; }
+.journey { position: relative; pointer-events: none; }
+.journey > section { position: absolute !important; left: 0; right: 0; padding: 0 !important; margin: 0; background: none !important; visibility: hidden; overflow: hidden; }
+.wing-layer { position: fixed; inset: 0; z-index: 2; pointer-events: none; display: none; }
+.wing-on .footer { z-index: 3; }
+.w-panel { width: min(880px, calc(100vw - 32px)); padding: clamp(22px, 3.4vw, 44px); border-radius: 18px; background: var(--surface); color: var(--text);
+  box-shadow: 0 30px 70px -30px rgba(29,26,22,.45); font-family: var(--f-sans); }
+.w-panel.band { background: var(--bg); }
+.w-panel.narrow { width: min(460px, calc(100vw - 32px)); }
+.w-panel.framed { border-radius: 4px; }
+.w-panel > .label:first-child { margin-bottom: 1rem; display: inline-block; }
+.w-panel .reveal { opacity: 1 !important; transform: none !important; }
+.w-panel .about-facts { position: static; }
+.w-panel .about-lede { margin-bottom: 1.4rem; }
+.w-panel .speaker { margin-top: 1.6rem; }
+.w-panel .timeline { margin-top: 0; }
+.w-panel .timeline:first-child .tl-item:first-child { border-top: 0; padding-top: 0; }
+.w-panel .tl-item:last-child { border-bottom: 0; padding-bottom: 0; }
+.w-panel .index { margin: 0; }
+.w-panel .contact-title { font-size: clamp(2.4rem, 6vw, 5.4rem); }
+.w-panel .about-title, .w-panel .section-title { font-size: clamp(2.2rem, 5vw, 4.6rem); }
+@media (max-width: 700px) { .w-panel .skill-map { grid-template-columns: 1fr 1fr; } .w-panel .tl-item { grid-template-columns: 1fr; gap: .5rem; } }

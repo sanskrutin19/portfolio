@@ -733,8 +733,11 @@
   <script type="module" src="assets/js/worlds.js"></script>
   <script type="module">
     if (document.documentElement.classList.contains('webgl3d')) {
-      import('./assets/js/museum.js').catch(function (e) { console.warn('Museum unavailable:', e); });
-      import('./assets/js/minime.js').catch(function (e) { console.warn('Mini-me unavailable:', e); });
+      // the museum carries the avatar through the whole site; the page companion is the fallback
+      import('./assets/js/museum.js').catch(function (e) {
+        console.warn('Museum unavailable:', e);
+        import('./assets/js/minime.js').catch(function (e2) { console.warn('Mini-me unavailable:', e2); });
+      });
     }
   </script>
 </body>

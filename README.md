@@ -4,6 +4,8 @@
 
 The home page is a small 3D game: **the Museum of Things That Think**. My real 3D avatar is the player. Walk her round a rotunda with WASD or the arrow keys, or click or tap the floor, and visit seven exhibits, each a system I built, lit on a plinth under glass. Walk up to one and its museum placard appears; press E to enter its own art-directed 3D world with a live demo. A guided tour walks her round on her own, and a minimap shows where you are. The Sound Room plays my About story as kinetic lyrics on a glass speaker.
 
+The whole site is one building. Scroll down and the camera leaves the rotunda through a doorway into a long gallery wing: every section (the Sound Room, the Guidebook of skills, the Record, the Visitor Desk) hangs on its walls as a live 3D panel, and the avatar walks along beside you from wall to wall. The panels are real HTML (CSS3D), so text stays sharp, links and buttons work, and the nav jumps straight to each room.
+
 ## Highlights
 
 - **Real 3D avatar.** An Avaturn model of me, compressed from 15 MB to about 3 MB (meshopt geometry, WebP textures). Motion-captured clips (bow, dance, "oops") blend with procedural walking, waving and dragging, and facial blendshapes add blinks, a smile and talking.
@@ -14,7 +16,7 @@ The home page is a small 3D game: **the Museum of Things That Think**. My real 3
 
 ## Stack
 
-Vanilla JavaScript (ES modules) · Three.js 0.160 · GLTFLoader + MeshoptDecoder · Lenis · HTML/CSS · Vercel. No build step.
+Vanilla JavaScript (ES modules) · Three.js 0.160 · CSS3DRenderer · GLTFLoader + MeshoptDecoder · Lenis · HTML/CSS · Vercel. No build step.
 
 ## Run locally
 
@@ -30,7 +32,7 @@ index.html            page
 assets/css/site.css   design tokens, layout, themes
 assets/js/site.js     navigation, reveals, demos, smooth scroll
 assets/js/minime.js   the 3D avatar: rig, motion, clips, opening scene
-assets/js/museum.js   the 3D museum: rotunda, exhibits, avatar controls, tour, minimap
+assets/js/museum.js   the 3D museum: rotunda, exhibits, avatar controls, tour, minimap, gallery wing
 assets/js/speaker.js  About: a glass speaker playing kinetic lyrics
 assets/js/worlds.js   per-project 3D worlds
 assets/avatar/        compressed avatar body + animation clips

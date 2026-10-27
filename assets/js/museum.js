@@ -9,6 +9,7 @@ import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
 
 const root = document.documentElement;
 const sec = document.getElementById('home');
@@ -109,10 +110,12 @@ const floor = new THREE.Mesh(new THREE.CircleGeometry(R, 128), std('#ffffff', 0.
 floor.rotation.x = -Math.PI / 2; scene.add(floor);
 const floorPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
 
-const wall = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 128, 1, true), std('#efe7da', 0.95, 0, { side: THREE.BackSide }));
+// the wall has a doorway at the entrance (+z) that leads into the gallery wing
+const DOOR = THREE.MathUtils.degToRad(11);
+const wall = new THREE.Mesh(new THREE.CylinderGeometry(R, R, H, 128, 1, true, DOOR, Math.PI * 2 - DOOR * 2), std('#efe7da', 0.95, 0, { side: THREE.BackSide }));
 wall.position.y = H / 2; scene.add(wall);
 const trim = std('#d9cdbb', 0.6);
-[0.18, H - 0.25].forEach(y => { const t = new THREE.Mesh(new THREE.TorusGeometry(R - 0.06, 0.12, 8, 128), trim); t.rotation.x = Math.PI / 2; t.position.y = y; scene.add(t); });
+[H - 0.25].forEach(y => { const t = new THREE.Mesh(new THREE.TorusGeometry(R - 0.06, 0.12, 8, 128), trim); t.rotation.x = Math.PI / 2; t.position.y = y; scene.add(t); });
 const ceil = new THREE.Mesh(new THREE.CircleGeometry(R, 96), std('#e3d9ca', 0.9, 0, { side: THREE.DoubleSide }));
 ceil.rotation.x = Math.PI / 2; ceil.position.y = H; scene.add(ceil);
 const sky = new THREE.Mesh(new THREE.CircleGeometry(4.2, 64), new THREE.MeshBasicMaterial({ color: '#fffaf0' }));
@@ -262,7 +265,7 @@ EXHIBITS.forEach(e => {
 const char = new THREE.Group(); scene.add(char);
 const blob = new THREE.Mesh(new THREE.CircleGeometry(0.3, 32), new THREE.MeshBasicMaterial({ color: '#2a241c', transparent: true, opacity: 0.13, depthWrite: false }));
 blob.rotation.x = -Math.PI / 2; blob.position.y = 0.01; char.add(blob);
-let rig = null;   // { model, bones, rest, hips, hipsRest, mixer, clips }
+let rig = null;
 const HEIGHT = 1.72;
 const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
 async function loadAvatar() {
@@ -287,8 +290,6 @@ async function loadAvatar() {
     rig.clips[n] = clip;
   }).catch(() => {}));
 }
-
-// pose a bone by a rotation expressed in the character's frame (same method as minime.js)
 const _a = new THREE.Quaternion(), _b = new THREE.Quaternion(), _c = new THREE.Quaternion();
 function drive(name, q) {
   const bone = rig.bones[name]; if (!bone) return;
@@ -301,12 +302,213 @@ function drive(name, q) {
 const E = new THREE.Euler(), Q = () => new THREE.Quaternion();
 const qx = a => Q().setFromAxisAngle(new THREE.Vector3(1, 0, 0), a);
 const qe = (x, y, z) => Q().setFromEuler(E.set(x, y, z));
-const conj = (outer, inner) => outer.clone().multiply(inner).multiply(outer.clone().invert());
+const conj = (o, i) => o.clone().multiply(i).multiply(o.clone().invert());
+const angDiff = (a, b) => { let d = a - b; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; return d; };
+const smooth = (a, b, x) => { const t = Math.max(0, Math.min(1, (x - a) / (b - a))); return t * t * (3 - 2 * t); };
+
+/* ==========================================================================
+   THE GALLERY WING — the rest of the site, hung in 3D
+   The page sections are moved into CSS3D panels on the gallery walls; scroll
+   drives the camera (and the avatar) from wall to wall.
+   ========================================================================== */
+const S = 0.005;                 // world units per CSS pixel on the walls
+const CW = 5, CH = 15, CZ0 = 13; // corridor half-width, height, start
+const cssLayer = document.createElement('div'); cssLayer.className = 'wing-layer'; document.body.appendChild(cssLayer);
+const css = new CSS3DRenderer({ element: cssLayer });
+const cssScene = new THREE.Scene();
+const wing = new THREE.Group(); scene.add(wing);
+const journey = document.createElement('div'); journey.className = 'journey'; journey.id = 'journey';
+sec.after(journey);
+
+const pairs = a => a.reduce((o, el, i) => (i % 2 ? o[o.length - 1].push(el) : o.push([el]), o), []);
+// which content goes on which wall, room by room (in reading order)
+const ROOMS = [
+  { id: 'about', title: 'The Sound Room', side: -1, tone: 'paper', panels: [['#about .label', '#about-title', '#speaker'], ['#about .about-lede', '#tracklist'], ['narrow', '#about .about-facts']] },
+  { id: 'skills', title: 'The Guidebook', side: 1, tone: 'band', panels: [['#skills .label', '#skills-title', '#skills .skills-intro', '#skills .skill-filter', '#skill-map']] },
+  { id: 'experience', title: 'The Record', side: -1, tone: 'paper', frames: true, panels: [['#experience .label', '#exp-title'], ...pairs([...document.querySelectorAll('#experience .tl-item')])] },
+  { id: 'work', title: 'Also in the Collection', side: 1, tone: 'paper', panels: [['#work .index']] },
+  { id: 'contact', title: 'The Visitor Desk', side: 0, tone: 'band', panels: [['#contact .wrap']] }
+];
+const stops = [];   // filled by layoutWing()
+let built = false;
+function makePanels() {
+  ROOMS.forEach(room => {
+    const sectionEl = document.getElementById(room.id);
+    room.section = sectionEl;
+    room.panelEls = room.panels.map(sels => {
+      const p = document.createElement('div');
+      p.className = 'w-panel ' + room.tone + (room.frames ? ' framed' : '');
+      sels.forEach(sel => {
+        if (sel === 'narrow') { p.classList.add('narrow'); return; }
+        const el = typeof sel === 'string' ? document.querySelector(sel) : sel; if (!el) return;
+        if (el.classList.contains('tl-item')) {   // timeline rows keep their list
+          let ol = p.lastElementChild; if (!ol || ol.tagName !== 'OL') { ol = document.createElement('ol'); ol.className = 'timeline'; p.appendChild(ol); }
+          ol.appendChild(el);
+        } else p.appendChild(el);
+      });
+      p.querySelectorAll('.reveal').forEach(n => n.classList.add('in'));
+      return p;
+    });
+    journey.appendChild(sectionEl);   // the emptied section becomes a scroll marker (for the nav)
+  });
+  root.classList.add('wing-on');
+  built = true;
+}
+
+const deco = new THREE.Group(); wing.add(deco);
+const objs = [];
+function clearGroup(g) { while (g.children.length) { const c = g.children.pop(); c.traverse(o => { if (o.geometry) o.geometry.dispose(); }); } }
+
+function layoutWing() {
+  if (!built) return;
+  const vw = window.innerWidth, vh = window.innerHeight;
+  objs.forEach(o => cssScene.remove(o)); objs.length = 0; stops.length = 0; clearGroup(deco);
+  // measure the panels in a visible (but invisible-to-the-eye) layer
+  const was = cssLayer.style.display; cssLayer.style.display = ''; cssLayer.style.visibility = 'hidden';
+  const measure = document.createElement('div'); measure.style.cssText = 'position:fixed;left:0;top:0;visibility:hidden;pointer-events:none;'; document.body.appendChild(measure);
+  const sizes = new Map();
+  ROOMS.forEach(room => room.panelEls.forEach(el => { el.style.visibility = ''; measure.appendChild(el); sizes.set(el, [el.offsetWidth, el.offsetHeight]); }));
+  measure.remove(); cssLayer.style.display = was; cssLayer.style.visibility = '';
+  const fov = THREE.MathUtils.degToRad(cam.fov);
+  const D = (vh * S / 2) / Math.tan(fov / 2);
+  let zL = CZ0 + 3, zR = CZ0 + 3, zEnd = 0;
+  const frameMat = std('#2a241c', 0.5, 0.2), mountMat = std('#f9f5ee', 0.8), goldMat = std('#c49a58', 0.45, 0.35);
+  ROOMS.forEach((room, ri) => {
+    const start = Math.max(zL, zR) + (ri ? 3.2 : 0);
+    if (room.side === -1) zL = Math.max(zL, start); else if (room.side === 1) zR = Math.max(zR, start);
+    room.stopFrom = stops.length;
+    room.panelEls.forEach(el => {
+      const obj = new CSS3DObject(el); obj.scale.setScalar(S); cssScene.add(obj); objs.push(obj);
+      const [wpx, hpx] = sizes.get(el), w = wpx * S, h = hpx * S;
+      const top = h + (room.side === 0 ? 1.5 : 0.9), cy = top - h / 2;
+      let c, n;
+      if (room.side === 0) { zEnd = Math.max(zL, zR) + 6; c = new THREE.Vector3(0, cy, zEnd - 0.02); n = new THREE.Vector3(0, 0, -1); }
+      else {
+        const z = (room.side === -1 ? zL : zR) + w / 2;
+        c = new THREE.Vector3(room.side * (CW - 0.02), cy, z); n = new THREE.Vector3(-room.side, 0, 0);
+        if (room.side === -1) zL = z + w / 2 + 2.6; else zR = z + w / 2 + 2.6;
+      }
+      obj.position.copy(c); obj.lookAt(c.clone().add(n));
+      // a physical mount / frame behind the panel
+      const mount = new THREE.Mesh(new THREE.BoxGeometry(w + 0.24, h + 0.24, 0.06), room.frames ? goldMat : (room.tone === 'band' ? frameMat : mountMat));
+      mount.position.copy(c).addScaledVector(n, -0.03); mount.lookAt(mount.position.clone().add(n)); deco.add(mount);
+      // camera stop(s): square-on, at 1:1 pixel size; tall panels pan from top to bottom
+      const viewH = vh * S, right = new THREE.Vector3().crossVectors(n.clone().negate(), new THREE.Vector3(0, 1, 0)).normalize();
+      const yTop = h > viewH * 0.9 ? top - viewH / 2 + 0.25 : cy, yBot = h > viewH * 0.9 ? top - h + viewH / 2 - 0.25 : cy;
+      // she stands beside the panel: in view on wide screens, just off-frame on phones (she walks between walls)
+      const fwd = vw < 700 ? 0.5 : 1.4, hv = (vw * S / 2) * (D - fwd) / D;
+      const avatarAt = c.clone().addScaledVector(n, fwd).addScaledVector(right, vw < 700 ? w / 2 + 0.6 : Math.min(w / 2 + 0.5, hv - 0.45)); avatarAt.y = 0;
+      stops.push({ room, el, obj, c, n, D, yTop, yBot, pan: Math.max(0, (yTop - yBot) / S), avatarAt });
+    });
+    room.stopTo = stops.length;
+    // the room's name on the wall above its first panel
+    const first = stops[room.stopFrom];
+    const tex = canvasTex(1400, 260, (g, w2, h2) => {
+      g.fillStyle = 'rgba(42,36,28,.55)'; g.font = `500 34px ${MONO}`; g.textAlign = 'center'; g.fillText('ROOM ' + String(ri + 1).padStart(2, '0'), w2 / 2, 56);
+      g.fillStyle = room.tone === 'band' && false ? '#f3ece1' : '#2a241c'; g.font = `italic 300 120px ${FONT}`; g.fillText(room.title, w2 / 2, 190);
+    });
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(7, 1.3), new THREE.MeshBasicMaterial({ map: tex, transparent: true }));
+    sign.position.copy(first.c).addScaledVector(first.n, 0.02); sign.position.y = Math.min(CH - 1, (first.yTop + vh * S / 2) + 1.6);
+    sign.lookAt(sign.position.clone().add(first.n)); deco.add(sign);
+    // the room's name inlaid in the floor at its threshold
+    const ftex = canvasTex(1600, 220, (g, w2) => { g.fillStyle = 'rgba(155,61,34,.75)'; g.font = `italic 300 140px ${FONT}`; g.textAlign = 'center'; g.fillText(room.title, w2 / 2, 160); });
+    const inlay = new THREE.Mesh(new THREE.PlaneGeometry(8, 1.1), new THREE.MeshBasicMaterial({ map: ftex, transparent: true, depthWrite: false }));
+    inlay.rotation.x = -Math.PI / 2; inlay.rotation.z = Math.PI; inlay.position.set(0, 0.012, (room.side === 0 ? first.c.z - 5 : first.c.z - 1.5)); deco.add(inlay);
+  });
+  zEnd = Math.max(zEnd, zL, zR) + 0.1;
+
+  // architecture: floor, walls, ceiling with a skylight, end wall
+  const len = zEnd - CZ0 + 1, mid = CZ0 - 1 + len / 2;
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(CW * 2, len), std('#d8cdbd', 0.4)); fl.rotation.x = -Math.PI / 2; fl.position.set(0, 0, mid); deco.add(fl);
+  const runner = new THREE.Mesh(new THREE.PlaneGeometry(2.2, len - 2), std('#8f3a21', 0.85)); runner.rotation.x = -Math.PI / 2; runner.position.set(0, 0.006, mid + 1); deco.add(runner);
+  const wallMat = std('#efe7da', 0.95);
+  [-1, 1].forEach(s => { const w = new THREE.Mesh(new THREE.PlaneGeometry(len, CH), wallMat); w.position.set(s * CW, CH / 2, mid); w.rotation.y = -s * Math.PI / 2; deco.add(w);
+    const sk = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.3, len), std('#d9cdbb', 0.6)); sk.position.set(s * (CW - 0.06), 0.15, mid); deco.add(sk); });
+  const ce = new THREE.Mesh(new THREE.PlaneGeometry(CW * 2, len), std('#e3d9ca', 0.9)); ce.rotation.x = Math.PI / 2; ce.position.set(0, CH, mid); deco.add(ce);
+  const sl = new THREE.Mesh(new THREE.PlaneGeometry(2.6, len - 2), new THREE.MeshBasicMaterial({ color: '#fffaf0' })); sl.rotation.x = Math.PI / 2; sl.position.set(0, CH - 0.02, mid); deco.add(sl);
+  const ew = new THREE.Mesh(new THREE.PlaneGeometry(CW * 2, CH), wallMat); ew.position.set(0, CH / 2, zEnd + 0.04); ew.rotation.y = Math.PI; deco.add(ew);
+  // the doorway arch from the rotunda
+  const arch = new THREE.Mesh(new THREE.TorusGeometry(2.7, 0.18, 12, 48, Math.PI), std('#d9cdbb', 0.6)); arch.position.set(0, H - 1.4, R - 0.3); deco.add(arch);
+  // furniture: a reception desk at the end, a library of books in the Guidebook
+  const desk = new THREE.Group(); desk.position.set(0, 0, zEnd - 1.6); deco.add(desk);
+  const top2 = new THREE.Mesh(new RoundedBoxGeometry(4.4, 1.05, 1.0, 4, 0.06), std('#2a241c', 0.45, 0.1)); top2.position.y = 0.525; desk.add(top2);
+  const lip = new THREE.Mesh(new THREE.BoxGeometry(4.6, 0.06, 1.2), std('#b48a46', 0.35, 0.7)); lip.position.y = 1.08; desk.add(lip);
+  const bell = new THREE.Mesh(new THREE.SphereGeometry(0.14, 24, 12, 0, Math.PI * 2, 0, Math.PI / 2), std('#c9a26a', 0.25, 0.9)); bell.position.set(1.2, 1.11, 0); desk.add(bell);
+  const guide = ROOMS.find(r => r.id === 'skills'), gs = stops[guide.stopFrom];
+  if (gs) {
+    const colors = ['#8f3a21', '#2a241c', '#5c6b4a', '#c9a26a', '#3b4a6b', '#e7dccb'];
+    const shelfLen = Math.min(12, sizes.get(gs.el)[0] * S + 5), shelfZ0 = gs.c.z - shelfLen / 2;
+    const books = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), std('#ffffff', 0.7), 700);
+    const m4 = new THREE.Matrix4(), col = new THREE.Color(); let nb = 0;
+    for (let row = 0; row < 6; row++) {
+      const y = 0.5 + row * 1.45;
+      const plank = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.06, shelfLen), std('#7a5a3a', 0.6)); plank.position.set(-CW + 0.25, y, shelfZ0 + shelfLen / 2); deco.add(plank);
+      let z = shelfZ0 + 0.1, k = row * 7;
+      while (z < shelfZ0 + shelfLen - 0.2 && nb < 700) {
+        const t = 0.08 + ((k * 37) % 9) / 100, hh = 0.7 + ((k * 53) % 40) / 100;
+        m4.makeScale(0.42, hh, t).setPosition(-CW + 0.25, y + 0.03 + hh / 2, z + t / 2);
+        books.setMatrixAt(nb, m4); books.setColorAt(nb, col.set(colors[k % colors.length])); nb++;
+        z += t + 0.01; k++;
+      }
+    }
+    books.count = nb; deco.add(books);
+  }
+  // a few warm lights down the wing
+  for (let z = CZ0 + 6; z < zEnd; z += 14) { const l = new THREE.PointLight('#fff1dc', 30, 18, 1.5); l.position.set(0, CH - 2, z); deco.add(l); }
+
+  // the scroll timeline: travel → dwell (→ pan) for every stop; markers for the nav
+  const T = vh * 0.85, DW = vh * 0.55, INTRO = vh * 0.45;
+  let s = INTRO;
+  stops.forEach(st => { st.s0 = s; st.s1 = s + T; st.s2 = st.s1 + DW * 0.5 + st.pan; st.s3 = st.s2 + DW * 0.5; s = st.s3; });
+  const total = s + vh;   // one screen more, so the last wall settles before the footer
+  journey.style.height = Math.round(total) + 'px';
+  ROOMS.forEach(room => {
+    const a = stops[room.stopFrom], b = stops[room.stopTo - 1];
+    room.section.style.top = Math.round(a.s1 + 64) + 'px';
+    room.section.style.height = Math.max(1, Math.round(b.s3 - a.s1)) + 'px';
+  });
+  wingLen = zEnd;
+}
+let wingLen = 40;
+
+// camera + avatar along the timeline
+const railCam = new THREE.Vector3(), railLook = new THREE.Vector3(), railAv = new THREE.Vector3();
+let railHead = 0;
+const K0 = { cam: new THREE.Vector3(0, 3.0, 6.5), look: new THREE.Vector3(0, 2.4, 22), av: new THREE.Vector3(0, 0, 11.6) };
+function stopPose(st, y, out) { out.cam.copy(st.c).addScaledVector(st.n, st.D); out.cam.y = y; out.look.copy(st.c); out.look.y = y; out.av.copy(st.avatarAt); }
+const pa = { cam: new THREE.Vector3(), look: new THREE.Vector3(), av: new THREE.Vector3() }, pb = { cam: new THREE.Vector3(), look: new THREE.Vector3(), av: new THREE.Vector3() };
+function rail(js) {   // js = scroll position inside the journey (px)
+  let A = K0, B = K0, u = 0, facing = null;
+  if (!stops.length || js <= (stops[0] ? stops[0].s0 : 0)) { A = K0; B = K0; }
+  else {
+    for (let i = 0; i < stops.length; i++) {
+      const st = stops[i], prev = i ? stops[i - 1] : null;
+      if (js < st.s1) {           // travelling from the previous stop (or the doorway) to this one
+        if (prev) { stopPose(prev, prev.yBot, pa); A = pa; } else A = K0;
+        stopPose(st, st.yTop, pb); B = pb; u = smooth(st.s0, st.s1, js); break;
+      }
+      if (js < st.s3) {           // dwelling: read, then pan down a tall wall
+        stopPose(st, st.yTop, pa); stopPose(st, st.yBot, pb); A = pa; B = pb; u = smooth(st.s1 + (st.s2 - st.s1 - st.pan) * 0.5, st.s2, js); facing = st; break;
+      }
+      if (i === stops.length - 1) { stopPose(st, st.yBot, pa); A = pa; B = pa; facing = st; }
+    }
+  }
+  railCam.lerpVectors(A.cam, B.cam, u); railLook.lerpVectors(A.look, B.look, u); railAv.lerpVectors(A.av, B.av, u);
+  // a gentle arc so the camera swings round rather than sliding sideways
+  if (A !== B && A.cam && B.cam && !A.cam.equals(B.cam)) railCam.y += Math.sin(u * Math.PI) * 0.6;
+  return facing;
+}
+
+// keep panels that aren't near the camera out of the browser's way
+function cullPanels() {
+  const f = new THREE.Vector3(); cam.getWorldDirection(f);
+  objs.forEach(o => { const v = o.position.clone().sub(cam.position); const vis = v.dot(f) > 0.5 && v.length() < 40; if (o.element.style.visibility !== (vis ? 'visible' : 'hidden')) o.element.style.visibility = vis ? 'visible' : 'hidden'; });
+}
 
 /* ---------------- game state ---------------- */
-const P = { pos: new THREE.Vector3(0, 0, 8), heading: Math.PI, vel: 0, target: null, focus: null };
+const P = { pos: new THREE.Vector3(0, 0, 8), heading: Math.PI, target: null, focus: null };
 const keys = new Set();
-let camYaw = Math.PI, camYawUser = 0, phase = 0, walkAmt = 0, idleT = 0, waveT = -1, active = null, tour = null, introT = 0, started = false;
+let camYaw = 0, camYawUser = 0, phase = 0, walkAmt = 0, idleT = 0, waveT = -1, active = null, tour = null, introT = 0, started = false, blendB = 0;
 const clip = { action: null, t: 0, dur: 0 };
 function playClip(n) {
   if (!rig || !rig.clips[n] || clip.action) return;
@@ -314,38 +516,31 @@ function playClip(n) {
   Object.assign(clip, { action: a, t: 0, dur: rig.clips[n].duration });
 }
 function stopClip() { if (clip.action) clip.action.stop(); clip.action = null; }
-
 function begin() { if (!started) { started = true; sec.classList.add('mu-started'); } }
 function walkTo(v, focus = null) { begin(); stopClip(); P.target = v.clone(); P.focus = focus; }
 function goExhibit(e) { walkTo(e.spot, e); }
 
-/* ---------------- input ---------------- */
+/* ---------------- input (the rotunda) ---------------- */
 let inView = false;
+const roaming = () => blendB < 0.05;
 const MOVE = { KeyW: [0, 1], ArrowUp: [0, 1], KeyS: [0, -1], ArrowDown: [0, -1], KeyA: [-1, 0], ArrowLeft: [-1, 0], KeyD: [1, 0], ArrowRight: [1, 0] };
 window.addEventListener('keydown', e => {
-  if (!inView || root.classList.contains('world-open') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (!inView || !roaming() || root.classList.contains('world-open') || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
   if (MOVE[e.code]) { keys.add(e.code); e.preventDefault(); stopTour(); P.target = null; begin(); }
-  if ((e.code === 'KeyE' || e.code === 'Enter') && active && e.target === document.body) { e.preventDefault(); enter(active); }
+  if ((e.code === 'KeyE' || e.code === 'Enter') && active) { e.preventDefault(); enter(active); }
 });
 window.addEventListener('keyup', e => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
-
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener('pointerdown', e => { down = { x: e.clientX, y: e.clientY, yaw: camYawUser, drag: false }; canvas.setPointerCapture(e.pointerId); });
-canvas.addEventListener('pointermove', e => {
-  if (!down) return;
-  const dx = e.clientX - down.x;
-  if (Math.abs(dx) > 6) down.drag = true;
-  if (down.drag) camYawUser = down.yaw - dx * 0.006;
-});
+canvas.addEventListener('pointerdown', e => { if (!roaming()) return; down = { x: e.clientX, y: e.clientY, yaw: camYawUser, drag: false }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x; if (Math.abs(dx) > 6) down.drag = true; if (down.drag) camYawUser = down.yaw - dx * 0.006; });
 canvas.addEventListener('pointerup', e => {
   const d = down; down = null;
-  if (!d || d.drag) return;
+  if (!d || d.drag || !roaming()) return;
   const r = canvas.getBoundingClientRect();
   ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(ndc, cam);
-  stopTour();
+  ray.setFromCamera(ndc, cam); stopTour();
   for (const ex of EXHIBITS) if (ray.intersectObjects(ex.hit, true).length) { goExhibit(ex); return; }
   const p = new THREE.Vector3(); if (ray.ray.intersectPlane(floorPlane, p)) walkTo(p);
 });
@@ -363,19 +558,13 @@ function showPlacard(e) {
   pEnter.setAttribute('href', e.about ? '#about' : '#case-' + (e.id === 'chat' ? 'securechat' : e.id));
   pLive.hidden = !e.live; if (e.live) pLive.href = e.live;
   placard.classList.add('on');
-  window.dispatchEvent(new CustomEvent('museum:exhibit', { detail: { id: e.id } }));
 }
-function enter(e) {
-  if (e.about) { stopTour(); const el = document.getElementById('about'); window.__lenis ? window.__lenis.scrollTo(el, { duration: 1.6 }) : el.scrollIntoView({ behavior: 'smooth' }); return; }
-  pEnter.click();
-}
+function scrollToEl(el) { window.__lenis ? window.__lenis.scrollTo(el, { offset: -64, duration: 2.2 }) : el.scrollIntoView({ behavior: 'smooth' }); }
+function enter(e) { if (e.about) { stopTour(); scrollToEl(document.getElementById('about')); return; } pEnter.click(); }
 pEnter.addEventListener('click', ev => { if (active && active.about) { ev.preventDefault(); enter(active); } });
-
 function startTour() { begin(); tour = { i: 0, wait: 0 }; goExhibit(byId(TOUR[0])); tourBtn.textContent = 'Stop the tour'; tourBtn.setAttribute('aria-pressed', 'true'); }
 function stopTour() { if (!tour) return; tour = null; tourBtn.textContent = 'Guided tour'; tourBtn.setAttribute('aria-pressed', 'false'); }
 tourBtn.addEventListener('click', () => (tour ? stopTour() : startTour()));
-sec.querySelectorAll('[data-goto]').forEach(b => b.addEventListener('click', () => { stopTour(); goExhibit(byId(b.dataset.goto)); }));
-
 const mctx = mapCv.getContext('2d');
 function drawMap() {
   const s = mapCv.width, c = s / 2, k = (s / 2 - 8) / R;
@@ -383,14 +572,13 @@ function drawMap() {
   mctx.fillStyle = 'rgba(246,241,232,.92)'; mctx.beginPath(); mctx.arc(c, c, s / 2 - 2, 0, Math.PI * 2); mctx.fill();
   mctx.strokeStyle = 'rgba(42,36,28,.5)'; mctx.lineWidth = 1.5; mctx.stroke();
   EXHIBITS.forEach(e => {
-    const on = active === e;
-    mctx.fillStyle = on ? '#9b3d22' : '#2a241c';
+    const on = active === e; mctx.fillStyle = on ? '#9b3d22' : '#2a241c';
     mctx.fillRect(c + e.pos.x * k - 5, c + e.pos.z * k - 5, 10, 10);
     mctx.fillStyle = on ? '#9b3d22' : 'rgba(42,36,28,.7)'; mctx.font = `600 10px ${MONO}`; mctx.textAlign = 'center';
     mctx.fillText(e.no, c + e.pos.x * k * 0.78, c + e.pos.z * k * 0.78 + 4);
   });
-  const px = c + P.pos.x * k, pz = c + P.pos.z * k;
-  mctx.save(); mctx.translate(px, pz); mctx.rotate(-P.heading + Math.PI);
+  const px = c + char.position.x * k, pz = c + Math.min(R, char.position.z) * k;
+  mctx.save(); mctx.translate(px, pz); mctx.rotate(-char.rotation.y + Math.PI);
   mctx.fillStyle = '#9b3d22'; mctx.beginPath(); mctx.moveTo(0, -8); mctx.lineTo(5.5, 6); mctx.lineTo(-5.5, 6); mctx.closePath(); mctx.fill(); mctx.restore();
 }
 mapCv.addEventListener('click', e => {
@@ -403,23 +591,33 @@ mapCv.addEventListener('click', e => {
 
 /* ---------------- loop ---------------- */
 const tmp = new THREE.Vector3(), camPos = new THREE.Vector3(0, 5.6, 12.6), camLook = new THREE.Vector3(0, 1.4, -4);
+const roamCam = new THREE.Vector3(0, 5.6, 12.6), roamLook = new THREE.Vector3(0, 1.4, -4);
+const prevAv = new THREE.Vector3(0, 0, 8);
 function resize() {
-  const w = sec.clientWidth, h = sec.clientHeight;
-  renderer.setSize(w, h, false); cam.aspect = w / h; cam.fov = w / h < 0.8 ? 62 : 48; cam.updateProjectionMatrix();
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false); css.setSize(w, h);
+  cam.aspect = w / h; cam.fov = w / h < 0.8 ? 62 : 48; cam.updateProjectionMatrix();
   mapCv.width = mapCv.height = Math.round(mapCv.clientWidth * Math.min(2, window.devicePixelRatio || 1)) || 240;
+  layoutWing();
 }
-window.addEventListener('resize', resize);
+let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
 
-let last = 0, raf = 0;
+let last = 0;
 function frame(now) {
-  raf = requestAnimationFrame(frame);
-  if (!inView || root.classList.contains('world-open')) { last = 0; return; }
+  requestAnimationFrame(frame);
+  if (root.classList.contains('world-open')) { last = 0; return; }
   const dt = Math.min(0.05, last ? (now - last) / 1000 : 0.016); last = now;
   const t = now / 1000;
   EXHIBITS.forEach(e => e.update(reduce ? 0 : t));
 
-  // movement
-  let mv = new THREE.Vector3();
+  // where are we: the rotunda (play) or the wing (scroll)?
+  const H0 = sec.offsetHeight, sy = window.scrollY;
+  blendB = built ? smooth(H0 * 0.18, H0 * 0.9, sy) : 0;
+  canvas.style.pointerEvents = roaming() ? '' : 'none';
+  if (!roaming()) { keys.clear(); P.target = null; stopTour(); }
+
+  // ---- rotunda movement ----
+  const mv = new THREE.Vector3();
   const camFwd = new THREE.Vector3(Math.sin(camYaw + camYawUser + Math.PI), 0, Math.cos(camYaw + camYawUser + Math.PI));
   const camRight = new THREE.Vector3(-camFwd.z, 0, camFwd.x);
   keys.forEach(k => { const [x, z] = MOVE[k]; mv.addScaledVector(camRight, x).addScaledVector(camFwd, z); });
@@ -430,40 +628,59 @@ function frame(now) {
     if (d < 0.08) { P.target = null; if (P.focus) waveT = 0; }
     else { mv.copy(tmp).normalize(); speed = Math.min(2.4, d * 3 + 0.4); }
   }
-  if (speed) {
-    if (clip.action) stopClip();
-    P.pos.addScaledVector(mv, speed * dt);
-    const want = Math.atan2(mv.x, mv.z);
-    let dh = want - P.heading; while (dh > Math.PI) dh -= 2 * Math.PI; while (dh < -Math.PI) dh += 2 * Math.PI;
-    P.heading += dh * (1 - Math.pow(0.0005, dt));
-  } else if (P.focus) {
-    const want = Math.atan2(P.focus.pos.x - P.pos.x, P.focus.pos.z - P.pos.z);
-    let dh = want - P.heading; while (dh > Math.PI) dh -= 2 * Math.PI; while (dh < -Math.PI) dh += 2 * Math.PI;
-    P.heading += dh * (1 - Math.pow(0.02, dt));
-  }
-  // walls and plinths
+  if (speed) { if (clip.action) stopClip(); P.pos.addScaledVector(mv, speed * dt); P.heading += angDiff(Math.atan2(mv.x, mv.z), P.heading) * (1 - Math.pow(0.0005, dt)); }
+  else if (P.focus) P.heading += angDiff(Math.atan2(P.focus.pos.x - P.pos.x, P.focus.pos.z - P.pos.z), P.heading) * (1 - Math.pow(0.02, dt));
   const r = Math.hypot(P.pos.x, P.pos.z); if (r > R - 1.6) P.pos.multiplyScalar((R - 1.6) / r);
   EXHIBITS.forEach(e => { tmp.subVectors(P.pos, e.pos); tmp.y = 0; const d = tmp.length(); if (d < 1.45) P.pos.addScaledVector(tmp.normalize(), 1.45 - d); });
+
+  // ---- rotunda camera ----
+  if (rig || introT > 0) introT = Math.min(1, introT + dt / (reduce ? 0.01 : 3.2));
+  if (speed && mv.dot(camFwd) > -0.3) camYaw += angDiff(P.heading + Math.PI, camYaw) * (1 - Math.pow(0.25, dt));
+  if (!down) camYawUser *= Math.pow(0.4, dt);
+  const yaw = camYaw + camYawUser, dist = small() ? 6.2 : 5.4, height = small() ? 3.1 : 2.5;
+  const follow = tmp.set(P.pos.x + Math.sin(yaw) * dist, height, P.pos.z + Math.cos(yaw) * dist);
+  const fr = Math.hypot(follow.x, follow.z); if (fr > R - 0.6) { follow.x *= (R - 0.6) / fr; follow.z *= (R - 0.6) / fr; }
+  const e3 = 1 - Math.pow(1 - introT, 3);
+  roamCam.lerp(new THREE.Vector3(0, 5.6, 12.6).lerp(follow, e3), 1 - Math.pow(0.02, dt));
+  const lookGoal = new THREE.Vector3(0, 1.4, -4).lerp(new THREE.Vector3(P.pos.x, 1.15, P.pos.z), e3);
+  if (active && !speed) lookGoal.lerp(new THREE.Vector3(active.pos.x, 1.4, active.pos.z), 0.35 * e3);
+  roamLook.lerp(lookGoal, 1 - Math.pow(0.01, dt));
+
+  // ---- the wing ----
+  const facing = rail(sy - journey.offsetTop);
+  cam.position.lerpVectors(roamCam, railCam, blendB);
+  camLook.lerpVectors(roamLook, railLook, blendB);
+  cam.lookAt(camLook);
+
+  // ---- the avatar: player in the rotunda, companion in the wing ----
+  const avPos = tmp.lerpVectors(P.pos, railAv, blendB).clone();
+  let head = P.heading;
+  if (blendB > 0) {
+    const moving = avPos.distanceTo(prevAv) / dt;
+    if (moving > 0.3) railHead += angDiff(Math.atan2(avPos.x - prevAv.x, avPos.z - prevAv.z), railHead) * (1 - Math.pow(0.001, dt));
+    else railHead += angDiff(Math.atan2(cam.position.x - avPos.x, cam.position.z - avPos.z), railHead) * (1 - Math.pow(0.05, dt));
+    head = P.heading + angDiff(railHead, P.heading) * blendB;
+    speed = Math.max(speed * (1 - blendB), Math.min(2.4, moving));
+  } else railHead = P.heading;
+  const arrived = blendB > 0.5 && facing && speed < 0.2 && walkAmt > 0.4;
+  if (arrived) waveT = 0;
+  prevAv.copy(avPos);
+  char.position.copy(avPos); char.rotation.y = head;
 
   walkAmt += ((speed ? Math.min(1, speed / 2.2) : 0) - walkAmt) * (1 - Math.pow(0.002, dt));
   phase += dt * 9.5 * Math.min(1, walkAmt * 3) * (0.75 + 0.25 * walkAmt);
   idleT = speed ? 0 : idleT + dt;
-  if (idleT > 10 && !tour && !clip.action && !reduce) { playClip(Math.random() < 0.6 ? 'dance' : 'excited'); idleT = -8; }
+  if (idleT > 10 && !tour && !clip.action && !reduce && roaming()) { playClip(Math.random() < 0.6 ? 'dance' : 'excited'); idleT = -8; }
 
-  char.position.copy(P.pos); char.rotation.y = P.heading;
-
-  // pose
   if (rig) {
     for (const [b, q] of rig.rest) b.quaternion.copy(q);
     if (rig.hips) rig.hips.position.copy(rig.hipsRest);
     const sw = Math.sin(phase) * walkAmt;
     rig.wrap.position.y = Math.abs(Math.cos(phase)) * 0.03 * walkAmt + Math.sin(t * 2.1) * 0.003 * (1 - walkAmt);
     rig.wrap.rotation.set(0.04 * walkAmt, 0, Math.sin(t * 1.1) * 0.012 * (1 - walkAmt));
-    // legs: hip swing + knee bend (her right = character's −x)
     const hipR = qx(-sw * 0.55), hipL = qx(sw * 0.55);
     drive('RightUpLeg', hipR); drive('RightLeg', conj(hipR, qx(Math.max(0, Math.sin(phase + 1.6)) * 0.9 * walkAmt)));
     drive('LeftUpLeg', hipL); drive('LeftLeg', conj(hipL, qx(Math.max(0, Math.sin(phase + 1.6 + Math.PI)) * 0.9 * walkAmt)));
-    // arms: opposite swing, arms in from the rest pose; a wave on arrival
     let lz = 0.1, lx = -sw * 0.45, lel = -0.15 - 0.25 * walkAmt, lelz = 0;
     if (waveT >= 0) {
       waveT += dt; const k = Math.min(1, waveT * 5) * Math.min(1, (2 - waveT) * 5);
@@ -474,11 +691,11 @@ function frame(now) {
     const shL = qe(lx, 0, lz).multiply(Q().setFromAxisAngle(new THREE.Vector3(0, 0, 1), -0.22));
     drive('RightArm', shR); drive('RightForeArm', conj(shR, qe(-0.15 - 0.25 * walkAmt, 0, 0)));
     drive('LeftArm', shL); drive('LeftForeArm', conj(shL, qe(lel, 0, lelz)));
-    // head looks toward the exhibit she's at
-    let hy = 0; if (active && !speed) { const a = Math.atan2(active.pos.x - P.pos.x, active.pos.z - P.pos.z) - P.heading; hy = Math.max(-0.5, Math.min(0.5, Math.atan2(Math.sin(a), Math.cos(a)))); }
+    let hy = 0;
+    if (active && !speed && roaming()) hy = Math.max(-0.5, Math.min(0.5, angDiff(Math.atan2(active.pos.x - P.pos.x, active.pos.z - P.pos.z), P.heading)));
+    else if (facing && !speed) hy = Math.max(-0.6, Math.min(0.6, angDiff(Math.atan2(-facing.n.x, -facing.n.z), head)));
     const hq = qe(0.05, hy, 0), half = Q().slerp(hq, 0.45);
     drive('Neck', half); drive('Head', half.clone().invert().multiply(hq));
-    // mocap clip blended over the pose
     if (clip.action) {
       clip.t += dt;
       const w = Math.max(0, Math.min(Math.min(1, clip.t / 0.35), (clip.dur - clip.t) / 0.45));
@@ -491,41 +708,26 @@ function frame(now) {
     }
   }
 
-  // nearest exhibit → placard
+  // nearest exhibit → placard (rotunda only)
   let near = null, nd = 3.3;
-  EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - P.pos.x, e.pos.z - P.pos.z); if (d < nd) { nd = d; near = e; } });
+  if (roaming()) EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - P.pos.x, e.pos.z - P.pos.z); if (d < nd) { nd = d; near = e; } });
   showPlacard(near);
-  EXHIBITS.forEach(e => { const k = e === near ? 1.08 : 1; e.obj.scale.lerp(tmp.set(k, k, k), 0.08); });
-
-  // the tour
-  if (tour && !P.target) {
-    tour.wait += dt;
-    if (tour.wait > 4.2) { tour.i++; tour.wait = 0; if (tour.i >= TOUR.length) stopTour(); else goExhibit(byId(TOUR[tour.i])); }
-  }
-
-  // camera: an overhead reveal, then a follow camera behind her
-  if (rig || introT > 0) introT = Math.min(1, introT + dt / (reduce ? 0.01 : 3.2));
-  if (speed && mv.dot(camFwd) > -0.3) { let d = (P.heading + Math.PI) - camYaw; while (d > Math.PI) d -= 2 * Math.PI; while (d < -Math.PI) d += 2 * Math.PI; camYaw += d * (1 - Math.pow(0.25, dt)); }
-  if (!down) camYawUser *= Math.pow(0.4, dt);
-  const yaw = camYaw + camYawUser, dist = small() ? 6.2 : 5.4, height = small() ? 3.1 : 2.5;
-  const follow = tmp.set(P.pos.x + Math.sin(yaw) * dist, height, P.pos.z + Math.cos(yaw) * dist);
-  const fr = Math.hypot(follow.x, follow.z); if (fr > R - 0.6) { follow.x *= (R - 0.6) / fr; follow.z *= (R - 0.6) / fr; }
-  const e3 = 1 - Math.pow(1 - introT, 3);
-  const goal = new THREE.Vector3(0, 5.6, 12.6).lerp(follow, e3);
-  camPos.lerp(goal, 1 - Math.pow(0.02, dt));
-  const lookGoal = new THREE.Vector3(0, 1.4, -4).lerp(new THREE.Vector3(P.pos.x, 1.15, P.pos.z), e3);
-  if (active && !speed) lookGoal.lerp(tmp.set(active.pos.x, 1.4, active.pos.z), 0.35 * e3);
-  camLook.lerp(lookGoal, 1 - Math.pow(0.01, dt));
-  cam.position.copy(camPos); cam.lookAt(camLook);
+  EXHIBITS.forEach(e => { const k = e === near ? 1.08 : 1; e.obj.scale.lerp(new THREE.Vector3(k, k, k), 0.08); });
+  if (tour && !P.target) { tour.wait += dt; if (tour.wait > 4.2) { tour.i++; tour.wait = 0; if (tour.i >= TOUR.length) stopTour(); else goExhibit(byId(TOUR[tour.i])); } }
 
   renderer.render(scene, cam);
-  drawMap();
+  const fade = smooth(0.25, 0.75, blendB);
+  if (fade > 0) { cullPanels(); css.render(cssScene, cam); cssLayer.style.display = 'block'; cssLayer.style.opacity = fade.toFixed(3); }
+  else cssLayer.style.display = 'none';
+  if (sy < H0) drawMap();
 }
 
 /* ---------------- start ---------------- */
-resize();
 new IntersectionObserver(en => { inView = en[0].isIntersecting; if (!inView) keys.clear(); }, { threshold: 0.2 }).observe(sec);
 new IntersectionObserver(en => root.classList.toggle('in-museum', en[0].intersectionRatio > 0.3), { threshold: [0, 0.3, 0.6] }).observe(sec);
+if (!reduce) makePanels();   // reduced motion keeps the ordinary page below the museum
 sec.classList.add('mu-on');
-raf = requestAnimationFrame(frame);
+resize();
+if (document.fonts) document.fonts.ready.then(() => setTimeout(layoutWing, 50));
+requestAnimationFrame(frame);
 loadAvatar().catch(err => console.warn('Museum avatar unavailable:', err)).finally(() => { loadEl.classList.add('done'); });
