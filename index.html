@@ -25,7 +25,7 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Anybody:wdth,wght@50..150,100..900&family=Instrument+Serif:ital@0;1&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css">
   <script type="importmap">
     {
@@ -61,7 +61,7 @@
     "email": "mailto:naiksanskruti03@gmail.com",
     "address": { "@type": "PostalAddress", "addressLocality": "Kolhapur", "addressCountry": "IN" },
     "alumniOf": "Sanjay Ghodawat University",
-    "sameAs": ["https://github.com/sanskrutin19", "https://www.linkedin.com/in/sanskruti-naik-475322341"]
+    "sameAs": ["https://github.com/sanskrutin19", "https://www.linkedin.com/in/sanskruti-naik/"]
   }
   </script>
 </head>
@@ -108,7 +108,7 @@
       </ul>
 
       <div class="hero-stage" id="hero-stage">
-        <h1 class="hero-name" id="hero-title"><span class="hn-line">Sanskruti</span><span class="hn-line">Naik</span></h1>
+        <h1 class="hero-name" id="hero-title" aria-label="Sanskruti Naik"><span class="hn-line">Sanskruti</span><span class="hn-line">Naik</span></h1>
         <p class="hero-tag hero-fx" style="--d:.5s">I build intelligence into real products.</p>
 
         <!-- hand-drawn notes, after Adrien Lamy's portfolio -->
@@ -128,7 +128,7 @@
       </ul>
       <ul class="chips hero-links hero-fx" style="--d:.6s" aria-label="Links">
         <li><a href="https://github.com/sanskrutin19" target="_blank" rel="noopener">GitHub</a></li>
-        <li><a href="https://www.linkedin.com/in/sanskruti-naik-475322341" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://www.linkedin.com/in/sanskruti-naik/" target="_blank" rel="noopener">LinkedIn</a></li>
         <li><a href="resume.pdf" target="_blank" rel="noopener">Résumé</a></li>
         <li><a href="mailto:naiksanskruti03@gmail.com">Email</a></li>
       </ul>
@@ -138,11 +138,21 @@
       </a>
     </section>
 
+    <!-- speed typography: outlined / solid words that skew with scroll speed -->
+    <div class="type-band" aria-hidden="true">
+      <div class="tb-skew">
+        <div class="tb-track">
+          <span>AI / ML Engineer</span><span class="o">Generative AI</span><span>RAG</span><span class="o">Computer Vision</span><span>Explainable AI</span><span class="o">Offline-first</span>
+          <span>AI / ML Engineer</span><span class="o">Generative AI</span><span>RAG</span><span class="o">Computer Vision</span><span>Explainable AI</span><span class="o">Offline-first</span>
+        </div>
+      </div>
+    </div>
+
     <!-- ============ STATEMENT + RESULTS ============ -->
     <section class="statement band" id="results" data-scene="results" aria-labelledby="statement-title">
       <div class="wrap">
         <p class="label reveal">00 — Statement</p>
-        <h2 class="statement-title reveal" id="statement-title">I build intelligence <span class="serif">into real products.</span></h2>
+        <h2 class="statement-title reveal kin" id="statement-title">I build intelligence <span class="serif">into real products.</span></h2>
         <div class="statement-foot">
           <p class="statement-lede reveal">From private, citation-grounded AI systems to explainable computer vision and secure offline-first applications, I turn complex engineering problems into products people can use.</p>
           <div class="hero-ctas reveal">
@@ -185,24 +195,29 @@
     <section class="about paper" id="about" aria-labelledby="about-title">
       <div class="wrap">
         <p class="label mono reveal">01 — About</p>
-        <h2 class="about-title reveal" id="about-title">I care about what happens <span class="serif">after the demo.</span></h2>
+        <h2 class="about-title reveal kin" id="about-title">I care about what happens <span class="serif">after the demo.</span></h2>
 
         <div class="about-grid">
-          <figure class="about-photo reveal">
-            <picture>
-              <source srcset="assets/img/sanskruti-cutout.webp" type="image/webp">
-              <img src="assets/img/sanskruti-cutout.png" alt="Sanskruti Naik" width="1030" height="1600" loading="lazy" decoding="async">
-            </picture>
-            <figcaption class="doodle-note">the real me, hi! <svg viewBox="0 0 60 40" aria-hidden="true"><path class="draw" d="M56 6 C 40 4, 20 14, 10 34"/><path class="draw" d="M4 24 L10 35 L20 30"/></svg></figcaption>
-          </figure>
-          <div class="about-body">
+          <div class="about-main">
+            <!-- the About story plays like lyrics on a glass speaker (after the SonicGlass reel) -->
+            <div class="speaker reveal" id="speaker" aria-hidden="true">
+              <div class="sp-glass">
+                <div class="sp-room"></div>
+                <div class="sp-stage" id="sp-stage"></div>
+                <span class="cone c1"><i></i></span>
+                <span class="cone c2"><i></i></span>
+                <span class="sp-glare"></span>
+              </div>
+              <div class="sp-bar mono"><span class="sp-led"></span><span id="sp-now">Now playing · 01</span><span class="sp-eq"><i></i><i></i><i></i><i></i></span></div>
+            </div>
+
             <p class="about-lede reveal">A demo shows that a model can answer. A product has to show <em>why</em> it answered, keep private data where it belongs, and keep working on an ordinary phone with a patchy connection. That is the part of AI engineering I like most.</p>
 
-            <ol class="principles">
-              <li class="reveal"><span class="p-num mono">/01</span><div><h3>Evidence over eloquence</h3><p>Retrieval answers should cite the exact source sentence and page, and retrieval quality should be measured against a golden question set rather than judged by eye.</p></div></li>
-              <li class="reveal"><span class="p-num mono">/02</span><div><h3>Privacy by architecture</h3><p>I prefer local models and end-to-end encryption, so sensitive documents and conversations never have to leave the device.</p></div></li>
-              <li class="reveal"><span class="p-num mono">/03</span><div><h3>Explainability for real people</h3><p>Grad-CAM and SHAP are only useful when the person reading the result, whether a field user or a caregiver, can see what the model looked at.</p></div></li>
-              <li class="reveal"><span class="p-num mono">/04</span><div><h3>Deployment is part of the model</h3><p>Latency, quantization, offline sync and APIs belong in the design from the start.</p></div></li>
+            <ol class="principles tracklist" id="tracklist">
+              <li class="reveal"><button type="button" class="track" data-track="1"><span class="p-num mono">/01</span><span><b>Evidence over eloquence</b><span class="t-desc">Retrieval answers should cite the exact source sentence and page, and retrieval quality should be measured against a golden question set rather than judged by eye.</span></span></button></li>
+              <li class="reveal"><button type="button" class="track" data-track="2"><span class="p-num mono">/02</span><span><b>Privacy by architecture</b><span class="t-desc">I prefer local models and end-to-end encryption, so sensitive documents and conversations never have to leave the device.</span></span></button></li>
+              <li class="reveal"><button type="button" class="track" data-track="3"><span class="p-num mono">/03</span><span><b>Explainability for real people</b><span class="t-desc">Grad-CAM and SHAP are only useful when the person reading the result, whether a field user or a caregiver, can see what the model looked at.</span></span></button></li>
+              <li class="reveal"><button type="button" class="track" data-track="4"><span class="p-num mono">/04</span><span><b>Deployment is part of the model</b><span class="t-desc">Latency, quantization, offline sync and APIs belong in the design from the start.</span></span></button></li>
             </ol>
           </div>
 
@@ -222,25 +237,37 @@
 
     <!-- ============ WORK ============ -->
     <section class="work" id="work" aria-labelledby="work-title">
-      <div class="lens is-static" id="lens">
-        <canvas class="lens-canvas" id="lens-canvas" aria-hidden="true"></canvas>
-        <div class="lens-head">
+      <!-- Ask my portfolio: the portfolio works like a RAG system over my real work -->
+      <div class="ask" id="lens">
+        <div class="ask-head">
           <p class="label">02 — Selected work</p>
-          <h2 class="lens-title" id="work-title">Six systems, <span class="serif">one shutter.</span></h2>
+          <h2 class="ask-title kin reveal" id="work-title">Don't take my word for it. <span class="serif">Ask.</span></h2>
+          <p class="ask-lede">Ask anything about my work. My portfolio retrieves the evidence and cites where it came from, the same way my RAG systems do. Nothing is generated, so nothing is made up.</p>
+          <form class="ask-form" id="ask-form" role="search">
+            <label class="sr-only" for="ask-input">Ask a question about Sanskruti's work</label>
+            <input id="ask-input" type="text" autocomplete="off" placeholder="e.g. Has she shipped AI to production?" maxlength="140">
+            <button class="btn btn-lime btn-sm" type="submit"><span>Retrieve</span><span class="btn-arrow" aria-hidden="true">→</span></button>
+          </form>
+          <ul class="ask-chips" aria-label="Suggested questions">
+            <li><button type="button" class="chip" data-q="Has she shipped AI to production?">Shipped to production?</button></li>
+            <li><button type="button" class="chip" data-q="Can she build RAG and LLM systems?">RAG &amp; LLMs?</button></li>
+            <li><button type="button" class="chip" data-q="Does she understand security and encryption?">Security?</button></li>
+            <li><button type="button" class="chip" data-q="Can she do computer vision and explainable AI?">Computer vision?</button></li>
+            <li><button type="button" class="chip" data-q="Has she built mobile apps that work offline?">Mobile &amp; offline?</button></li>
+            <li><button type="button" class="chip" data-q="Has she led teams or worked with stakeholders?">Leadership?</button></li>
+          </ul>
+          <ol class="ask-pipe mono" id="ask-pipe" aria-hidden="true"><li>Query</li><li>Retrieve</li><li>Rerank</li><li>Cite</li></ol>
+          <div class="ask-results" id="ask-results" aria-live="polite"></div>
         </div>
-        <p class="lens-hint chip" id="lens-hint">Click the camera to develop my projects</p>
-        <div class="lens-controls">
-          <button class="btn btn-lime btn-sm" id="lens-shoot" type="button"><span>Press the shutter</span><span class="btn-arrow" aria-hidden="true">◉</span></button>
-          <span class="mono lens-count" id="lens-count" aria-live="polite">0 / 6 developed</span>
+
+        <div class="archive" id="archive">
+          <a class="dossier d-rag" href="#case-rag" data-world="rag" data-p="rag"><span class="mono">01 · Archive that thinks</span><b>Tender Intelligence</b><i>Offline RAG with citations</i></a>
+          <a class="dossier d-chat" href="#case-securechat" data-world="chat" data-p="chat"><span class="mono">02 · Sealed artifact</span><b>SecureChat</b><i>End-to-end encryption</i></a>
+          <a class="dossier d-geo" href="#case-geo" data-world="geo" data-p="geo"><span class="mono">03 · Orbital record</span><b>Change from above</b><i>Satellite detection</i></a>
+          <a class="dossier d-plant" href="#case-plant" data-world="plant" data-p="plant"><span class="mono">04 · Living specimen</span><b>Crop-disease AI</b><i>Grad-CAM in a phone</i></a>
+          <a class="dossier d-xai" href="#case-xai" data-world="xai" data-p="xai"><span class="mono">05 · Talking alarm</span><b>XAI-Care</b><i>Alerts that explain</i></a>
+          <a class="dossier d-water" href="#case-water" data-world="water" data-p="water"><span class="mono">06 · Field log</span><b>Water Survey</b><i>Offline-first field app</i></a>
         </div>
-        <ol class="prints" id="prints" aria-label="Projects. Open one to enter its world.">
-          <li><a class="print" href="#case-rag" data-world="rag"><span class="ph-art ph-rag" aria-hidden="true"><i></i><i></i><i class="hl"></i><i></i><i class="short"></i></span><span class="ph-cap">01 · Offline RAG Platform</span></a></li>
-          <li><a class="print" href="#case-securechat" data-world="chat"><span class="ph-art ph-chat" aria-hidden="true"><i></i><i class="out"></i><i></i><b>E2EE</b></span><span class="ph-cap">02 · SecureChat</span></a></li>
-          <li><a class="print" href="#case-geo" data-world="geo"><span class="ph-art ph-geo" aria-hidden="true"><b></b></span><span class="ph-cap">03 · Construction Detection</span></a></li>
-          <li><a class="print" href="#case-plant" data-world="plant"><span class="ph-art ph-leaf" aria-hidden="true"><svg viewBox="0 0 100 120"><path d="M50 6 C 84 26, 96 74, 51 114 C 6 74, 18 26, 50 6 Z" fill="#2f5a2a" stroke="#85ad5d"/><path d="M50 12 L51 110" stroke="#85ad5d" fill="none"/><circle cx="66" cy="52" r="16" fill="#cfe0b6" opacity=".6"/><circle cx="66" cy="52" r="6" fill="#fbfff0" opacity=".85"/></svg></span><span class="ph-cap">04 · Plant Classifier</span></a></li>
-          <li><a class="print" href="#case-xai" data-world="xai"><span class="ph-art ph-xai" aria-hidden="true"><i style="--w:88%"></i><i style="--w:64%"></i><i style="--w:47%"></i><i class="neg" style="--w:18%"></i></span><span class="ph-cap">05 · XAI-Care</span></a></li>
-          <li><a class="print" href="#case-water" data-world="water"><span class="ph-art ph-water" aria-hidden="true"><i></i><i></i><i></i><b>synced ✓</b></span><span class="ph-cap">06 · Water Survey</span></a></li>
-        </ol>
       </div>
 
       <!-- Case studies live inside the project worlds (opened from the polaroids).
@@ -631,7 +658,7 @@
     <section class="skills band" id="skills" data-scene="clusters" aria-labelledby="skills-title">
       <div class="wrap">
         <p class="label mono reveal">03 — Skills</p>
-        <h2 class="section-title reveal" id="skills-title">A map, <span class="serif">not a percentage.</span></h2>
+        <h2 class="section-title reveal kin" id="skills-title">A map, <span class="serif">not a percentage.</span></h2>
         <p class="skills-intro reveal">Choose a project to light up the tools it used.</p>
 
         <div class="skill-filter reveal" role="group" aria-label="Filter skills by project">
@@ -684,7 +711,7 @@
     <section class="experience paper" id="experience" aria-labelledby="exp-title">
       <div class="wrap">
         <p class="label mono reveal">04 — Experience</p>
-        <h2 class="section-title reveal" id="exp-title">Record, <span class="serif">with evidence.</span></h2>
+        <h2 class="section-title reveal kin" id="exp-title">Record, <span class="serif">with evidence.</span></h2>
 
         <ol class="timeline">
           <li class="tl-item reveal">
@@ -746,7 +773,7 @@
     <section class="contact band" id="contact" data-scene="ring" aria-labelledby="contact-title">
       <div class="wrap">
         <p class="label mono reveal">05 — Contact</p>
-        <h2 class="contact-title reveal" id="contact-title">Have a difficult problem <span class="serif">worth solving?</span></h2>
+        <h2 class="contact-title reveal kin" id="contact-title">Have a difficult problem <span class="serif">worth solving?</span></h2>
         <div class="contact-row reveal">
           <a class="contact-email" href="mailto:naiksanskruti03@gmail.com">naiksanskruti03@gmail.com<span aria-hidden="true">↗</span></a>
           <button type="button" class="chip" id="copy-email" data-email="naiksanskruti03@gmail.com">Copy email</button>
@@ -754,7 +781,7 @@
         </div>
         <ul class="contact-links mono reveal">
           <li><a href="https://github.com/sanskrutin19" target="_blank" rel="noopener">GitHub ↗</a></li>
-          <li><a href="https://www.linkedin.com/in/sanskruti-naik-475322341" target="_blank" rel="noopener">LinkedIn ↗</a></li>
+          <li><a href="https://www.linkedin.com/in/sanskruti-naik/" target="_blank" rel="noopener">LinkedIn ↗</a></li>
           <li><a href="resume.pdf" target="_blank" rel="noopener">Résumé (PDF) ↗</a></li>
           <li><a href="https://promptivo.live/app" target="_blank" rel="noopener">RAG live app ↗</a></li>
         </ul>
@@ -777,6 +804,8 @@
 
   <script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js" defer></script>
   <script src="assets/js/site.js" defer></script>
+  <script src="assets/js/evidence.js" defer></script>
+  <script src="assets/js/speaker.js" defer></script>
   <!-- Project worlds: full-screen 3D case-study overlays opened from the polaroids -->
   <div class="world" id="world" role="dialog" aria-modal="true" aria-labelledby="world-title" hidden>
     <canvas class="world-canvas" id="world-canvas" aria-hidden="true"></canvas>
@@ -798,7 +827,6 @@
   <script type="module" src="assets/js/worlds.js"></script>
   <script type="module">
     if (document.documentElement.classList.contains('webgl3d')) {
-      import('./assets/js/camera3d.js').catch(function (e) { console.warn('3D camera unavailable:', e); });
       import('./assets/js/minime.js').catch(function (e) { console.warn('Mini-me unavailable:', e); });
     }
   </script>

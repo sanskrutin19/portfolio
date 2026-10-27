@@ -2,7 +2,7 @@
 
 **Live:** https://portfolio-green-nine-58.vercel.app
 
-A portfolio that shows the work instead of listing it. A motion-captured 3D version of me drags my name onto the page, walks along with you as you scroll, and reacts when you click, drag or drop her. A full-screen 3D camera develops a polaroid for each project, and each polaroid opens into its own art-directed 3D world with a live demo.
+A portfolio that shows the work instead of listing it. A motion-captured 3D version of me drags my name onto the page, walks along with you as you scroll, and reacts when you click, drag or drop her. Instead of a project grid, visitors **ask** questions ("Has she shipped AI to production?"): the page retrieves and cites evidence from my real work, the way my RAG systems do, and the matching project dossiers fly forward. Each one opens into its own art-directed 3D world with a live demo. The About section plays like lyrics on a glass speaker.
 
 ## Highlights
 
@@ -30,11 +30,12 @@ index.html            page
 assets/css/site.css   design tokens, layout, themes
 assets/js/site.js     navigation, reveals, demos, smooth scroll
 assets/js/minime.js   the 3D avatar: rig, motion, clips, opening scene
-assets/js/camera3d.js 3D camera + polaroids
+assets/js/evidence.js "Ask" — in-browser retrieval over my real work, with citations
+assets/js/speaker.js  About: a glass speaker playing kinetic lyrics
 assets/js/worlds.js   per-project 3D worlds
 assets/avatar/        compressed avatar body + animation clips
 ```
 
 ## Contact
 
-[naiksanskruti03@gmail.com](mailto:naiksanskruti03@gmail.com) · [LinkedIn](https://www.linkedin.com/in/sanskruti-naik-475322341) · [GitHub](https://github.com/sanskrutin19)
+[naiksanskruti03@gmail.com](mailto:naiksanskruti03@gmail.com) · [LinkedIn](https://www.linkedin.com/in/sanskruti-naik/) · [GitHub](https://github.com/sanskrutin19)

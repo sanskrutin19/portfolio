@@ -351,7 +351,7 @@ function say(text, ms = 4200) {
 const LINES = {
   home: "Hi! I'm Sanskruti. Drag me around, or scroll and I'll tag along.",
   about: 'Hi again! My projects are just below.',
-  lens: 'Click the camera. It develops my projects!',
+  lens: "Ask my portfolio anything. I'll show you the evidence.",
   contact: "Say hi! I'd love to hear from you."
 };
 const CLICK_LINES = ['Hi there!', 'Want to see my projects?', 'Certified yapper, but a sensible talker.', 'Clumsy? Yeah… but always moving forward.'];
@@ -531,7 +531,10 @@ function applyReal(dt, t, blinkAmt, talking) {
 /* ---------------- actions ---------------- */
 let action = null, actionT = 0;
 function act(name) { if (action === 'pull') return; action = name; actionT = 0; }
-window.addEventListener('snap:shot', () => { if (!playClip('excited')) act('cheer'); say('Cheese!', 2200); });
+window.addEventListener('ask:answer', e => {
+  if (e.detail.found) { if (!playClip('excited')) act('cheer'); say("Here's the evidence. Click a project to step inside.", 3600); }
+  else { act('wave'); say("I only quote real work, so no answer is better than a made-up one.", 3600); }
+});
 let nextFlourish = 4 + Math.random() * 3;   // seconds until her next little idle flourish
 
 /* ---------------- outfits ---------------- */

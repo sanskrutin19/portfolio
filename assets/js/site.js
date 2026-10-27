@@ -313,6 +313,89 @@
   }
 
   /* ------------------------------------------------------------------
+     Graphic typography
+     - the name is split into letters; some are outlined, and each one
+       stretches (variable width + weight) as the cursor comes near
+     - the stretch is a transform, so it never moves the layout
+     - headings rise word by word; the type band skews with scroll speed
+     ------------------------------------------------------------------ */
+  function typography() {
+    var name = $('#hero-title');
+    var OUTLINED = { 0: [4, 5, 6], 1: [0] };   // K R U in SANSKRUTI, N in NAIK
+    var letters = [];
+    if (name) {
+      $$('.hn-line', name).forEach(function (line, li) {
+        var text = line.textContent;
+        line.textContent = '';
+        line.setAttribute('aria-hidden', 'true');
+        Array.prototype.forEach.call(text, function (c, i) {
+          var s = document.createElement('span');
+          s.className = 'ch' + ((OUTLINED[li] || []).indexOf(i) >= 0 ? ' o' : '');
+          s.textContent = c;
+          line.appendChild(s);
+          letters.push({ el: s, f: 0 });
+        });
+      });
+    }
+
+    // kinetic headings: wrap every word (keeping inner spans such as .serif)
+    $$('.kin').forEach(function (h) {
+      var i = 0;
+      (function walk(node) {
+        Array.prototype.slice.call(node.childNodes).forEach(function (n) {
+          if (n.nodeType === 3) {
+            var frag = document.createDocumentFragment();
+            n.textContent.split(/(\s+)/).forEach(function (part) {
+              if (!part) return;
+              if (/^\s+$/.test(part)) { frag.appendChild(document.createTextNode(part)); return; }
+              var w = document.createElement('span'); w.className = 'w';
+              var wi = document.createElement('span'); wi.className = 'wi'; wi.style.setProperty('--i', i++);
+              wi.textContent = part; w.appendChild(wi); frag.appendChild(w);
+            });
+            n.parentNode.replaceChild(frag, n);
+          } else if (n.nodeType === 1) walk(n);
+        });
+      })(h);
+    });
+
+    if (reduceMotion) return;
+
+    // the stretch
+    var fine = window.matchMedia('(hover: hover) and (pointer: fine)').matches;
+    var px = -9999, py = -9999, hero = $('#home');
+    window.addEventListener('pointermove', function (e) { px = e.clientX; py = e.clientY; }, { passive: true });
+    var band = $('.tb-skew'), lastY = window.scrollY, skew = 0;
+    (function loop(t) {
+      requestAnimationFrame(loop);
+      // band: skew with scroll velocity
+      if (band) {
+        var dy = window.scrollY - lastY; lastY = window.scrollY;
+        skew += (Math.max(-12, Math.min(12, -dy * 0.35)) - skew) * 0.12;
+        band.style.transform = 'skewX(' + skew.toFixed(2) + 'deg)';
+      }
+      if (!letters.length || !hero || window.scrollY > hero.offsetHeight) return;
+      var sec = t / 1000;
+      letters.forEach(function (l, i) {
+        var target;
+        if (fine) {
+          var r = l.el.getBoundingClientRect();
+          var cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+          var R = r.height * 0.9, d2 = ((px - cx) * (px - cx)) / (R * R) + ((py - cy) * (py - cy)) / (R * R * 1.6);
+          target = Math.exp(-d2);
+        } else {
+          target = (Math.sin(sec * 1.5 - i * 0.55) + 1) / 2 * 0.55;   // a slow wave on touch screens
+        }
+        l.f += (target - l.f) * 0.14;
+        var f = l.f;
+        l.el.style.setProperty('--sx', (1 + 0.45 * f).toFixed(3));
+        l.el.style.setProperty('--g', (850 + 50 * f).toFixed(0));
+        l.el.style.setProperty('--sy', (1 + 0.2 * f).toFixed(3));
+        l.el.style.setProperty('--sk', (-8 * f).toFixed(2) + 'deg');
+      });
+    })(performance.now());
+  }
+
+  /* ------------------------------------------------------------------
      Theme swatches: grey / blue / black / sage, remembered per visitor
      ------------------------------------------------------------------ */
   function theme() {
@@ -331,5 +414,5 @@
 
   var y = $('#year'); if (y) y.textContent = String(new Date().getFullYear());
 
-  theme(); nav(); reveals(); counters(); ragLab(); chunks(); geo(); plant(); water(); skills(); copyEmail(); smooth(); introGuard();
+  typography(); theme(); nav(); reveals(); counters(); ragLab(); chunks(); geo(); plant(); water(); skills(); copyEmail(); smooth(); introGuard();
 })();
