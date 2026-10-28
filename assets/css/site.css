@@ -1389,3 +1389,21 @@ body { font-family: var(--f-sans); }
 .w-panel .wall-list { max-height: 300px; }
 .w-panel .wall-notes { margin-top: 1.2rem; }
 @media (max-width: 1199px) { .mu-started .mu-hint { opacity: 0; pointer-events: none; transition: opacity .6s; } }
+
+/* a private note for Sanskruti */
+.note-dlg { width: min(560px, calc(100vw - 24px)); max-height: calc(100dvh - 24px); padding: 0; border: 0; border-radius: 18px; background: #f6f1e8; color: #1d1a16; box-shadow: 0 40px 90px -30px rgba(29,26,22,.6); overflow: auto; }
+.note-dlg::backdrop { background: rgba(29,26,22,.45); backdrop-filter: blur(4px); }
+.nt-form { display: grid; gap: .85rem; padding: clamp(20px, 4vw, 36px); }
+.nt-kicker { font-size: .62rem; letter-spacing: .08em; text-transform: uppercase; color: #5e574d; }
+.nt-title { font-family: var(--f-display); font-weight: 340; letter-spacing: -.035em; font-size: clamp(1.9rem, 4vw, 2.6rem); line-height: 1; font-variation-settings: "opsz" 144, "SOFT" 50; }
+.nt-title em { font-style: italic; font-weight: 300; color: #9b3d22; }
+.nt-intro { font-size: .95rem; line-height: 1.45; color: #3c362e; }
+.nt-intro b { font-weight: 600; color: #1d1a16; }
+.note-dlg .wall-field > span { color: #5e574d; }
+.note-dlg .wall-count { color: #7a7166; }
+.nt-privacy { font-size: .76rem; color: #5e574d; line-height: 1.45; }
+.nt-privacy[hidden] { display: none; }
+.nt-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.nt-send:disabled { opacity: .55; cursor: progress; }
+.hud-note { font-weight: 600; }
+.note-chip { cursor: pointer; }

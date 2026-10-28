@@ -518,7 +518,7 @@ function cullPanels() {
    people in the museum right now appear with their names (live.js).
    ========================================================================== */
 const DESK = { id: 'desk', no: '—', title: 'The Visitor Desk', proj: 'Résumé · GitHub · contact', desk: true,
-  desc: 'That is the collection. Take my résumé, read the code on GitHub, or scroll on through the gallery wing to the visitor desk and say hello.',
+  desc: 'That is the collection. Take my résumé, read the code on GitHub, or tap “Write to Sanskruti” to send me a private note. Only I will read it.',
   pos: new THREE.Vector3(0, 0, 12.6), spot: new THREE.Vector3(-0.9, 0, 10.4) };
 const STOPS = [...TOUR.map(byId), DESK];
 const GPOST = new THREE.Vector3(1.7, 0, 5.4);   // where the guide waits

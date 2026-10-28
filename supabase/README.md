@@ -56,7 +56,19 @@ update suggestions set status = 'approved' where id in (3, 4);    -- publish ide
 update guestbook   set status = 'hidden'   where id = 9;          -- take one down
 ```
 
-## 4. How the counts are defined
+## 4. Your private inbox
+
+"Write to Sanskruti" sends a note that only you can read. Visitors can send notes but have no way to read any, not even their own. Notes are never shown on the wall.
+
+- **Read them:** go to **Table Editor → `inbox`**, or run `select * from inbox;` in the SQL editor. Each note shows the visitor's name, the message, and how to reach them, if they gave it.
+- **Mark one as read:** `update private_notes set is_read = true where id = 5;`
+- **Email alerts (optional):** in **Database → Webhooks**, add a webhook on inserts into `private_notes` and point it at an email service such as Zapier or Make.
+
+Limits: 3 notes per 10 minutes and 6 per day per sender, with no duplicates.
+
+Until the backend is connected, the same button opens the visitor's own email app with the note addressed to you, so it works today.
+
+## 5. How the counts are defined
 
 - **In the museum now:** live presence connections, de-duplicated by visitor, so two tabs of the same visitor count once.
 - **Explorers today / in all:** browsers that entered with an avatar or signed the wall. Each is counted once per UTC day by its random ID.
@@ -65,7 +77,7 @@ update guestbook   set status = 'hidden'   where id = 9;          -- take one do
 
 The archive shows "counting since" the first recorded day. It never shows history from before tracking was switched on.
 
-## 5. Limits worth knowing
+## 6. Limits worth knowing
 
 - The free tier allows 200 simultaneous real-time connections and 2 million real-time messages a month. Position updates go out about 6 times a second, and only while a visitor is moving.
 - Display names aren't moderated before they appear above avatars. They're limited to 24 characters with markup stripped, and visitors can switch off "Let other visitors see me".

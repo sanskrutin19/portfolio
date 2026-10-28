@@ -149,6 +149,7 @@
           <button type="button" class="hud-btn" data-emote="heart" aria-label="Send a heart" title="Send a heart">♥</button>
           <button type="button" class="hud-btn hud-edit">Your avatar</button>
         </div>
+        <button type="button" class="hud-btn hud-note" data-open-note>✉ Write to Sanskruti</button>
       </div>
 
       <div class="mu-loading" aria-hidden="true"><span>Opening the museum…</span></div>
@@ -762,6 +763,7 @@
         <div class="contact-row reveal">
           <a class="contact-email" href="mailto:naiksanskruti03@gmail.com">naiksanskruti03@gmail.com<span aria-hidden="true">↗</span></a>
           <button type="button" class="chip" id="copy-email" data-email="naiksanskruti03@gmail.com">Copy email</button>
+          <button type="button" class="chip note-chip" data-open-note>Leave me a private note</button>
           <span class="copy-status mono" id="copy-status" role="status" aria-live="polite"></span>
         </div>
         <ul class="contact-links mono reveal">
@@ -831,7 +833,27 @@
     </form>
   </dialog>
 
+  <!-- a private note for Sanskruti (note.js) -->
+  <dialog class="note-dlg" id="note-dlg" aria-labelledby="nt-title">
+    <form class="nt-form" novalidate>
+      <p class="mono nt-kicker">Just between us</p>
+      <h2 class="nt-title" id="nt-title">Write to <em>Sanskruti</em></h2>
+      <p class="nt-intro">Want to connect, talk about a role, or ask about something you saw? This note comes straight to me. <b>It is never shown on the wall or to other visitors.</b></p>
+      <label class="wall-field"><span class="mono">Your name</span><input name="name" maxlength="24" autocomplete="name" required></label>
+      <label class="wall-field"><span class="mono">Your note</span><textarea name="message" maxlength="1000" rows="5" required></textarea><span class="wall-count mono nt-count" aria-hidden="true">0 / 1000</span></label>
+      <label class="wall-field"><span class="mono">How can I reach you? (optional)</span><input name="contact" maxlength="120" autocomplete="email" placeholder="Email, LinkedIn or phone, if you’d like a reply"></label>
+      <p class="nt-privacy" data-if-live>Only I can read this. It’s stored with your name and a random ID for this browser (used to stop spam), and nothing else.</p>
+      <p class="nt-privacy" data-if-email hidden>This opens your email app with the note addressed to me, so you can check it before sending.</p>
+      <div class="nt-actions">
+        <button type="submit" class="mu-btn mu-btn-main nt-send">Send privately</button>
+        <button type="button" class="mu-btn nt-cancel">Close</button>
+      </div>
+      <p class="wall-status nt-status" role="status" aria-live="polite"></p>
+    </form>
+  </dialog>
+
   <script type="module" src="assets/js/worlds.js"></script>
+  <script type="module" src="assets/js/note.js"></script>
   <script type="module" src="assets/js/wall.js"></script>
   <script type="module">
     if (document.documentElement.classList.contains('webgl3d')) {

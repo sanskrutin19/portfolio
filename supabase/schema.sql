@@ -180,6 +180,57 @@ end $$;
 revoke all on function public.log_visit(uuid), public.museum_stats(), public.report_item(text, bigint, uuid, text) from public;
 grant execute on function public.log_visit(uuid), public.museum_stats(), public.report_item(text, bigint, uuid, text) to anon, authenticated;
 
+-- ---------------------------------------------------------------- private notes (for Sanskruti only)
+-- Visitors can send; nobody but you can read. Never shown on any wall.
+create table if not exists public.private_notes (
+  id          bigint generated always as identity primary key,
+  created_at  timestamptz not null default now(),
+  visitor_id  uuid not null,
+  name        text not null check (char_length(name) between 1 and 40),
+  look        jsonb not null default '{}'::jsonb check (pg_column_size(look) < 400),
+  message     text not null check (char_length(message) between 2 and 1000),
+  contact     text check (char_length(contact) <= 120),
+  is_read     boolean not null default false,
+  ip_hash     text
+);
+create index if not exists private_notes_rate_idx on public.private_notes (created_at, ip_hash);
+
+create or replace function public.private_note_guard() returns trigger
+language plpgsql security definer set search_path = public, extensions as $$
+declare hdrs json; ip text; h text; n int;
+begin
+  begin hdrs := current_setting('request.headers', true)::json; exception when others then hdrs := null; end;
+  ip := coalesce(nullif(btrim(split_part(hdrs->>'x-forwarded-for', ',', 1)), ''), hdrs->>'x-real-ip', 'unknown');
+  select encode(extensions.digest(ip || (select salt from public.museum_secret), 'sha256'), 'hex') into h;
+  new.ip_hash := h; new.is_read := false; new.created_at := now();
+  new.name    := btrim(regexp_replace(new.name, '\s+', ' ', 'g'));
+  new.message := btrim(regexp_replace(new.message, '[\x00-\x08\x0B\x0C\x0E-\x1F\x7F]', '', 'g'));
+  new.contact := nullif(btrim(regexp_replace(coalesce(new.contact, ''), '[[:cntrl:]]', '', 'g')), '');
+  if char_length(new.name) < 1 or char_length(new.message) < 2 then raise exception 'invalid' using errcode = 'P0001'; end if;
+  select count(*) into n from public.private_notes where (ip_hash = h or visitor_id = new.visitor_id) and created_at > now() - interval '10 minutes';
+  if n >= 3 then raise exception 'rate_limited' using errcode = 'P0001'; end if;
+  select count(*) into n from public.private_notes where (ip_hash = h or visitor_id = new.visitor_id) and created_at > now() - interval '1 day';
+  if n >= 6 then raise exception 'rate_limited' using errcode = 'P0001'; end if;
+  select count(*) into n from public.private_notes where created_at > now() - interval '10 minutes';
+  if n >= 60 then raise exception 'busy' using errcode = 'P0001'; end if;
+  select count(*) into n from public.private_notes where (ip_hash = h or visitor_id = new.visitor_id) and lower(message) = lower(new.message) and created_at > now() - interval '1 day';
+  if n > 0 then raise exception 'duplicate' using errcode = 'P0001'; end if;
+  return new;
+end $$;
+drop trigger if exists private_notes_guard on public.private_notes;
+create trigger private_notes_guard before insert on public.private_notes for each row execute function public.private_note_guard();
+
+alter table public.private_notes enable row level security;
+revoke all on public.private_notes from anon, authenticated;
+grant insert (visitor_id, name, look, message, contact) on public.private_notes to anon, authenticated;
+drop policy if exists "anyone can write to sanskruti" on public.private_notes;
+create policy "anyone can write to sanskruti" on public.private_notes for insert to anon, authenticated with check (true);
+-- (no select policy and no select grant: the notes are readable only from your dashboard)
+
+create or replace view public.inbox with (security_invoker = true) as
+  select id, created_at, name, contact, message, is_read from public.private_notes order by created_at desc;
+revoke all on public.inbox from anon, authenticated;
+
 -- ---------------------------------------------------------------- moderation helpers (dashboard only)
 create or replace view public.moderation_queue with (security_invoker = true) as
   select 'guestbook' as kind, id, created_at, name, null::text as category, message, exhibit, status,

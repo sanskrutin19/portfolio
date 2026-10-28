@@ -64,7 +64,12 @@ export const wall = {
     return rest('/' + kind, { method: 'POST', prefer: 'return=minimal', body: { visitor_id: me.id, name: me.name, look: me.look, ...entry } });
   },
   report(kind, id, reason) { return rest('/rpc/report_item', { method: 'POST', body: { p_kind: kind, p_id: id, vid: me ? me.id : uuid(), p_reason: reason || null } }); },
-  stats() { return rest('/rpc/museum_stats', { method: 'POST', body: {} }); }
+  stats() { return rest('/rpc/museum_stats', { method: 'POST', body: {} }); },
+  // a private note: only Sanskruti can read it (no read access exists for visitors)
+  privateNote({ name, message, contact }) {
+    const v = me || saveVisitor({ name, look: LOOK_DEFAULT, shown: true });
+    return rest('/private_notes', { method: 'POST', prefer: 'return=minimal', body: { visitor_id: v.id, name: cleanName(name) || v.name, look: v.look, message, contact: contact || null } });
+  }
 };
 function logVisit() {
   if (!dataReady || !me) return;
