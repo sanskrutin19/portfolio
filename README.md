@@ -2,7 +2,9 @@
 
 **Live:** https://portfolio-green-nine-58.vercel.app
 
-The home page is a small 3D game: **the Museum of Things That Think**. My real 3D avatar is the player. Walk her round a rotunda with WASD or the arrow keys, or click or tap the floor, and visit seven exhibits, each a system I built, lit on a plinth under glass. Walk up to one and its museum placard appears; press E to enter its own art-directed 3D world with a live demo. A guided tour walks her round on her own, and a minimap shows where you are. The Sound Room plays my About story as kinetic lyrics on a glass speaker.
+The home page is a small 3D game: **the Museum of Things That Think**. Visitors make their own avatar (name, hair, skin tone, outfit, extras) and walk it round a rotunda with WASD or the arrow keys, or by clicking or tapping the floor. Seven exhibits, each a system I built, stand lit on plinths under glass. Walk up to one and its museum placard appears; press E to enter its own art-directed 3D world with a live demo. My real 3D avatar is the guide: she greets you and offers a guided tour (with back, pause, next and exit) or lets you explore freely. A minimap shows where everyone is.
+
+**Live visitors.** With the backend connected ([setup](supabase/README.md)), other people in the museum appear in real time with their names, and you can wave or cheer at each other. There's a moderated visitor wall and suggestion wall, and a museum archive that shows only real counts. Without the backend these features stay hidden; nothing is simulated. The Sound Room plays my About story as kinetic lyrics on a glass speaker.
 
 The whole site is one building. Scroll down and the camera leaves the rotunda through a doorway into a long gallery wing: every section (the Sound Room, the Guidebook of skills, the Record, the Visitor Desk) hangs on its walls as a live 3D panel, and the avatar walks along beside you from wall to wall. The panels are real HTML (CSS3D), so text stays sharp, links and buttons work, and the nav jumps straight to each room.
 
@@ -16,7 +18,7 @@ The whole site is one building. Scroll down and the camera leaves the rotunda th
 
 ## Stack
 
-Vanilla JavaScript (ES modules) · Three.js 0.160 · CSS3DRenderer · GLTFLoader + MeshoptDecoder · Lenis · HTML/CSS · Vercel. No build step.
+Vanilla JavaScript (ES modules) · Three.js 0.160 · CSS3DRenderer · GLTFLoader · Supabase (Realtime presence, Postgres + RLS) + MeshoptDecoder · Lenis · HTML/CSS · Vercel. No build step.
 
 ## Run locally
 
@@ -33,6 +35,12 @@ assets/css/site.css   design tokens, layout, themes
 assets/js/site.js     navigation, reveals, demos, smooth scroll
 assets/js/minime.js   the 3D avatar: rig, motion, clips, opening scene
 assets/js/museum.js   the 3D museum: rotunda, exhibits, avatar controls, tour, minimap, gallery wing
+assets/js/visitors.js visitor avatars (figurines), name tags, emotes
+assets/js/creator.js  the avatar dialog with a live 3D preview
+assets/js/live.js     visitor identity, real-time presence (Supabase), wall + archive data
+assets/js/wall.js     the visitor wall, suggestion wall and archive
+assets/js/live-config.js  public Supabase URL + anon key (empty = live features off)
+supabase/schema.sql   tables, row-level security, rate limits, moderation queue
 assets/js/speaker.js  About: a glass speaker playing kinetic lyrics
 assets/js/worlds.js   per-project 3D worlds
 assets/avatar/        compressed avatar body + animation clips

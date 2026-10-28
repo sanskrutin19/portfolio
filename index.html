@@ -27,6 +27,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,200..800;1,9..144,200..800&family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="assets/css/site.css">
+  <script src="assets/js/live-config.js"></script>
   <script type="importmap">
     {
       "imports": {
@@ -77,6 +78,7 @@
         <li><a href="#about" data-nav>Sound room</a></li>
         <li><a href="#skills" data-nav>Guidebook</a></li>
         <li><a href="#experience" data-nav>The record</a></li>
+        <li data-live-nav hidden><a href="#wall" data-nav>Visitor wall</a></li>
         <li><a href="#contact" data-nav>Visitor desk</a></li>
         <li class="nav-resume"><a href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a></li>
       </ul>
@@ -90,14 +92,15 @@
 
     <!-- ============ THE MUSEUM (home) ============ -->
     <section class="museum" id="home" aria-labelledby="mu-title">
-      <canvas class="museum-canvas" id="museum-canvas" aria-label="A 3D museum. Walk Sanskruti's avatar between seven exhibits of her work." role="img"></canvas>
+      <canvas class="museum-canvas" id="museum-canvas" aria-label="A 3D museum of seven exhibits of Sanskruti's work. Walk your own avatar between them; Sanskruti's avatar is your guide." role="img"></canvas>
 
       <div class="mu-intro">
         <p class="mu-kicker">The museum of things that think</p>
         <h1 class="mu-title" id="mu-title">Sanskruti <em>Naik</em></h1>
-        <p class="mu-sub">AI / ML engineer. Seven exhibits, each a real system I built. Walk in and look around.</p>
+        <p class="mu-sub">AI / ML engineer. Seven exhibits, each a real system I built. Make an avatar, walk in, and I’ll show you round.</p>
         <div class="mu-actions">
-          <button type="button" class="mu-btn mu-btn-main" id="mu-tour" aria-pressed="false">Guided tour</button>
+          <button type="button" class="mu-btn mu-btn-main" id="mu-enter">Enter the museum</button>
+          <button type="button" class="mu-btn" id="mu-tour" aria-pressed="false">Guided tour</button>
           <a class="mu-btn" href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a>
           <a class="mu-btn mu-btn-ghost" href="#about">Skip the museum ↓</a>
         </div>
@@ -115,7 +118,38 @@
           <a class="mu-btn mu-btn-main mp-enter" href="#">Enter the exhibit →</a>
           <a class="mu-btn mp-live" href="#" target="_blank" rel="noopener" hidden>Live app ↗</a>
         </div>
+        <div class="mp-tour" hidden>
+          <div class="mp-progress"><span class="mp-step mono"></span><span class="mp-bar"><i></i></span></div>
+          <div class="mp-tour-btns">
+            <button type="button" class="mu-btn mp-prev">Back</button>
+            <button type="button" class="mu-btn mp-pause">Pause</button>
+            <button type="button" class="mu-btn mp-next">Next</button>
+            <button type="button" class="mu-btn mu-btn-ghost mp-exit">Exit tour</button>
+          </div>
+        </div>
       </aside>
+
+      <!-- the guide (Sanskruti) speaks -->
+      <div class="guide-bubble" aria-live="polite">
+        <p class="gb-who mono">Sanskruti · your guide</p>
+        <p class="gb-text"></p>
+        <div class="gb-actions"></div>
+      </div>
+
+      <!-- you, and who else is here -->
+      <div class="mu-hud">
+        <div class="hud-live" hidden>
+          <button type="button" class="hud-people" aria-expanded="false" aria-controls="hud-list"><i class="hud-dot" aria-hidden="true"></i><span class="hud-count">Connecting…</span></button>
+          <ul class="hud-list" id="hud-list" hidden></ul>
+        </div>
+        <div class="hud-me">
+          <button type="button" class="hud-btn" data-emote="wave" aria-label="Wave" title="Wave">👋</button>
+          <button type="button" class="hud-btn" data-emote="cheer" aria-label="Celebrate" title="Celebrate">🎉</button>
+          <button type="button" class="hud-btn" data-emote="clap" aria-label="Applaud" title="Applaud">👏</button>
+          <button type="button" class="hud-btn" data-emote="heart" aria-label="Send a heart" title="Send a heart">♥</button>
+          <button type="button" class="hud-btn hud-edit">Your avatar</button>
+        </div>
+      </div>
 
       <div class="mu-loading" aria-hidden="true"><span>Opening the museum…</span></div>
 
@@ -676,6 +710,50 @@
       </div>
     </section>
 
+    <!-- ============ THE VISITOR WALL (needs the live backend; see supabase/README.md) ============ -->
+    <section class="wall paper" id="wall" aria-labelledby="wall-title" hidden>
+      <div class="wrap">
+        <div class="wall-head">
+          <p class="label mono">The visitor wall</p>
+          <h2 class="section-title" id="wall-title">Leave a note <span class="serif">on the wall.</span></h2>
+          <p class="wall-intro">Feedback, encouragement, a question about an exhibit: pin it here. I read every note before it goes up, so please keep it kind.</p>
+        </div>
+        <div class="wall-notes">
+          <form class="wall-form" data-kind="guestbook">
+            <label class="wall-field"><span class="mono">Your name</span><input name="name" maxlength="24" autocomplete="nickname" required></label>
+            <label class="wall-field"><span class="mono">Your note</span><textarea name="message" maxlength="280" minlength="2" rows="3" required></textarea><span class="wall-count mono" aria-hidden="true">0 / 280</span></label>
+            <label class="wall-field"><span class="mono">About an exhibit (optional)</span><select name="exhibit"><option value="">The whole museum</option></select></label>
+            <p class="wall-consent">Stored: the name and note you write, your avatar’s look, and a random ID kept in this browser (used to stop spam). Nothing else.</p>
+            <div class="wall-send"><button type="submit" class="btn-pin">Pin it to the wall</button><p class="wall-status" role="status" aria-live="polite"></p></div>
+          </form>
+          <ul class="wall-list" data-list="guestbook" data-lenis-prevent aria-label="Notes from visitors"></ul>
+        </div>
+        <div class="wall-ideas">
+          <h3 class="wall-h">The suggestion wall</h3>
+          <p class="wall-intro">What should I build next, or what would make this museum better?</p>
+          <form class="wall-form" data-kind="suggestions">
+            <label class="wall-field"><span class="mono">Your name</span><input name="name" maxlength="24" autocomplete="nickname" required></label>
+            <label class="wall-field"><span class="mono">Kind of idea</span><select name="category" required></select></label>
+            <label class="wall-field"><span class="mono">Your suggestion</span><textarea name="message" maxlength="280" minlength="2" rows="3" required></textarea><span class="wall-count mono" aria-hidden="true">0 / 280</span></label>
+            <label class="wall-field"><span class="mono">Related exhibit (optional)</span><select name="exhibit"><option value="">None</option></select></label>
+            <div class="wall-send"><button type="submit" class="btn-pin">Suggest it</button><p class="wall-status" role="status" aria-live="polite"></p></div>
+          </form>
+          <ul class="wall-list" data-list="suggestions" data-lenis-prevent aria-label="Suggestions from visitors"></ul>
+        </div>
+        <aside class="wall-archive" aria-label="The museum archive">
+          <h3 class="wall-h">The museum archive</h3>
+          <dl>
+            <div><dt class="mono">In the museum now</dt><dd data-stat="online">—</dd></div>
+            <div><dt class="mono">Explorers today</dt><dd data-stat="today">—</dd></div>
+            <div><dt class="mono">Explorers in all</dt><dd data-stat="total">—</dd></div>
+            <div><dt class="mono">Notes on the wall</dt><dd data-stat="notes">—</dd></div>
+            <div><dt class="mono">Suggestions received</dt><dd data-stat="suggestions">—</dd></div>
+          </dl>
+          <p class="wall-fine">Counting <span data-stat="since">…</span>. An explorer is a browser that entered with an avatar or signed the wall, counted once a day by a random ID. No IP addresses or tracking cookies are kept.</p>
+        </aside>
+      </div>
+    </section>
+
     <!-- ============ CONTACT ============ -->
     <section class="contact band" id="contact" data-scene="ring" aria-labelledby="contact-title">
       <div class="wrap">
@@ -730,7 +808,31 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.2"/><path d="M6.5 20v-3.2a5.5 5.5 0 0 1 11 0V20"/><path class="slash" d="M4 4l16 16"/></svg>
   </button>
 
+  <!-- make your avatar (creator.js) -->
+  <dialog class="creator" id="creator" aria-labelledby="cr-title">
+    <form method="dialog" class="cr-form">
+      <div class="cr-stage"><canvas class="cr-preview" aria-label="Preview of your avatar" role="img"></canvas></div>
+      <div class="cr-controls">
+        <p class="mono cr-kicker">Before you go in</p>
+        <h2 class="cr-title" id="cr-title">Make your <em>avatar</em></h2>
+        <label class="cr-name"><span class="mono">Display name</span><input id="cr-name" maxlength="24" autocomplete="nickname" placeholder="What should we call you?" required></label>
+        <fieldset><legend class="mono">Hair</legend><div class="cr-row" id="cr-style"></div></fieldset>
+        <fieldset><legend class="mono">Skin tone</legend><div class="cr-row cr-swatches" id="cr-skin"></div></fieldset>
+        <fieldset><legend class="mono">Outfit</legend><div class="cr-row cr-swatches" id="cr-outfit"></div></fieldset>
+        <fieldset><legend class="mono">Extra</legend><div class="cr-row" id="cr-acc"></div></fieldset>
+        <label class="cr-check" data-live-only><input type="checkbox" id="cr-shown" checked> Let other visitors see me in the museum</label>
+        <p class="cr-note">Your name and look are saved in this browser so you can come back as yourself. <span data-live-only>While you’re inside, other visitors see your name, your avatar and where you’re standing. Nothing else is shared.</span></p>
+        <div class="cr-actions">
+          <button type="submit" class="mu-btn mu-btn-main cr-submit">Enter the museum</button>
+          <button type="button" class="mu-btn cr-cancel">Cancel</button>
+          <button type="button" class="cr-forget" id="cr-forget" hidden>Forget me on this device</button>
+        </div>
+      </div>
+    </form>
+  </dialog>
+
   <script type="module" src="assets/js/worlds.js"></script>
+  <script type="module" src="assets/js/wall.js"></script>
   <script type="module">
     if (document.documentElement.classList.contains('webgl3d')) {
       // the museum carries the avatar through the whole site; the page companion is the fallback

@@ -1,7 +1,8 @@
-/* The Museum of Things That Think — the home page as a small 3D game.
-   A rotunda with seven exhibits (projects + the Sound Room / About).
-   Sanskruti's real avatar is the player: walk with WASD / arrows, or click /
-   tap the floor or an exhibit; a guided tour walks her round on her own.
+/* The Museum of Things That Think — the whole site as one 3D building.
+   A rotunda with seven exhibits (projects + the Sound Room / About). Visitors
+   make their own avatar (creator.js) and walk it with WASD / arrows, or by
+   clicking the floor or an exhibit; Sanskruti's real avatar is the guide, who
+   offers a guided tour. Other people in the museum appear live (live.js).
    Walking up to an exhibit shows its museum placard; Enter opens the
    project's 3D world (worlds.js) or, for the Sound Room, the About section. */
 import * as THREE from 'three';
@@ -10,6 +11,9 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
+import { makeFigure, makeLabel, makeEmote, EMOTES } from './visitors.js';
+import { visitor, LOOK_DEFAULT, presence, bus, presenceReady, dataReady, cleanName } from './live.js';
+import { openCreator } from './creator.js';
 
 const root = document.documentElement;
 const sec = document.getElementById('home');
@@ -327,6 +331,7 @@ const ROOMS = [
   { id: 'skills', title: 'The Guidebook', side: 1, tone: 'band', panels: [['#skills .label', '#skills-title', '#skills .skills-intro', '#skills .skill-filter', '#skill-map']] },
   { id: 'experience', title: 'The Record', side: -1, tone: 'paper', frames: true, panels: [['#experience .label', '#exp-title'], ...pairs([...document.querySelectorAll('#experience .tl-item')])] },
   { id: 'work', title: 'Also in the Collection', side: 1, tone: 'paper', panels: [['#work .index']] },
+  ...(dataReady ? [{ id: 'wall', title: 'The Visitor Wall', side: -1, tone: 'paper', panels: [['#wall .wall-head', '#wall .wall-notes'], ['#wall .wall-ideas'], ['narrow', '#wall .wall-archive']] }] : []),
   { id: 'contact', title: 'The Visitor Desk', side: 0, tone: 'band', panels: [['#contact .wrap']] }
 ];
 const stops = [];   // filled by layoutWing()
@@ -369,6 +374,7 @@ function layoutWing() {
   const sizes = new Map();
   ROOMS.forEach(room => room.panelEls.forEach(el => { el.style.visibility = ''; measure.appendChild(el); sizes.set(el, [el.offsetWidth, el.offsetHeight]); }));
   measure.remove(); cssLayer.style.display = was; cssLayer.style.visibility = '';
+  let reattach = true;   // panels go back into the CSS3D layer once placed (other scripts keep finding them)
   const fov = THREE.MathUtils.degToRad(cam.fov);
   const D = (vh * S / 2) / Math.tan(fov / 2);
   let zL = CZ0 + 3, zR = CZ0 + 3, zEnd = 0;
@@ -468,6 +474,7 @@ function layoutWing() {
     room.section.style.height = Math.max(1, Math.round(b.s3 - a.s1)) + 'px';
   });
   wingLen = zEnd;
+  if (reattach) css.render(cssScene, cam);
 }
 let wingLen = 40;
 
@@ -505,8 +512,32 @@ function cullPanels() {
   objs.forEach(o => { const v = o.position.clone().sub(cam.position); const vis = v.dot(f) > 0.5 && v.length() < 40; if (o.element.style.visibility !== (vis ? 'visible' : 'hidden')) o.element.style.visibility = vis ? 'visible' : 'hidden'; });
 }
 
-/* ---------------- game state ---------------- */
-const P = { pos: new THREE.Vector3(0, 0, 8), heading: Math.PI, target: null, focus: null };
+
+/* ==========================================================================
+   THE VISITORS — you walk your own avatar; Sanskruti is your guide; other
+   people in the museum right now appear with their names (live.js).
+   ========================================================================== */
+const DESK = { id: 'desk', no: '—', title: 'The Visitor Desk', proj: 'Résumé · GitHub · contact', desk: true,
+  desc: 'That is the collection. Take my résumé, read the code on GitHub, or scroll on through the gallery wing to the visitor desk and say hello.',
+  pos: new THREE.Vector3(0, 0, 12.6), spot: new THREE.Vector3(-0.9, 0, 10.4) };
+const STOPS = [...TOUR.map(byId), DESK];
+const GPOST = new THREE.Vector3(1.7, 0, 5.4);   // where the guide waits
+
+// the player (you)
+const P = { pos: new THREE.Vector3(0, 0, 8), heading: Math.PI, target: null, focus: null, phase: 0, walk: 0, wave: 0 };
+const meG = new THREE.Group(); scene.add(meG);
+let meFig = makeFigure(visitor() ? visitor().look : LOOK_DEFAULT); meG.add(meFig.group);
+let meLabel = null, meEmote = null;
+function setMeLabel() {
+  if (meLabel) { meG.remove(meLabel); meLabel.userData.dispose(); meLabel = null; }
+  const v = visitor(); if (!v) return;
+  meLabel = makeLabel(v.name + ' · you', { you: true }); meLabel.position.y = 1.95; meG.add(meLabel);
+}
+setMeLabel();
+
+// the guide (Sanskruti's real avatar = `char`)
+const Gd = { pos: GPOST.clone(), heading: Math.PI * 0.85, target: null, focus: null };
+char.position.copy(Gd.pos);
 const keys = new Set();
 let camYaw = 0, camYawUser = 0, phase = 0, walkAmt = 0, idleT = 0, waveT = -1, active = null, tour = null, introT = 0, started = false, blendB = 0;
 const clip = { action: null, t: 0, dur: 0 };
@@ -516,17 +547,37 @@ function playClip(n) {
   Object.assign(clip, { action: a, t: 0, dur: rig.clips[n].duration });
 }
 function stopClip() { if (clip.action) clip.action.stop(); clip.action = null; }
-function begin() { if (!started) { started = true; sec.classList.add('mu-started'); } }
-function walkTo(v, focus = null) { begin(); stopClip(); P.target = v.clone(); P.focus = focus; }
+function begin() { if (!started) { started = true; sec.classList.add('mu-started'); setTimeout(() => { if (!tour) say('hello'); }, 900); } }
+function walkTo(v, focus = null) { begin(); P.target = v.clone(); P.focus = focus; }
 function goExhibit(e) { walkTo(e.spot, e); }
+
+/* ---------------- the guide's speech bubble ---------------- */
+const bubble = $('.guide-bubble'), bText = bubble.querySelector('.gb-text'), bActs = bubble.querySelector('.gb-actions');
+let bubbleMode = null, metGuide = false, awayT = 0;
+function say(mode, extra) {
+  bubbleMode = mode; bActs.innerHTML = '';
+  const btn = (label, fn, main) => { const b = document.createElement('button'); b.type = 'button'; b.className = 'mu-btn' + (main ? ' mu-btn-main' : ''); b.textContent = label; b.addEventListener('click', fn); bActs.appendChild(b); };
+  const v = visitor();
+  if (mode === 'hello') {
+    bText.textContent = (v ? `Hi ${v.name}! ` : 'Hi! ') + 'I’m Sanskruti, and these are things I’ve built. Shall I show you round, or would you rather explore on your own?';
+    btn('Take the guided tour', () => startTour(), true); btn('Explore freely', () => { say(null); });
+    waveT = 0; metGuide = true;
+  } else if (mode === 'again') {
+    bText.textContent = 'Want me to show you round?';
+    btn('Guided tour', () => startTour(), true); btn('No thanks', () => say(null));
+  } else if (mode === 'lead') {
+    bText.textContent = extra;
+  }
+  bubble.classList.toggle('on', !!mode);
+}
 
 /* ---------------- input (the rotunda) ---------------- */
 let inView = false;
 const roaming = () => blendB < 0.05;
 const MOVE = { KeyW: [0, 1], ArrowUp: [0, 1], KeyS: [0, -1], ArrowDown: [0, -1], KeyA: [-1, 0], ArrowLeft: [-1, 0], KeyD: [1, 0], ArrowRight: [1, 0] };
 window.addEventListener('keydown', e => {
-  if (!inView || !roaming() || root.classList.contains('world-open') || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (MOVE[e.code]) { keys.add(e.code); e.preventDefault(); stopTour(); P.target = null; begin(); }
+  if (!inView || !roaming() || root.classList.contains('world-open') || document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (MOVE[e.code]) { keys.add(e.code); e.preventDefault(); pauseTour(true); P.target = null; begin(); }
   if ((e.code === 'KeyE' || e.code === 'Enter') && active) { e.preventDefault(); enter(active); }
 });
 window.addEventListener('keyup', e => keys.delete(e.code));
@@ -540,59 +591,181 @@ canvas.addEventListener('pointerup', e => {
   if (!d || d.drag || !roaming()) return;
   const r = canvas.getBoundingClientRect();
   ndc.set((e.clientX - r.left) / r.width * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
-  ray.setFromCamera(ndc, cam); stopTour();
+  ray.setFromCamera(ndc, cam); pauseTour(true);
+  if (ray.intersectObject(char, true).length) { say(tour ? null : 'again'); return; }
   for (const ex of EXHIBITS) if (ray.intersectObjects(ex.hit, true).length) { goExhibit(ex); return; }
   const p = new THREE.Vector3(); if (ray.ray.intersectPlane(floorPlane, p)) walkTo(p);
 });
 
-/* ---------------- placard, tour, minimap ---------------- */
+/* ---------------- placard + tour ---------------- */
 const pTitle = placard.querySelector('.mp-title'), pNo = placard.querySelector('.mp-no'), pProj = placard.querySelector('.mp-proj'),
   pDesc = placard.querySelector('.mp-desc'), pEnter = placard.querySelector('.mp-enter'), pLive = placard.querySelector('.mp-live');
+const pTour = placard.querySelector('.mp-tour'), pStep = placard.querySelector('.mp-step'), pBar = placard.querySelector('.mp-bar i'),
+  pPrev = placard.querySelector('.mp-prev'), pNext = placard.querySelector('.mp-next'), pPause = placard.querySelector('.mp-pause'), pExit = placard.querySelector('.mp-exit');
 function showPlacard(e) {
+  const touring = !!tour;
+  placard.classList.toggle('touring', touring); pTour.hidden = !touring;
+  if (touring) {
+    pStep.textContent = `Stop ${tour.i + 1} of ${STOPS.length}`;
+    pBar.style.width = ((tour.i + 1) / STOPS.length * 100) + '%';
+    pPause.textContent = tour.paused ? 'Resume' : 'Pause';
+    pPrev.disabled = tour.i === 0; pNext.textContent = tour.i === STOPS.length - 1 ? 'Finish' : 'Next';
+  }
   if (active === e) return;
   active = e;
   if (!e) { placard.classList.remove('on'); return; }
-  pNo.textContent = 'Exhibit ' + e.no; pTitle.textContent = e.title; pProj.textContent = e.proj; pDesc.textContent = e.desc;
-  pEnter.textContent = e.about ? 'Listen  →' : 'Enter the exhibit  →';
-  if (e.about) pEnter.removeAttribute('data-world'); else pEnter.setAttribute('data-world', e.id);
-  pEnter.setAttribute('href', e.about ? '#about' : '#case-' + (e.id === 'chat' ? 'securechat' : e.id));
-  pLive.hidden = !e.live; if (e.live) pLive.href = e.live;
+  pNo.textContent = e.desk ? 'The way out' : 'Exhibit ' + e.no; pTitle.textContent = e.title; pProj.textContent = e.proj; pDesc.textContent = e.desc;
+  pEnter.removeAttribute('target'); pEnter.removeAttribute('rel');
+  if (e.desk) { pEnter.textContent = 'Résumé (PDF) ↗'; pEnter.removeAttribute('data-world'); pEnter.href = 'resume.pdf'; pEnter.target = '_blank'; pEnter.rel = 'noopener'; }
+  else {
+    pEnter.textContent = e.about ? 'Listen  →' : 'Enter the exhibit  →';
+    if (e.about) pEnter.removeAttribute('data-world'); else pEnter.setAttribute('data-world', e.id);
+    pEnter.setAttribute('href', e.about ? '#about' : '#case-' + (e.id === 'chat' ? 'securechat' : e.id));
+  }
+  const link = e.desk ? 'https://github.com/sanskrutin19' : e.live;
+  pLive.hidden = !link; if (link) { pLive.href = link; pLive.textContent = e.desk ? 'GitHub ↗' : 'Live app ↗'; }
   placard.classList.add('on');
 }
 function scrollToEl(el) { window.__lenis ? window.__lenis.scrollTo(el, { offset: -64, duration: 2.2 }) : el.scrollIntoView({ behavior: 'smooth' }); }
-function enter(e) { if (e.about) { stopTour(); scrollToEl(document.getElementById('about')); return; } pEnter.click(); }
+function enter(e) {
+  if (e.desk) { window.open('resume.pdf', '_blank', 'noopener'); return; }
+  if (e.about) { stopTour(); scrollToEl(document.getElementById('about')); return; }
+  pEnter.click();
+}
 pEnter.addEventListener('click', ev => { if (active && active.about) { ev.preventDefault(); enter(active); } });
-function startTour() { begin(); tour = { i: 0, wait: 0 }; goExhibit(byId(TOUR[0])); tourBtn.textContent = 'Stop the tour'; tourBtn.setAttribute('aria-pressed', 'true'); }
-function stopTour() { if (!tour) return; tour = null; tourBtn.textContent = 'Guided tour'; tourBtn.setAttribute('aria-pressed', 'false'); }
+
+const TOUR_WAIT = 11;
+function goStop(i) {
+  tour.i = i; tour.wait = 0; tour.arrived = false; tour.paused = false;
+  const e = STOPS[i], side = new THREE.Vector3(e.spot.z, 0, -e.spot.x).normalize();
+  Gd.target = e.spot.clone(); Gd.focus = e;
+  P.target = e.spot.clone().addScaledVector(side, 1.15).addScaledVector(e.spot.clone().normalize(), 0.6); P.focus = e;
+  say('lead', i === 0 ? `Follow me. First, ${e.title.replace(/^The /, 'the ')}.` : `This way: ${e.title.replace(/^The /, 'the ')}.`);
+}
+function startTour() { begin(); stopClip(); tour = { i: 0 }; goStop(0); tourBtn.textContent = 'Stop the tour'; tourBtn.setAttribute('aria-pressed', 'true'); }
+function stopTour() {
+  if (!tour) return; tour = null; Gd.target = GPOST.clone(); Gd.focus = null; say(null);
+  tourBtn.textContent = 'Guided tour'; tourBtn.setAttribute('aria-pressed', 'false'); showPlacard(null);
+}
+function pauseTour(byUser) { if (tour && !tour.paused) { tour.paused = true; if (byUser) P.target = null; showPlacard(active); } }
+pPrev.addEventListener('click', () => { if (tour && tour.i > 0) goStop(tour.i - 1); });
+pNext.addEventListener('click', () => { if (!tour) return; if (tour.i >= STOPS.length - 1) stopTour(); else goStop(tour.i + 1); });
+pPause.addEventListener('click', () => { if (!tour) return; if (tour.paused) goStop(tour.i); else pauseTour(false); });
+pExit.addEventListener('click', stopTour);
 tourBtn.addEventListener('click', () => (tour ? stopTour() : startTour()));
+
+/* ---------------- entering: your avatar ---------------- */
+const enterBtn = $('#mu-enter');
+function refreshEnter() { const v = visitor(); enterBtn.textContent = v ? `Enter as ${v.name}` : 'Enter the museum'; }
+function applyVisitor() {
+  const v = visitor();
+  meG.remove(meFig.group); meFig = makeFigure(v ? v.look : LOOK_DEFAULT); meG.add(meFig.group);
+  setMeLabel(); refreshEnter(); hudSync();
+}
+enterBtn.addEventListener('click', () => {
+  if (visitor()) { begin(); return; }
+  openCreator(v => { applyVisitor(); if (v) begin(); });
+});
+refreshEnter();
+
+/* ---------------- HUD: who's here, emotes, edit avatar ---------------- */
+const hud = $('.mu-hud'), hudCount = hud.querySelector('.hud-count'), hudList = hud.querySelector('.hud-list'), hudPeople = hud.querySelector('.hud-people');
+const hudLive = hud.querySelector('.hud-live');
+hudLive.hidden = !presenceReady;   // only when real presence is connected
+function hudSync() {
+  hud.classList.toggle('entered', !!visitor());
+}
+hud.querySelector('.hud-edit').addEventListener('click', () => openCreator(() => applyVisitor()));
+hud.querySelectorAll('[data-emote]').forEach(b => b.addEventListener('click', () => emote(b.dataset.emote)));
+hudPeople.addEventListener('click', () => { const open = hudList.hidden; hudList.hidden = !open; hudPeople.setAttribute('aria-expanded', String(open)); if (open) renderList(); });
+function where(x, z) { let best = null, bd = 3.4; EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - x, e.pos.z - z); if (d < bd) { bd = d; best = e; } }); return best ? 'at ' + best.title : 'wandering the rotunda'; }
+function renderList() {
+  hudList.innerHTML = '';
+  const v = visitor(), people = [...presence.roster.values()];
+  if (!people.length) { const li = document.createElement('li'); li.textContent = presence.status === 'live' ? 'Nobody else is here right now.' : 'Not connected.'; hudList.appendChild(li); return; }
+  people.forEach(p => {
+    const li = document.createElement('li'), b = document.createElement('b'), s = document.createElement('span');
+    b.textContent = p.name + (v && p.id === v.id ? ' (you)' : '');
+    const rv = remotes.get(p.id); s.textContent = v && p.id === v.id ? where(P.pos.x, P.pos.z) : where(rv ? rv.cur.x : p.x, rv ? rv.cur.z : p.z);
+    li.append(b, s); hudList.appendChild(li);
+  });
+}
+function countText() {
+  if (presence.status === 'connecting') return 'Connecting…';
+  if (presence.status === 'offline') return 'Live presence unavailable';
+  const n = presence.roster.size, v = visitor(), meIn = v && presence.roster.has(v.id);
+  if (!n) return 'Nobody else here right now';
+  if (n === 1 && meIn) return 'Just you here right now';
+  return `${n} explorer${n === 1 ? '' : 's'} here now`;
+}
+bus.addEventListener('status', () => { hudCount.textContent = countText(); hud.dataset.status = presence.status; });
+bus.addEventListener('visitor', () => { hudSync(); });
+
+// remote visitors
+const remotes = new Map();
+function addRemote(m) {
+  const fig = makeFigure(m.look), g = new THREE.Group(); g.add(fig.group);
+  const label = makeLabel(cleanName(m.name) || 'Visitor'); label.position.y = 1.95; g.add(label);
+  g.position.set(+m.x || 0, 0, +m.z || 8); scene.add(g);
+  return { g, fig, label, name: m.name, look: JSON.stringify(m.look), cur: g.position, target: new THREE.Vector3(+m.x || 0, 0, +m.z || 8), h: +m.h || 0, hT: +m.h || 0, walk: 0, phase: 0, wave: 0, emote: null };
+}
+function dropRemote(id) { const r = remotes.get(id); if (!r) return; scene.remove(r.g); r.label.userData.dispose(); if (r.emote) r.emote.s.userData.dispose(); remotes.delete(id); }
+bus.addEventListener('roster', ({ detail }) => {
+  const v = visitor();
+  for (const id of [...remotes.keys()]) if (!detail.has(id) || (v && id === v.id)) dropRemote(id);
+  detail.forEach((m, id) => {
+    if (v && id === v.id) return;
+    let r = remotes.get(id);
+    if (r && (r.name !== m.name || r.look !== JSON.stringify(m.look))) { dropRemote(id); r = null; }
+    if (!r) remotes.set(id, addRemote(m));
+  });
+  hudCount.textContent = countText();
+  if (!hudList.hidden) renderList();
+});
+bus.addEventListener('move', ({ detail: d }) => { const r = remotes.get(d.id); if (!r) return; r.target.set(+d.x || 0, 0, +d.z || 0); r.hT = +d.h || 0; });
+function showEmote(holder, kind) {
+  if (holder.emote) { holder.emote.g.remove(holder.emote.s); holder.emote.s.userData.dispose(); }
+  const s = makeEmote(kind); s.position.y = 2.35; holder.emote = { s, g: holder.g, t: 0 }; holder.g.add(s);
+  if (kind === 'wave') holder.wave = 2.2;
+}
+bus.addEventListener('emote', ({ detail: d }) => { const r = remotes.get(d.id); if (r && EMOTES[d.kind]) showEmote(r, d.kind); });
+const meHolder = { g: meG, emote: null, wave: 0 };
+function emote(kind) {
+  begin(); showEmote(meHolder, kind); P.wave = meHolder.wave; presence.emote(kind);
+  if (kind === 'wave' && P.pos.distanceTo(Gd.pos) < 5 && !tour) waveT = 0;   // she waves back
+}
+presence.start();
+
+/* ---------------- minimap ---------------- */
 const mctx = mapCv.getContext('2d');
 function drawMap() {
-  const s = mapCv.width, c = s / 2, k = (s / 2 - 8) / R;
+  const s = mapCv.width, c = s / 2, k = (s / 2 - 8) / R, u = s / 128;
   mctx.clearRect(0, 0, s, s);
   mctx.fillStyle = 'rgba(246,241,232,.92)'; mctx.beginPath(); mctx.arc(c, c, s / 2 - 2, 0, Math.PI * 2); mctx.fill();
   mctx.strokeStyle = 'rgba(42,36,28,.5)'; mctx.lineWidth = 1.5; mctx.stroke();
   EXHIBITS.forEach(e => {
     const on = active === e; mctx.fillStyle = on ? '#9b3d22' : '#2a241c';
-    mctx.fillRect(c + e.pos.x * k - 5, c + e.pos.z * k - 5, 10, 10);
-    mctx.fillStyle = on ? '#9b3d22' : 'rgba(42,36,28,.7)'; mctx.font = `600 10px ${MONO}`; mctx.textAlign = 'center';
-    mctx.fillText(e.no, c + e.pos.x * k * 0.78, c + e.pos.z * k * 0.78 + 4);
+    mctx.fillRect(c + e.pos.x * k - 5 * u, c + e.pos.z * k - 5 * u, 10 * u, 10 * u);
+    mctx.fillStyle = on ? '#9b3d22' : 'rgba(42,36,28,.7)'; mctx.font = `600 ${10 * u}px ${MONO}`; mctx.textAlign = 'center';
+    mctx.fillText(e.no, c + e.pos.x * k * 0.78, c + e.pos.z * k * 0.78 + 4 * u);
   });
-  const px = c + char.position.x * k, pz = c + Math.min(R, char.position.z) * k;
-  mctx.save(); mctx.translate(px, pz); mctx.rotate(-char.rotation.y + Math.PI);
-  mctx.fillStyle = '#9b3d22'; mctx.beginPath(); mctx.moveTo(0, -8); mctx.lineTo(5.5, 6); mctx.lineTo(-5.5, 6); mctx.closePath(); mctx.fill(); mctx.restore();
+  remotes.forEach(r => { mctx.fillStyle = '#5c6b4a'; mctx.beginPath(); mctx.arc(c + r.cur.x * k, c + r.cur.z * k, 3.2 * u, 0, Math.PI * 2); mctx.fill(); });
+  mctx.strokeStyle = '#9b3d22'; mctx.lineWidth = 2 * u; mctx.beginPath(); mctx.arc(c + Gd.pos.x * k, c + Math.min(R, Gd.pos.z) * k, 4 * u, 0, Math.PI * 2); mctx.stroke();
+  mctx.save(); mctx.translate(c + P.pos.x * k, c + P.pos.z * k); mctx.rotate(-P.heading + Math.PI);
+  mctx.fillStyle = '#1d1a16'; mctx.beginPath(); mctx.moveTo(0, -8 * u); mctx.lineTo(5.5 * u, 6 * u); mctx.lineTo(-5.5 * u, 6 * u); mctx.closePath(); mctx.fill(); mctx.restore();
 }
 mapCv.addEventListener('click', e => {
   const r = mapCv.getBoundingClientRect(), s = r.width, k = (s / 2 - 8 * s / mapCv.width) / R;
   const x = (e.clientX - r.left - s / 2) / k, z = (e.clientY - r.top - s / 2) / k;
-  stopTour();
+  pauseTour(true);
   let best = null, bd = 2.2; EXHIBITS.forEach(ex => { const d = Math.hypot(ex.pos.x - x, ex.pos.z - z); if (d < bd) { bd = d; best = ex; } });
   if (best) goExhibit(best); else walkTo(new THREE.Vector3(x, 0, z));
 });
 
 /* ---------------- loop ---------------- */
-const tmp = new THREE.Vector3(), camPos = new THREE.Vector3(0, 5.6, 12.6), camLook = new THREE.Vector3(0, 1.4, -4);
+const tmp = new THREE.Vector3(), camLook = new THREE.Vector3(0, 1.4, -4);
 const roamCam = new THREE.Vector3(0, 5.6, 12.6), roamLook = new THREE.Vector3(0, 1.4, -4);
-const prevAv = new THREE.Vector3(0, 0, 8);
+const prevAv = new THREE.Vector3().copy(GPOST);
 function resize() {
   const w = window.innerWidth, h = window.innerHeight;
   renderer.setSize(w, h, false); css.setSize(w, h);
@@ -601,6 +774,22 @@ function resize() {
   layoutWing();
 }
 let rt; window.addEventListener('resize', () => { clearTimeout(rt); rt = setTimeout(resize, 120); });
+
+// steer a walker toward its target; returns speed
+function steer(o, dt, maxSpeed) {
+  if (!o.target) return 0;
+  tmp.subVectors(o.target, o.pos); tmp.y = 0; const d = tmp.length();
+  if (d < 0.08) { o.target = null; return -1; }
+  const mv = tmp.normalize(), sp = Math.min(maxSpeed, d * 3 + 0.4);
+  o.pos.addScaledVector(mv, sp * dt); o.heading += angDiff(Math.atan2(mv.x, mv.z), o.heading) * (1 - Math.pow(0.0005, dt));
+  return sp;
+}
+function keepIn(o, others) {
+  const r = Math.hypot(o.pos.x, o.pos.z); if (r > R - 1.6) o.pos.multiplyScalar((R - 1.6) / r);
+  EXHIBITS.forEach(e => { tmp.subVectors(o.pos, e.pos); tmp.y = 0; const d = tmp.length(); if (d < 1.45) o.pos.addScaledVector(tmp.normalize(), 1.45 - d); });
+  others.forEach(p => { tmp.subVectors(o.pos, p); tmp.y = 0; const d = tmp.length(); if (d > 0.001 && d < 0.6) o.pos.addScaledVector(tmp.normalize(), (0.6 - d) * 0.5); });
+}
+const toScreen = new THREE.Vector3();
 
 let last = 0;
 function frame(now) {
@@ -614,28 +803,62 @@ function frame(now) {
   const H0 = sec.offsetHeight, sy = window.scrollY;
   blendB = built ? smooth(H0 * 0.18, H0 * 0.9, sy) : 0;
   canvas.style.pointerEvents = roaming() ? '' : 'none';
-  if (!roaming()) { keys.clear(); P.target = null; stopTour(); }
+  if (!roaming()) { keys.clear(); P.target = null; if (tour) stopTour(); }
 
-  // ---- rotunda movement ----
+  // ---- you ----
   const mv = new THREE.Vector3();
   const camFwd = new THREE.Vector3(Math.sin(camYaw + camYawUser + Math.PI), 0, Math.cos(camYaw + camYawUser + Math.PI));
   const camRight = new THREE.Vector3(-camFwd.z, 0, camFwd.x);
   keys.forEach(k => { const [x, z] = MOVE[k]; mv.addScaledVector(camRight, x).addScaledVector(camFwd, z); });
   let speed = 0;
-  if (mv.lengthSq() > 0) { mv.normalize(); speed = 2.6; }
-  else if (P.target) {
-    tmp.subVectors(P.target, P.pos); tmp.y = 0; const d = tmp.length();
-    if (d < 0.08) { P.target = null; if (P.focus) waveT = 0; }
-    else { mv.copy(tmp).normalize(); speed = Math.min(2.4, d * 3 + 0.4); }
-  }
-  if (speed) { if (clip.action) stopClip(); P.pos.addScaledVector(mv, speed * dt); P.heading += angDiff(Math.atan2(mv.x, mv.z), P.heading) * (1 - Math.pow(0.0005, dt)); }
-  else if (P.focus) P.heading += angDiff(Math.atan2(P.focus.pos.x - P.pos.x, P.focus.pos.z - P.pos.z), P.heading) * (1 - Math.pow(0.02, dt));
-  const r = Math.hypot(P.pos.x, P.pos.z); if (r > R - 1.6) P.pos.multiplyScalar((R - 1.6) / r);
-  EXHIBITS.forEach(e => { tmp.subVectors(P.pos, e.pos); tmp.y = 0; const d = tmp.length(); if (d < 1.45) P.pos.addScaledVector(tmp.normalize(), 1.45 - d); });
+  if (mv.lengthSq() > 0) { mv.normalize(); speed = 2.6; P.pos.addScaledVector(mv, speed * dt); P.heading += angDiff(Math.atan2(mv.x, mv.z), P.heading) * (1 - Math.pow(0.0005, dt)); }
+  else { speed = steer(P, dt, 2.4); if (speed < 0) speed = 0; if (!speed && P.focus) P.heading += angDiff(Math.atan2(P.focus.pos.x - P.pos.x, P.focus.pos.z - P.pos.z), P.heading) * (1 - Math.pow(0.02, dt)); }
+  keepIn(P, [Gd.pos]);
+  meG.position.copy(P.pos); meG.rotation.y = P.heading; meG.visible = blendB < 0.6;
+  P.walk += ((speed ? Math.min(1, speed / 2.2) : 0) - P.walk) * (1 - Math.pow(0.002, dt));
+  P.phase += dt * 9.5 * Math.min(1, P.walk * 3);
+  meHolder.wave = Math.max(0, meHolder.wave - dt);
+  meFig.pose(P.walk, P.phase, Math.min(1, meHolder.wave * 3) * (meHolder.wave > 0 ? 1 : 0), t);
+  presence.move(P.pos.x, P.pos.z, P.heading, now);
 
-  // ---- rotunda camera ----
+  // ---- other visitors ----
+  remotes.forEach(r => {
+    const before = r.cur.clone();
+    r.cur.lerp(r.target, 1 - Math.pow(0.004, dt));
+    const v = before.distanceTo(r.cur) / dt;
+    if (v > 0.15) r.hT = Math.atan2(r.cur.x - before.x, r.cur.z - before.z);
+    r.h += angDiff(r.hT, r.h) * (1 - Math.pow(0.002, dt)); r.g.rotation.y = r.h;
+    r.walk += (Math.min(1, v / 2.2) - r.walk) * (1 - Math.pow(0.002, dt)); r.phase += dt * 9.5 * Math.min(1, r.walk * 3);
+    r.wave = Math.max(0, r.wave - dt);
+    r.fig.pose(r.walk, r.phase, r.wave > 0 ? Math.min(1, r.wave * 3) : 0, t);
+  });
+  [meHolder, ...remotes.values()].forEach(h => { if (h.emote) { h.emote.t += dt; h.emote.s.position.y = 2.35 + Math.min(0.25, h.emote.t * 0.6); h.emote.s.material.opacity = Math.min(1, (2.6 - h.emote.t) * 2); if (h.emote.t > 2.6) { h.g.remove(h.emote.s); h.emote.s.userData.dispose(); h.emote = null; } } });
+
+  // ---- the guide ----
+  let gSpeed = 0;
+  if (!clip.action || Gd.target) {
+    gSpeed = steer(Gd, dt, tour && !tour.paused ? 2.0 : 1.6);
+    if (gSpeed < 0) { gSpeed = 0; if (tour && !tour.paused) { tour.arrived = true; showPlacard(STOPS[tour.i]); say(null); waveT = tour.i === STOPS.length - 1 ? 0 : waveT; } }
+  }
+  if (gSpeed && clip.action) stopClip();
+  if (!gSpeed) {   // face the exhibit on tour, otherwise the visitor
+    const f = (tour && Gd.focus) ? Gd.focus.pos : P.pos;
+    Gd.heading += angDiff(Math.atan2(f.x - Gd.pos.x, f.z - Gd.pos.z), Gd.heading) * (1 - Math.pow(0.05, dt));
+  }
+  keepIn(Gd, [P.pos]);
+  if (tour && tour.arrived && !tour.paused) { tour.wait += dt; if (tour.wait > TOUR_WAIT) { if (tour.i >= STOPS.length - 1) stopTour(); else goStop(tour.i + 1); } }
+  // the guide offers a tour again when you come back to her
+  const gd = P.pos.distanceTo(Gd.pos);
+  if (!tour && started && roaming()) {
+    if (gd > 4) awayT += dt;
+    if (gd < 2.4 && awayT > 6 && !bubbleMode) { say('again'); awayT = 0; }
+    if (bubbleMode === 'again' && gd > 5) say(null);
+  }
+
+  // ---- rotunda camera (follows you) ----
   if (rig || introT > 0) introT = Math.min(1, introT + dt / (reduce ? 0.01 : 3.2));
-  if (speed && mv.dot(camFwd) > -0.3) camYaw += angDiff(P.heading + Math.PI, camYaw) * (1 - Math.pow(0.25, dt));
+  if (speed && mv.lengthSq() > 0 && mv.dot(camFwd) > -0.3) camYaw += angDiff(P.heading + Math.PI, camYaw) * (1 - Math.pow(0.25, dt));
+  else if (speed && P.target) camYaw += angDiff(P.heading + Math.PI, camYaw) * (1 - Math.pow(0.5, dt));
   if (!down) camYawUser *= Math.pow(0.4, dt);
   const yaw = camYaw + camYawUser, dist = small() ? 6.2 : 5.4, height = small() ? 3.1 : 2.5;
   const follow = tmp.set(P.pos.x + Math.sin(yaw) * dist, height, P.pos.z + Math.cos(yaw) * dist);
@@ -652,25 +875,24 @@ function frame(now) {
   camLook.lerpVectors(roamLook, railLook, blendB);
   cam.lookAt(camLook);
 
-  // ---- the avatar: player in the rotunda, companion in the wing ----
-  const avPos = tmp.lerpVectors(P.pos, railAv, blendB).clone();
-  let head = P.heading;
+  // ---- the guide's body: in the rotunda she is herself; in the wing she walks with you ----
+  const avPos = tmp.lerpVectors(Gd.pos, railAv, blendB).clone();
+  let head = Gd.heading, bodySpeed = gSpeed;
   if (blendB > 0) {
     const moving = avPos.distanceTo(prevAv) / dt;
     if (moving > 0.3) railHead += angDiff(Math.atan2(avPos.x - prevAv.x, avPos.z - prevAv.z), railHead) * (1 - Math.pow(0.001, dt));
     else railHead += angDiff(Math.atan2(cam.position.x - avPos.x, cam.position.z - avPos.z), railHead) * (1 - Math.pow(0.05, dt));
-    head = P.heading + angDiff(railHead, P.heading) * blendB;
-    speed = Math.max(speed * (1 - blendB), Math.min(2.4, moving));
-  } else railHead = P.heading;
-  const arrived = blendB > 0.5 && facing && speed < 0.2 && walkAmt > 0.4;
-  if (arrived) waveT = 0;
+    head = Gd.heading + angDiff(railHead, Gd.heading) * blendB;
+    bodySpeed = Math.max(gSpeed * (1 - blendB), Math.min(2.4, moving));
+  } else railHead = Gd.heading;
+  if (blendB > 0.5 && facing && bodySpeed < 0.2 && walkAmt > 0.4) waveT = 0;
   prevAv.copy(avPos);
   char.position.copy(avPos); char.rotation.y = head;
 
-  walkAmt += ((speed ? Math.min(1, speed / 2.2) : 0) - walkAmt) * (1 - Math.pow(0.002, dt));
+  walkAmt += ((bodySpeed ? Math.min(1, bodySpeed / 2.2) : 0) - walkAmt) * (1 - Math.pow(0.002, dt));
   phase += dt * 9.5 * Math.min(1, walkAmt * 3) * (0.75 + 0.25 * walkAmt);
-  idleT = speed ? 0 : idleT + dt;
-  if (idleT > 10 && !tour && !clip.action && !reduce && roaming()) { playClip(Math.random() < 0.6 ? 'dance' : 'excited'); idleT = -8; }
+  idleT = bodySpeed || tour || bubbleMode ? 0 : idleT + dt;
+  if (idleT > 14 && !clip.action && !reduce && roaming()) { playClip(Math.random() < 0.6 ? 'dance' : 'excited'); idleT = -8; }
 
   if (rig) {
     for (const [b, q] of rig.rest) b.quaternion.copy(q);
@@ -692,8 +914,8 @@ function frame(now) {
     drive('RightArm', shR); drive('RightForeArm', conj(shR, qe(-0.15 - 0.25 * walkAmt, 0, 0)));
     drive('LeftArm', shL); drive('LeftForeArm', conj(shL, qe(lel, 0, lelz)));
     let hy = 0;
-    if (active && !speed && roaming()) hy = Math.max(-0.5, Math.min(0.5, angDiff(Math.atan2(active.pos.x - P.pos.x, active.pos.z - P.pos.z), P.heading)));
-    else if (facing && !speed) hy = Math.max(-0.6, Math.min(0.6, angDiff(Math.atan2(-facing.n.x, -facing.n.z), head)));
+    if (roaming() && !bodySpeed) { const f = tour && Gd.focus && !bubbleMode ? Gd.focus.pos : P.pos; hy = Math.max(-0.6, Math.min(0.6, angDiff(Math.atan2(f.x - Gd.pos.x, f.z - Gd.pos.z), Gd.heading))); }
+    else if (facing && !bodySpeed) hy = Math.max(-0.6, Math.min(0.6, angDiff(Math.atan2(-facing.n.x, -facing.n.z), head)));
     const hq = qe(0.05, hy, 0), half = Q().slerp(hq, 0.45);
     drive('Neck', half); drive('Head', half.clone().invert().multiply(hq));
     if (clip.action) {
@@ -708,12 +930,20 @@ function frame(now) {
     }
   }
 
-  // nearest exhibit → placard (rotunda only)
+  // ---- placard: the tour stop, or the exhibit you're standing at ----
   let near = null, nd = 3.3;
   if (roaming()) EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - P.pos.x, e.pos.z - P.pos.z); if (d < nd) { nd = d; near = e; } });
-  showPlacard(near);
-  EXHIBITS.forEach(e => { const k = e === near ? 1.08 : 1; e.obj.scale.lerp(new THREE.Vector3(k, k, k), 0.08); });
-  if (tour && !P.target) { tour.wait += dt; if (tour.wait > 4.2) { tour.i++; tour.wait = 0; if (tour.i >= TOUR.length) stopTour(); else goExhibit(byId(TOUR[tour.i])); } }
+  showPlacard(tour ? (tour.arrived || active === STOPS[tour.i] ? STOPS[tour.i] : null) : near);
+  EXHIBITS.forEach(e => { const k = e === active ? 1.08 : 1; e.obj.scale.lerp(new THREE.Vector3(k, k, k), 0.08); });
+
+  // ---- the speech bubble follows her head ----
+  if (bubbleMode && roaming() && rig) {
+    toScreen.set(char.position.x, 2.05, char.position.z).project(cam);
+    const on = toScreen.z < 1 && Math.abs(toScreen.x) < 1.1 && Math.abs(toScreen.y) < 1.1;
+    bubble.style.visibility = on ? '' : 'hidden';
+    const x = (toScreen.x * 0.5 + 0.5) * innerWidth, y = (-toScreen.y * 0.5 + 0.5) * innerHeight;
+    bubble.style.transform = `translate(${Math.round(Math.max(150, Math.min(innerWidth - 150, x)))}px, ${Math.round(Math.max(90, y))}px) translate(-50%, -100%)`;
+  } else if (bubbleMode && !roaming()) bubble.style.visibility = 'hidden';
 
   renderer.render(scene, cam);
   const fade = smooth(0.25, 0.75, blendB);
@@ -727,6 +957,7 @@ new IntersectionObserver(en => { inView = en[0].isIntersecting; if (!inView) key
 new IntersectionObserver(en => root.classList.toggle('in-museum', en[0].intersectionRatio > 0.3), { threshold: [0, 0.3, 0.6] }).observe(sec);
 if (!reduce) makePanels();   // reduced motion keeps the ordinary page below the museum
 sec.classList.add('mu-on');
+hudSync(); hudCount.textContent = countText();
 resize();
 if (document.fonts) document.fonts.ready.then(() => setTimeout(layoutWing, 50));
 requestAnimationFrame(frame);
