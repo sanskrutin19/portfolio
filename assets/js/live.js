@@ -24,12 +24,12 @@ const store = {
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
   const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
 let me = store.get();
-export const LOOK_DEFAULT = { style: 0, skin: 2, outfit: 0, acc: 0 };
+export const LOOK_DEFAULT = { body: 0, style: 0, skin: 2, outfit: 0, acc: 0 };
 export function visitor() { return me; }
 export function cleanName(s) { return String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24); }
 export function cleanLook(l) {
   const n = (v, max) => Math.max(0, Math.min(max, (v | 0)));
-  l = l || {}; return { style: n(l.style, 3), skin: n(l.skin, 5), outfit: n(l.outfit, 5), acc: n(l.acc, 3) };
+  l = l || {}; return { body: n(l.body, 1), style: n(l.style, 3), skin: n(l.skin, 5), outfit: n(l.outfit, 5), acc: n(l.acc, 3) };
 }
 export function saveVisitor({ name, look, shown }) {
   me = { id: (me && me.id) || uuid(), name: cleanName(name) || 'Visitor', look: cleanLook(look), shown: shown !== false, since: (me && me.since) || Date.now() };

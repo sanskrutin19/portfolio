@@ -1,7 +1,7 @@
 /* The avatar dialog: name + look, with a live 3D preview. */
 import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { makeFigure, STYLES, SKINS, OUTFITS, ACCS } from './visitors.js';
+import { makeFigure, BODIES, STYLES, SKINS, OUTFITS, ACCS } from './visitors.js';
 import { visitor, saveVisitor, forgetVisitor, cleanName, LOOK_DEFAULT, presenceReady } from './live.js';
 
 const dlg = document.getElementById('creator');
@@ -25,11 +25,12 @@ function row(sel, items, key, paint) {
     lab.append(inp, sw); box.appendChild(lab);
   });
 }
+row('#cr-body', BODIES, 'body', (s, it) => { s.textContent = it; });
 row('#cr-style', STYLES, 'style', (s, it) => { s.textContent = it; });
 row('#cr-skin', SKINS, 'skin', (s, it, i) => { s.style.background = it; s.setAttribute('aria-label', 'Skin tone ' + (i + 1)); s.title = 'Skin tone ' + (i + 1); });
 row('#cr-outfit', OUTFITS, 'outfit', (s, it) => { s.style.background = `linear-gradient(${it.top} 0 58%, ${it.low} 58%)`; s.setAttribute('aria-label', it.name); s.title = it.name; });
 row('#cr-acc', ACCS, 'acc', (s, it) => { s.textContent = it; });
-function sync() { ['style', 'skin', 'outfit', 'acc'].forEach(k => { const r = dlg.querySelector(`#cr-${k}-${look[k]}`); if (r) r.checked = true; }); }
+function sync() { ['body', 'style', 'skin', 'outfit', 'acc'].forEach(k => { const r = dlg.querySelector(`#cr-${k}-${look[k]}`); if (r) r.checked = true; }); }
 
 function startPreview() {
   if (!renderer) {
@@ -59,7 +60,7 @@ function stopPreview() { cancelAnimationFrame(raf); raf = 0; }
 
 export function openCreator(onDone) {
   const v = visitor();
-  look = v ? { ...v.look } : { ...LOOK_DEFAULT, skin: Math.floor(Math.random() * 6), outfit: Math.floor(Math.random() * 6) };
+  look = v ? { ...LOOK_DEFAULT, ...v.look } : { ...LOOK_DEFAULT, skin: Math.floor(Math.random() * 6), outfit: Math.floor(Math.random() * 6) };
   nameIn.value = v ? v.name : '';
   shownIn.checked = v ? v.shown !== false : true;
   forgetBtn.hidden = !v;

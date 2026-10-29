@@ -3,6 +3,7 @@
    A look is { style, skin, outfit, acc } — indices into the lists below. */
 import * as THREE from 'three';
 
+export const BODIES = ['Female', 'Male'];
 export const STYLES = ['Bob', 'Curls', 'Bun', 'Crop'];
 export const SKINS = ['#f3d2b8', '#e6b996', '#c99a76', '#a87553', '#7d5136', '#5a3a26'];
 export const OUTFITS = [
@@ -22,6 +23,7 @@ function mat(color, rough = 0.75, metal = 0) {
 const G = {
   torso: new THREE.CapsuleGeometry(0.2, 0.34, 6, 16),
   skirt: new THREE.CylinderGeometry(0.2, 0.27, 0.3, 20, 1, true),
+  seat: new THREE.CylinderGeometry(0.17, 0.16, 0.2, 20),
   limb: new THREE.CapsuleGeometry(0.06, 0.42, 4, 10),
   arm: new THREE.CapsuleGeometry(0.052, 0.38, 4, 10),
   head: new THREE.SphereGeometry(0.17, 24, 18),
@@ -50,11 +52,18 @@ export function makeFigure(look) {
     // legs (pivot at the hip)
     parts.legs = [-1, 1].map(s => { const hip = new THREE.Group(); hip.position.set(s * 0.09, 0.62, 0); body.add(hip);
       add(G.limb, low, 0, -0.28, 0, hip); const sh = add(G.shoe, mat('#1d1a16', 0.5), 0, -0.56, 0.03, hip); sh.scale.set(1, 0.6, 1.5); return hip; });
-    add(G.torso, top, 0, 0.98, 0);
-    const skirt = add(G.skirt, top, 0, 0.7, 0); skirt.material = top;
-    add(G.neck, skin, 0, 1.27, 0);
+    const male = l.body === 1;
+    if (male) {   // broad shoulders, straight torso, trousers
+      add(G.torso, top, 0, 1.0, 0).scale.set(1.2, 1.04, 0.95);
+      add(G.seat, low, 0, 0.66, 0);
+    } else {      // narrower shoulders, a flared skirt
+      add(G.torso, top, 0, 0.98, 0).scale.set(0.94, 1, 0.92);
+      add(G.skirt, top, 0, 0.7, 0);
+    }
+    add(G.neck, skin, 0, 1.27, 0).scale.setScalar(male ? 1.2 : 1);
     // arms (pivot at the shoulder)
-    parts.arms = [-1, 1].map(s => { const sh = new THREE.Group(); sh.position.set(s * 0.25, 1.18, 0); sh.rotation.z = s * 0.12; body.add(sh);
+    const shoulder = male ? 0.29 : 0.24;
+    parts.arms = [-1, 1].map(s => { const sh = new THREE.Group(); sh.position.set(s * shoulder, 1.18, 0); sh.rotation.z = s * 0.12; body.add(sh);
       add(G.arm, top, 0, -0.2, 0, sh); add(G.curl, skin, 0, -0.45, 0, sh).scale.setScalar(0.85); return sh; });
     const head = new THREE.Group(); head.position.set(0, 1.46, 0); body.add(head); parts.head = head;
     add(G.head, skin, 0, 0, 0, head);
@@ -89,7 +98,7 @@ export function makeFigure(look) {
     }
   };
 }
-function cleanLook(l) { l = l || {}; const n = (v, m) => Math.max(0, Math.min(m, v | 0)); return { style: n(l.style, 3), skin: n(l.skin, 5), outfit: n(l.outfit, 5), acc: n(l.acc, 3) }; }
+function cleanLook(l) { l = l || {}; const n = (v, m) => Math.max(0, Math.min(m, v | 0)); return { body: n(l.body, 1), style: n(l.style, 3), skin: n(l.skin, 5), outfit: n(l.outfit, 5), acc: n(l.acc, 3) }; }
 
 // a name tag / emote bubble that always faces the camera
 export function makeLabel(text, { you = false, font = '"Geist", system-ui, sans-serif' } = {}) {
