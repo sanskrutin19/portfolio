@@ -1648,3 +1648,11 @@ body { font-family: var(--f-sans); }
   .mu-toasts { top: 142px; }
   .mu-placard { bottom: 14px; }
 }
+/* only when 3D is genuinely unavailable / the museum failed */
+.mu-no3d { display: none; }
+.no3d .mu-no3d, .mu-error:not([hidden]) { display: block; position: relative; z-index: 4; max-width: 760px; margin: 96px var(--gutter) 0; padding: 1.4rem 1.5rem; border-radius: 16px; background: #1d1a16; color: #f3ece1; }
+.mu-no3d h2, .mu-error h2 { font-family: var(--f-display); font-weight: 400; font-size: clamp(1.4rem, 3vw, 2rem); margin: .3rem 0 .5rem; }
+.mu-no3d .mono, .mu-error .mono { font-size: .62rem; letter-spacing: .14em; text-transform: uppercase; color: #e7a27f; }
+.mu-error code { font: .8rem var(--f-mono); color: #f1d9a8; word-break: break-word; }
+.mu-error .mu-btn { margin-top: .9rem; }
+.mu-error:not([hidden]) ~ .mu-fallback, .no3d .mu-fallback { position: relative; bottom: auto; left: auto; right: auto; margin: 1.2rem var(--gutter) 2rem; }
