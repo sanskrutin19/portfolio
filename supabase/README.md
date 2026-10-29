@@ -62,7 +62,7 @@ update guestbook   set status = 'hidden'   where id = 9;          -- take one do
 
 - **Read them:** go to **Table Editor → `inbox`**, or run `select * from inbox;` in the SQL editor. Each note shows the visitor's name, the message, and how to reach them, if they gave it.
 - **Mark one as read:** `update private_notes set is_read = true where id = 5;`
-- **Email alerts (optional):** in **Database → Webhooks**, add a webhook on inserts into `private_notes` and point it at an email service such as Zapier or Make.
+- **Email alerts:** run [`notify.sql`](notify.sql) once (setup steps are at the top of that file). It emails you through Resend for every private note and every wall post waiting for approval. Reply to a private-note email and your reply goes straight to the sender, if they left an email address.
 
 Limits: 3 notes per 10 minutes and 6 per day per sender, with no duplicates.
 
