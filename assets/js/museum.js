@@ -15,6 +15,7 @@ import { makeLabel, makeEmote, EMOTES } from './visitors.js';
 import { makePerson, castOf } from './people.js';
 import { visitor, LOOK_DEFAULT, presence, bus, presenceReady, dataReady, cleanName } from './live.js';
 import { openSelect } from './select.js';
+import { sfx } from './sfx.js';
 
 const root = document.documentElement;
 const sec = document.getElementById('home');
@@ -534,7 +535,7 @@ let meLabel = null, meEmote = null;
 function setMeLabel() {
   if (meLabel) { meG.remove(meLabel); meLabel.userData.dispose(); meLabel = null; }
   const v = visitor(); if (!v) return;
-  meLabel = makeLabel(v.name + ' · you', { you: true }); meLabel.position.y = 2.08; meG.add(meLabel);
+  meLabel = makeLabel(v.name + ' · you', { you: true }); meLabel.position.y = 2.08; meLabel.visible = typeof stage === 'undefined' || stage === 'play'; meG.add(meLabel);
 }
 setMeLabel();
 
@@ -570,6 +571,11 @@ function say(mode, extra) {
     btn('Guided tour', () => startTour(), true); btn('No thanks', () => say(null));
   } else if (mode === 'lead') {
     bText.textContent = extra;
+  } else if (mode === 'complete') {
+    bText.textContent = `You’ve seen the whole collection${v ? ', ' + v.name : ''}! Thank you for playing. Want my résumé, or to leave me a note?`;
+    const r = document.createElement('a'); r.className = 'mu-btn mu-btn-main'; r.href = 'resume.pdf'; r.target = '_blank'; r.rel = 'noopener'; r.textContent = 'Résumé ↗'; bActs.appendChild(r);
+    const n = document.createElement('button'); n.type = 'button'; n.className = 'mu-btn'; n.dataset.openNote = ''; n.textContent = 'Write to me'; bActs.appendChild(n);
+    btn('Later', () => say(null));
   }
   bubble.classList.toggle('on', !!mode);
 }
@@ -577,7 +583,8 @@ function say(mode, extra) {
 /* ---------------- the game: title → character select → intro → play ---------------- */
 let stage = 'title';
 function setStage(s) {
-  stage = s; sec.dataset.stage = s;
+  stage = s; sec.dataset.stage = s; root.classList.toggle('stage-title', s === 'title');
+  if (meLabel) meLabel.visible = s === 'play';
   presence.setInside(s === 'intro' || s === 'play');
   if (s !== 'title') sec.classList.add('mu-entered');
 }
@@ -596,14 +603,14 @@ function startIntro(returning) {
     'Every exhibit in here is something I actually built: an archive that cites its sources, a sealed chat, satellite eyes on a pipeline, a crop doctor, an alarm that explains itself and a field log that works offline.',
     'Walk with W A S D or the arrow keys, or just tap the floor. Walk up to an exhibit and press E to step inside it.',
     'CHOICE'];
-  lineI = 0; setStage('intro'); dlgEl.hidden = false; say(null); waveT = 0; stopClip();
+  lineI = 0; setStage('intro'); dlgEl.hidden = false; say(null); waveT = 0; stopClip(); sfx.pop();
   showLine();
 }
 function typeText(text) {
   clearInterval(typing); dText.dataset.full = text;
   if (reduce) { dText.textContent = text; return; }
   let i = 0; dText.textContent = '';
-  typing = setInterval(() => { i += 2; dText.textContent = text.slice(0, i); if (i >= text.length) clearInterval(typing); }, 20);
+  typing = setInterval(() => { i += 2; dText.textContent = text.slice(0, i); if (i % 6 === 0) sfx.blip(); if (i >= text.length) clearInterval(typing); }, 20);
 }
 function showLine() {
   const line = lines[lineI]; dChoices.innerHTML = '';
@@ -622,10 +629,46 @@ function nextLine() {
 dNext.addEventListener('click', nextLine);
 dSkip.addEventListener('click', () => { lineI = lines.length - 1; showLine(); });
 function play(withTour) {
-  clearInterval(typing); dlgEl.hidden = true; setStage('play'); introT = 1; begin();
+  clearInterval(typing); dlgEl.hidden = true; setStage('play'); introT = 1; begin(); sfx.start(); questSync();
   camYaw = Math.atan2(Gd.pos.x - P.pos.x, Gd.pos.z - P.pos.z) + Math.PI;
   if (withTour) startTour();
 }
+
+/* ---------------- the quest: discover every exhibit ---------------- */
+const QKEY = 'museum.quest.v1';
+const found = new Set((() => { try { return JSON.parse(localStorage.getItem(QKEY)) || []; } catch { return []; } })().filter(id => byId(id)));
+const quest = $('.mu-quest'), qPips = quest.querySelector('.mq-pips'), qCount = quest.querySelector('.mq-count b'), toasts = $('.mu-toasts');
+EXHIBITS.forEach(e => { const li = document.createElement('li'); li.dataset.id = e.id; li.title = e.title; li.textContent = e.no; qPips.appendChild(li); });
+function questSync() {
+  qPips.querySelectorAll('li').forEach(li => li.classList.toggle('done', found.has(li.dataset.id)));
+  qCount.textContent = found.size;
+  quest.classList.toggle('complete', found.size === EXHIBITS.length);
+}
+function toast(kicker, title, sub, big) {
+  const t = document.createElement('div'); t.className = 'mu-toast' + (big ? ' big' : '');
+  const k = document.createElement('p'); k.className = 'mono'; k.textContent = kicker;
+  const h = document.createElement('p'); h.className = 'mt-title'; h.textContent = title;
+  t.append(k, h);
+  if (sub) { const s2 = document.createElement('p'); s2.className = 'mt-sub'; s2.textContent = sub; t.appendChild(s2); }
+  toasts.appendChild(t);
+  setTimeout(() => t.classList.add('out'), big ? 4200 : 2800);
+  setTimeout(() => t.remove(), big ? 5000 : 3600);
+}
+function discover(e) {
+  if (!e || e.desk || found.has(e.id) || stage !== 'play') return;
+  found.add(e.id); try { localStorage.setItem(QKEY, JSON.stringify([...found])); } catch {}
+  questSync();
+  const li = qPips.querySelector(`[data-id="${e.id}"]`); if (li) { li.classList.remove('pulse'); void li.offsetWidth; li.classList.add('pulse'); }
+  if (found.size === EXHIBITS.length) {
+    sfx.complete();
+    toast('Quest complete', 'You found every exhibit!', 'The whole collection, seven out of seven.', true);
+    setTimeout(() => { if (!tour) say('complete'); waveT = 0; }, 1200);
+  } else {
+    sfx.discover();
+    toast(`Exhibit discovered · ${found.size} / ${EXHIBITS.length}`, e.title, e.proj);
+  }
+}
+questSync();
 
 /* ---------------- input (the rotunda) ---------------- */
 let inView = false;
@@ -682,6 +725,7 @@ function showPlacard(e) {
   const link = e.desk ? 'https://github.com/sanskrutin19' : e.live;
   pLive.hidden = !link; if (link) { pLive.href = link; pLive.textContent = e.desk ? 'GitHub ↗' : 'Live app ↗'; }
   placard.classList.add('on');
+  discover(e);
 }
 function scrollToEl(el) { window.__lenis ? window.__lenis.scrollTo(el, { offset: -64, duration: 2.2 }) : el.scrollIntoView({ behavior: 'smooth' }); }
 function enter(e) {
@@ -715,7 +759,7 @@ tourBtn.addEventListener('click', () => (tour ? stopTour() : startTour()));
 const enterBtn = $('#mu-enter'), newCharBtn = $('#mu-newchar');
 function refreshEnter() {
   const v = visitor();
-  enterBtn.textContent = v ? `Continue as ${v.name}  ▸` : 'Enter the museum  ▸';
+  enterBtn.textContent = v ? `Continue as ${v.name}` : 'Start game';
   newCharBtn.hidden = !v;
 }
 function applyVisitor() {
@@ -728,6 +772,18 @@ const choose = () => openSelect(v => { applyVisitor(); if (v && stage === 'title
 enterBtn.addEventListener('click', () => { if (visitor()) startIntro(true); else choose(); });
 newCharBtn.addEventListener('click', choose);
 refreshEnter();
+// the title menu works from the keyboard like a game menu
+window.addEventListener('keydown', e => {
+  if (stage !== 'title' || document.querySelector('dialog[open]') || !inView || e.metaKey || e.ctrlKey || e.altKey) return;
+  const items = [...sec.querySelectorAll('.gm-menu .gm-item:not([hidden])')], i = items.indexOf(document.activeElement);
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') { e.preventDefault(); const n = items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length] || items[0]; n.focus(); sfx.hover(); }
+  else if (e.key === 'Enter' && i < 0) { e.preventDefault(); enterBtn.click(); }
+});
+sec.querySelectorAll('.gm-item').forEach(b => b.addEventListener('pointerenter', () => sfx.hover()));
+// one sound switch, wherever it appears
+const muteBtns = document.querySelectorAll('.gm-mute');
+sfx.onChange(m => muteBtns.forEach(b => { b.textContent = m ? '♪ Sound off' : '♪ Sound on'; b.setAttribute('aria-pressed', String(m)); }));
+muteBtns.forEach(b => b.addEventListener('click', () => sfx.setMuted(!sfx.muted)));
 // the title screen's lobby line: who is inside right now
 const lobby = $('.mu-lobby'), lobbyText = lobby.querySelector('span');
 function lobbySync() {
@@ -942,11 +998,11 @@ function frame(now) {
     roamLook.lerp(lookGoal, 1 - Math.pow(0.01, dt));
   } else if (stage === 'intro') {   // over your shoulder, looking at the guide
     const dir = new THREE.Vector3(P.pos.x - Gd.pos.x, 0, P.pos.z - Gd.pos.z).normalize(), right = new THREE.Vector3(dir.z, 0, -dir.x);
-    const back = small() ? 2.9 : 2.1;
-    roamCam.lerp(P.pos.clone().addScaledVector(dir, back).addScaledVector(right, small() ? 0.5 : 0.85).setY(small() ? 2.0 : 1.8), 1 - Math.pow(0.03, dt));
+    const back = small() ? 3.6 : 3.0;
+    roamCam.lerp(P.pos.clone().addScaledVector(dir, back).addScaledVector(right, small() ? 0.9 : 1.25).setY(small() ? 2.3 : 2.15), 1 - Math.pow(0.03, dt));
     roamLook.lerp(Gd.pos.clone().setY(small() ? 1.25 : 1.4).addScaledVector(right, -0.15), 1 - Math.pow(0.02, dt));
   } else {                          // title + character select: a slow orbit of the rotunda
-    const a = t * 0.05;
+    const a = reduce ? 0.6 : t * 0.05;
     roamCam.lerp(new THREE.Vector3(Math.sin(a) * 8.8, 4.4, Math.cos(a) * 8.8), 1 - Math.pow(0.3, dt));
     roamLook.lerp(new THREE.Vector3(0, 1.5, 0), 1 - Math.pow(0.3, dt));
   }

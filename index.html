@@ -42,12 +42,10 @@
     try { var t = localStorage.getItem('site-theme'); if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}
     (function () {
       try {
-        var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-        var save = navigator.connection && navigator.connection.saveData;
+        // the game runs wherever the browser can draw 3D; "reduce motion" only calms it down (museum.js)
         var c = document.createElement('canvas');
-        if (!reduce && !save && (c.getContext('webgl2') || c.getContext('webgl'))) {
-          document.documentElement.classList.add('webgl3d');
-        }
+        if (c.getContext('webgl2') || c.getContext('webgl')) document.documentElement.classList.add('webgl3d');
+        else document.documentElement.classList.add('no3d');
       } catch (e) {}
     })();
   </script>
@@ -96,24 +94,32 @@
 
       <!-- 1 · the title screen -->
       <div class="mu-intro mu-titlescreen">
-        <p class="mu-kicker">A playable portfolio · Sanskruti Naik, AI / ML engineer</p>
-        <h1 class="mu-title" id="mu-title">The Museum of <em>Things That Think</em></h1>
-        <p class="mu-sub">Seven exhibits, each a real system I built. Choose your character, meet me inside, and take the tour, or wander on your own.</p>
-        <div class="mu-actions">
-          <button type="button" class="mu-btn mu-btn-main mu-btn-big" id="mu-enter">Enter the museum  ▸</button>
-          <button type="button" class="mu-btn" id="mu-newchar" hidden>New character</button>
+        <div class="gm-logo">
+          <p class="gm-pre mono">Sanskruti Naik presents</p>
+          <h1 class="mu-title" id="mu-title"><span>The Museum of</span> <em>Things That Think</em></h1>
+          <p class="gm-tag mono">A playable portfolio · 7 exhibits to discover</p>
         </div>
+        <nav class="gm-menu" aria-label="Game menu">
+          <button type="button" class="gm-item gm-primary" id="mu-enter">Start game</button>
+          <button type="button" class="gm-item" id="mu-newchar" hidden>New character</button>
+          <a class="gm-item" href="#about">Skip to the portfolio</a>
+          <a class="gm-item" href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a>
+        </nav>
+        <p class="gm-press mono"><span class="gm-blink">Press Enter to start</span></p>
         <p class="mu-lobby mono" hidden><i class="hud-dot" aria-hidden="true"></i><span></span></p>
-        <p class="mu-alt"><a href="#about">Skip to the portfolio ↓</a> · <a href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a></p>
+        <button type="button" class="gm-mute" aria-pressed="false">♪ Sound on</button>
       </div>
 
       <!-- 3 · the guide's introduction, game-style -->
       <div class="mu-dialog" role="dialog" aria-modal="false" aria-labelledby="dlg-who" hidden>
         <div class="dlg-card">
+          <img class="dlg-portrait" src="assets/avatar/portrait.jpg" alt="" width="104" height="104">
+          <div class="dlg-body">
           <p class="dlg-who mono" id="dlg-who">Sanskruti <span>· your guide</span></p>
           <p class="dlg-text" aria-live="polite"></p>
           <div class="dlg-choices"></div>
-          <div class="dlg-foot"><button type="button" class="dlg-skip">Skip intro</button><button type="button" class="dlg-next">Next  ▸</button></div>
+          <div class="dlg-foot"><button type="button" class="dlg-skip">Skip intro</button><button type="button" class="dlg-next">Next <span class="dlg-caret" aria-hidden="true">▼</span></button></div>
+          </div>
         </div>
       </div>
 
@@ -147,6 +153,15 @@
         <div class="gb-actions"></div>
       </div>
 
+      <!-- the quest -->
+      <div class="mu-quest" aria-live="polite">
+        <p class="mq-label mono">Quest</p>
+        <p class="mq-goal">Discover every exhibit</p>
+        <ol class="mq-pips" aria-hidden="true"></ol>
+        <p class="mq-count mono"><b>0</b> / 7 discovered</p>
+      </div>
+      <div class="mu-toasts" aria-live="polite"></div>
+
       <!-- you, and who else is here -->
       <div class="mu-hud">
         <div class="hud-live" hidden>
@@ -160,13 +175,18 @@
           <button type="button" class="hud-btn" data-emote="heart" aria-label="Send a heart" title="Send a heart">♥</button>
           <button type="button" class="hud-btn hud-edit">Your avatar</button>
         </div>
-        <button type="button" class="hud-btn hud-tour" id="mu-tour" aria-pressed="false">Guided tour</button>
+        <div class="hud-row"><button type="button" class="hud-btn hud-tour" id="mu-tour" aria-pressed="false">Guided tour</button><button type="button" class="hud-btn gm-mute" aria-pressed="false">♪ Sound on</button></div>
         <button type="button" class="hud-btn hud-note" data-open-note>✉ Write to Sanskruti</button>
       </div>
 
       <div class="mu-loading" aria-hidden="true"><span>Opening the museum…</span></div>
 
       <!-- shown when 3D isn't available, and to screen readers -->
+      <div class="mu-no3d" role="note">
+        <p class="mono">The museum is a 3D game</p>
+        <h2>Your browser has 3D graphics switched off.</h2>
+        <p>Turn on hardware acceleration (in Brave or Chrome: Settings → System → <b>Use graphics acceleration when available</b>), restart the browser and reload. Meanwhile, here is everything in the museum:</p>
+      </div>
       <ol class="mu-fallback">
         <li><a href="#case-rag" data-world="rag"><span class="mono">No. 01</span><b>The Archive That Thinks</b><i>Tender Intelligence · offline RAG</i></a></li>
         <li><a href="#case-securechat" data-world="chat"><span class="mono">No. 02</span><b>The Sealed Artifact</b><i>SecureChat · end-to-end encryption</i></a></li>
@@ -831,23 +851,24 @@
         <p class="sel-loading mono" hidden>Loading…</p>
       </div>
       <div class="sel-side">
-        <p class="mono sel-kicker">Step 1 of 2 · Who are you today?</p>
-        <h2 class="sel-title" id="sel-title">Choose your <em>character</em></h2>
+        <p class="mono sel-kicker">Player 1 · Select your character</p>
+        <h2 class="sel-title" id="sel-title">Who are you <em>today?</em></h2>
         <div class="sel-tabs" role="group" aria-label="Show">
           <button type="button" class="sel-tab" data-filter="all" aria-pressed="true">All</button>
           <button type="button" class="sel-tab" data-filter="f" aria-pressed="false">Women</button>
           <button type="button" class="sel-tab" data-filter="m" aria-pressed="false">Men</button>
         </div>
         <fieldset class="sel-grid"><legend class="sr-only">Characters</legend></fieldset>
-        <label class="sel-name"><span class="mono">Step 2 of 2 · Your name (shown above your head)</span><input id="sel-name" maxlength="24" autocomplete="nickname" placeholder="What should we call you?" required></label>
         <label class="sel-check" data-live-only><input type="checkbox" id="sel-shown" checked> Let other visitors see me in the museum</label>
-        <p class="sel-note">Saved in this browser so you come back as yourself. <span data-live-only>Inside, other visitors see your character, your name and where you’re standing. Nothing else is shared.</span></p>
-        <div class="sel-actions">
-          <button type="submit" class="mu-btn mu-btn-main mu-btn-big sel-go">Enter the museum  ▸</button>
-          <button type="button" class="mu-btn sel-back">Back</button>
-          <button type="button" class="sel-forget" id="sel-forget" hidden>Forget me on this device</button>
+        <p class="sel-note">Saved in this browser so you come back as yourself. <span data-live-only>Inside, other visitors see your character, your name and where you’re standing. Nothing else is shared.</span> <button type="button" class="sel-forget" id="sel-forget" hidden>Forget me on this device</button></p>
+        <p class="sel-credit">Characters: Microsoft Rocketbox (MIT licence). Use ← → to browse.</p>
+        <div class="sel-bar">
+          <label class="sel-name"><span class="mono">Your name · shown above your head</span><input id="sel-name" maxlength="24" autocomplete="nickname" placeholder="Type your name" required></label>
+          <div class="sel-actions">
+            <button type="button" class="mu-btn sel-back">Back</button>
+            <button type="submit" class="mu-btn mu-btn-main mu-btn-big sel-go">Start  ▸</button>
+          </div>
         </div>
-        <p class="sel-credit">Characters: Microsoft Rocketbox (MIT licence).</p>
       </div>
     </form>
   </dialog>

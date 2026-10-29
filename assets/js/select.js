@@ -4,6 +4,7 @@ import * as THREE from 'three';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { CAST, makePerson, castOf, thumbOf } from './people.js';
 import { visitor, saveVisitor, forgetVisitor, cleanName, presenceReady } from './live.js';
+import { sfx } from './sfx.js';
 
 const dlg = document.getElementById('select');
 const form = dlg.querySelector('form');
@@ -56,6 +57,7 @@ function startPreview() {
     scene.add(new THREE.HemisphereLight('#fff6ea', '#8a8073', 1.1));
     const key = new THREE.DirectionalLight('#fff1dc', 1.5); key.position.set(1.5, 3, 3); scene.add(key);
     const rim = new THREE.DirectionalLight('#ffd9b8', 0.8); rim.position.set(-2, 2, -2); scene.add(rim);
+    const front = new THREE.DirectionalLight('#fff4e6', 0.9); front.position.set(0, 1.5, 4); scene.add(front);   // lights the face, no dark eye sockets
     const plinth = new THREE.Mesh(new THREE.CylinderGeometry(0.62, 0.68, 0.12, 48), new THREE.MeshStandardMaterial({ color: '#e6ddcf', roughness: 0.8 }));
     plinth.position.y = -0.06; scene.add(plinth);
     cam = new THREE.PerspectiveCamera(26, 1, 0.1, 30);
@@ -84,7 +86,7 @@ export function openSelect(onDone) {
   nameIn.value = v ? v.name : '';
   shownIn.checked = v ? v.shown !== false : true;
   forgetBtn.hidden = !v;
-  dlg.querySelector('.sel-go').textContent = v ? 'Save and go back in  ▸' : 'Enter the museum  ▸';
+  dlg.querySelector('.sel-go').textContent = v ? 'Save  ▸' : 'Start  ▸';
   done = onDone;
   const r = dlg.querySelector('#sel-' + chosen); if (r) r.checked = true;
   dlg.showModal(); startPreview();
@@ -102,3 +104,13 @@ nameIn.addEventListener('input', () => nameIn.setCustomValidity(''));
 dlg.querySelector('.sel-back').addEventListener('click', () => dlg.close());
 forgetBtn.addEventListener('click', () => { forgetVisitor(); dlg.close(); if (done) done(null); });
 dlg.addEventListener('close', stopPreview);
+// ← → browse the cast like a game's character select
+dlg.addEventListener('keydown', e => {
+  if (e.target === nameIn || (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight')) return;
+  if (e.target.type === 'radio') return;   // radios already do this natively
+  e.preventDefault();
+  const cards = [...grid.querySelectorAll('.sel-card:not([hidden]) input')], i = cards.findIndex(c => c.value === chosen);
+  const n = cards[(i + (e.key === 'ArrowRight' ? 1 : -1) + cards.length) % cards.length];
+  if (n) { n.checked = true; pick(n.value); n.focus(); }
+});
+grid.querySelectorAll('.sel-card').forEach(c => c.addEventListener('pointerenter', () => sfx.hover()));
