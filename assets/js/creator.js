@@ -73,7 +73,8 @@ form.addEventListener('submit', e => {
   const name = cleanName(nameIn.value);
   if (!name) { nameIn.setCustomValidity('Choose a name to show above your avatar.'); nameIn.reportValidity(); return; }
   const v = saveVisitor({ name, look, shown: shownIn.checked });
-  dlg.close(); if (done) done(v);
+  dlg.close(); if (document.activeElement) document.activeElement.blur();   // so WASD walks straight away
+  if (done) done(v);
 });
 nameIn.addEventListener('input', () => nameIn.setCustomValidity(''));
 dlg.querySelector('.cr-cancel').addEventListener('click', () => dlg.close());

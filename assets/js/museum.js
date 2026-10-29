@@ -524,7 +524,9 @@ const STOPS = [...TOUR.map(byId), DESK];
 const GPOST = new THREE.Vector3(1.7, 0, 5.4);   // where the guide waits
 
 // the player (you)
-const P = { pos: new THREE.Vector3(0, 0, 8), heading: Math.PI, target: null, focus: null, phase: 0, walk: 0, wave: 0 };
+// everyone starts at their own spot by the entrance, so visitors don't stack up
+const spawnA = Math.PI + (Math.random() - 0.5) * 1.1, spawnR = 7.4 + Math.random() * 1.6;
+const P = { pos: new THREE.Vector3(Math.sin(spawnA) * -spawnR, 0, -Math.cos(spawnA) * spawnR), heading: Math.PI, target: null, focus: null, phase: 0, walk: 0, wave: 0 };
 const meG = new THREE.Group(); scene.add(meG);
 let meFig = makeFigure(visitor() ? visitor().look : LOOK_DEFAULT); meG.add(meFig.group);
 let meLabel = null, meEmote = null;
@@ -576,9 +578,9 @@ let inView = false;
 const roaming = () => blendB < 0.05;
 const MOVE = { KeyW: [0, 1], ArrowUp: [0, 1], KeyS: [0, -1], ArrowDown: [0, -1], KeyA: [-1, 0], ArrowLeft: [-1, 0], KeyD: [1, 0], ArrowRight: [1, 0] };
 window.addEventListener('keydown', e => {
-  if (!inView || !roaming() || root.classList.contains('world-open') || document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT|BUTTON/.test(e.target.tagName) || e.metaKey || e.ctrlKey || e.altKey) return;
-  if (MOVE[e.code]) { keys.add(e.code); e.preventDefault(); pauseTour(true); P.target = null; begin(); }
-  if ((e.code === 'KeyE' || e.code === 'Enter') && active) { e.preventDefault(); enter(active); }
+  if (!inView || !roaming() || root.classList.contains('world-open') || document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (MOVE[e.code]) { if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') e.target.blur(); keys.add(e.code); e.preventDefault(); pauseTour(true); P.target = null; begin(); }
+  if ((e.code === 'KeyE' || (e.code === 'Enter' && !/^(BUTTON|A)$/.test(e.target.tagName))) && active) { e.preventDefault(); enter(active); }
 });
 window.addEventListener('keyup', e => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
@@ -942,7 +944,7 @@ function frame(now) {
     const on = toScreen.z < 1 && Math.abs(toScreen.x) < 1.1 && Math.abs(toScreen.y) < 1.1;
     bubble.style.visibility = on ? '' : 'hidden';
     const x = (toScreen.x * 0.5 + 0.5) * innerWidth, y = (-toScreen.y * 0.5 + 0.5) * innerHeight;
-    bubble.style.transform = `translate(${Math.round(Math.max(150, Math.min(innerWidth - 150, x)))}px, ${Math.round(Math.max(90, y))}px) translate(-50%, -100%)`;
+    bubble.style.transform = `translate(${Math.round(Math.max(150, Math.min(innerWidth - 150, x)))}px, ${Math.round(Math.max(bubble.offsetHeight + 76, y))}px) translate(-50%, -100%)`;
   } else if (bubbleMode && !roaming()) bubble.style.visibility = 'hidden';
 
   renderer.render(scene, cam);
