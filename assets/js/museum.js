@@ -11,9 +11,10 @@ import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
 import { CSS3DRenderer, CSS3DObject } from 'three/addons/renderers/CSS3DRenderer.js';
-import { makeFigure, makeLabel, makeEmote, EMOTES } from './visitors.js';
+import { makeLabel, makeEmote, EMOTES } from './visitors.js';
+import { makePerson, castOf } from './people.js';
 import { visitor, LOOK_DEFAULT, presence, bus, presenceReady, dataReady, cleanName } from './live.js';
-import { openCreator } from './creator.js';
+import { openSelect } from './select.js';
 
 const root = document.documentElement;
 const sec = document.getElementById('home');
@@ -527,13 +528,13 @@ const GPOST = new THREE.Vector3(1.7, 0, 5.4);   // where the guide waits
 // everyone starts at their own spot by the entrance, so visitors don't stack up
 const spawnA = Math.PI + (Math.random() - 0.5) * 1.1, spawnR = 7.4 + Math.random() * 1.6;
 const P = { pos: new THREE.Vector3(Math.sin(spawnA) * -spawnR, 0, -Math.cos(spawnA) * spawnR), heading: Math.PI, target: null, focus: null, phase: 0, walk: 0, wave: 0 };
-const meG = new THREE.Group(); scene.add(meG);
-let meFig = makeFigure(visitor() ? visitor().look : LOOK_DEFAULT); meG.add(meFig.group);
+const meG = new THREE.Group(); scene.add(meG); meG.visible = false;
+let mePerson = makePerson(castOf(visitor() ? visitor().look : LOOK_DEFAULT)); meG.add(mePerson.group);
 let meLabel = null, meEmote = null;
 function setMeLabel() {
   if (meLabel) { meG.remove(meLabel); meLabel.userData.dispose(); meLabel = null; }
   const v = visitor(); if (!v) return;
-  meLabel = makeLabel(v.name + ' · you', { you: true }); meLabel.position.y = 1.95; meG.add(meLabel);
+  meLabel = makeLabel(v.name + ' · you', { you: true }); meLabel.position.y = 2.08; meG.add(meLabel);
 }
 setMeLabel();
 
@@ -549,7 +550,7 @@ function playClip(n) {
   Object.assign(clip, { action: a, t: 0, dur: rig.clips[n].duration });
 }
 function stopClip() { if (clip.action) clip.action.stop(); clip.action = null; }
-function begin() { if (!started) { started = true; sec.classList.add('mu-started'); setTimeout(() => { if (!tour) say('hello'); }, 900); } }
+function begin() { if (!started) { started = true; sec.classList.add('mu-started'); } }
 function walkTo(v, focus = null) { begin(); P.target = v.clone(); P.focus = focus; }
 function goExhibit(e) { walkTo(e.spot, e); }
 
@@ -573,12 +574,66 @@ function say(mode, extra) {
   bubble.classList.toggle('on', !!mode);
 }
 
+/* ---------------- the game: title → character select → intro → play ---------------- */
+let stage = 'title';
+function setStage(s) {
+  stage = s; sec.dataset.stage = s;
+  presence.setInside(s === 'intro' || s === 'play');
+  if (s !== 'title') sec.classList.add('mu-entered');
+}
+setStage('title');
+const dlgEl = $('.mu-dialog'), dText = dlgEl.querySelector('.dlg-text'), dChoices = dlgEl.querySelector('.dlg-choices'),
+  dNext = dlgEl.querySelector('.dlg-next'), dSkip = dlgEl.querySelector('.dlg-skip');
+const INTRO_SPOT = new THREE.Vector3(-0.4, 0, 8.3);
+let lines = [], lineI = 0, typing = 0;
+function startIntro(returning) {
+  const v = visitor(), name = v ? v.name : 'there';
+  P.pos.copy(INTRO_SPOT); P.target = null; P.focus = null;
+  Gd.pos.copy(GPOST); Gd.target = null; Gd.focus = null;
+  P.heading = Math.atan2(Gd.pos.x - P.pos.x, Gd.pos.z - P.pos.z);
+  lines = returning ? [`Welcome back, ${name}! Good to see you again.`, 'CHOICE'] : [
+    `Hi ${name}! Welcome to my museum. I’m Sanskruti, an AI / ML engineer.`,
+    'Every exhibit in here is something I actually built: an archive that cites its sources, a sealed chat, satellite eyes on a pipeline, a crop doctor, an alarm that explains itself and a field log that works offline.',
+    'Walk with W A S D or the arrow keys, or just tap the floor. Walk up to an exhibit and press E to step inside it.',
+    'CHOICE'];
+  lineI = 0; setStage('intro'); dlgEl.hidden = false; say(null); waveT = 0; stopClip();
+  showLine();
+}
+function typeText(text) {
+  clearInterval(typing); dText.dataset.full = text;
+  if (reduce) { dText.textContent = text; return; }
+  let i = 0; dText.textContent = '';
+  typing = setInterval(() => { i += 2; dText.textContent = text.slice(0, i); if (i >= text.length) clearInterval(typing); }, 20);
+}
+function showLine() {
+  const line = lines[lineI]; dChoices.innerHTML = '';
+  if (line === 'CHOICE') {
+    typeText('So, shall I give you the guided tour, or would you rather roam freely?');
+    dNext.hidden = true; dSkip.hidden = true;
+    const b = (label, fn, main) => { const x = document.createElement('button'); x.type = 'button'; x.className = 'mu-btn' + (main ? ' mu-btn-main mu-btn-big' : ' mu-btn-big'); x.textContent = label; x.addEventListener('click', fn); dChoices.appendChild(x); return x; };
+    const first = b('Take the guided tour  ▸', () => play(true), true); b('Roam freely', () => play(false));
+    setTimeout(() => first.focus(), 40);
+  } else { dNext.hidden = false; dSkip.hidden = false; typeText(line); setTimeout(() => dNext.focus(), 40); }
+}
+function nextLine() {
+  if (dText.textContent !== dText.dataset.full) { clearInterval(typing); dText.textContent = dText.dataset.full; return; }   // first press finishes the line
+  if (lineI < lines.length - 1) { lineI++; showLine(); }
+}
+dNext.addEventListener('click', nextLine);
+dSkip.addEventListener('click', () => { lineI = lines.length - 1; showLine(); });
+function play(withTour) {
+  clearInterval(typing); dlgEl.hidden = true; setStage('play'); introT = 1; begin();
+  camYaw = Math.atan2(Gd.pos.x - P.pos.x, Gd.pos.z - P.pos.z) + Math.PI;
+  if (withTour) startTour();
+}
+
 /* ---------------- input (the rotunda) ---------------- */
 let inView = false;
 const roaming = () => blendB < 0.05;
 const MOVE = { KeyW: [0, 1], ArrowUp: [0, 1], KeyS: [0, -1], ArrowDown: [0, -1], KeyA: [-1, 0], ArrowLeft: [-1, 0], KeyD: [1, 0], ArrowRight: [1, 0] };
 window.addEventListener('keydown', e => {
-  if (!inView || !roaming() || root.classList.contains('world-open') || document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
+  if (stage === 'intro' && (e.code === 'Space' || e.code === 'Enter') && !/^(BUTTON|A|INPUT|TEXTAREA)$/.test(e.target.tagName) && !dlgEl.hidden) { e.preventDefault(); if (!dNext.hidden) nextLine(); return; }
+  if (stage !== 'play' || !inView || !roaming() || root.classList.contains('world-open') || document.querySelector('dialog[open]') || /INPUT|TEXTAREA|SELECT/.test(e.target.tagName) || e.target.isContentEditable || e.metaKey || e.ctrlKey || e.altKey) return;
   if (MOVE[e.code]) { if (e.target.tagName === 'BUTTON' || e.target.tagName === 'A') e.target.blur(); keys.add(e.code); e.preventDefault(); pauseTour(true); P.target = null; begin(); }
   if ((e.code === 'KeyE' || (e.code === 'Enter' && !/^(BUTTON|A)$/.test(e.target.tagName))) && active) { e.preventDefault(); enter(active); }
 });
@@ -586,7 +641,7 @@ window.addEventListener('keyup', e => keys.delete(e.code));
 window.addEventListener('blur', () => keys.clear());
 const ray = new THREE.Raycaster(), ndc = new THREE.Vector2();
 let down = null;
-canvas.addEventListener('pointerdown', e => { if (!roaming()) return; down = { x: e.clientX, y: e.clientY, yaw: camYawUser, drag: false }; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointerdown', e => { if (!roaming() || stage !== 'play') return; down = { x: e.clientX, y: e.clientY, yaw: camYawUser, drag: false }; canvas.setPointerCapture(e.pointerId); });
 canvas.addEventListener('pointermove', e => { if (!down) return; const dx = e.clientX - down.x; if (Math.abs(dx) > 6) down.drag = true; if (down.drag) camYawUser = down.yaw - dx * 0.006; });
 canvas.addEventListener('pointerup', e => {
   const d = down; down = null;
@@ -657,18 +712,30 @@ pExit.addEventListener('click', stopTour);
 tourBtn.addEventListener('click', () => (tour ? stopTour() : startTour()));
 
 /* ---------------- entering: your avatar ---------------- */
-const enterBtn = $('#mu-enter');
-function refreshEnter() { const v = visitor(); enterBtn.textContent = v ? `Enter as ${v.name}` : 'Enter the museum'; }
+const enterBtn = $('#mu-enter'), newCharBtn = $('#mu-newchar');
+function refreshEnter() {
+  const v = visitor();
+  enterBtn.textContent = v ? `Continue as ${v.name}  ▸` : 'Enter the museum  ▸';
+  newCharBtn.hidden = !v;
+}
 function applyVisitor() {
   const v = visitor();
-  meG.remove(meFig.group); meFig = makeFigure(v ? v.look : LOOK_DEFAULT); meG.add(meFig.group);
+  meG.remove(mePerson.group); mePerson.dispose();
+  mePerson = makePerson(castOf(v ? v.look : LOOK_DEFAULT)); meG.add(mePerson.group);
   setMeLabel(); refreshEnter(); hudSync();
 }
-enterBtn.addEventListener('click', () => {
-  if (visitor()) { begin(); return; }
-  openCreator(v => { applyVisitor(); if (v) begin(); });
-});
+const choose = () => openSelect(v => { applyVisitor(); if (v && stage === 'title') startIntro(false); });
+enterBtn.addEventListener('click', () => { if (visitor()) startIntro(true); else choose(); });
+newCharBtn.addEventListener('click', choose);
 refreshEnter();
+// the title screen's lobby line: who is inside right now
+const lobby = $('.mu-lobby'), lobbyText = lobby.querySelector('span');
+function lobbySync() {
+  if (!presenceReady || presence.status !== 'live') { lobby.hidden = true; return; }
+  const v = visitor(), n = [...presence.roster.keys()].filter(id => !(v && id === v.id && stage === 'title')).length;
+  lobbyText.textContent = n ? `${n} explorer${n === 1 ? ' is' : 's are'} inside right now` : 'Nobody is inside right now. Be the first.';
+  lobby.hidden = false;
+}
 
 /* ---------------- HUD: who's here, emotes, edit avatar ---------------- */
 const hud = $('.mu-hud'), hudCount = hud.querySelector('.hud-count'), hudList = hud.querySelector('.hud-list'), hudPeople = hud.querySelector('.hud-people');
@@ -677,7 +744,7 @@ hudLive.hidden = !presenceReady;   // only when real presence is connected
 function hudSync() {
   hud.classList.toggle('entered', !!visitor());
 }
-hud.querySelector('.hud-edit').addEventListener('click', () => openCreator(() => applyVisitor()));
+hud.querySelector('.hud-edit').addEventListener('click', () => openSelect(() => applyVisitor()));
 hud.querySelectorAll('[data-emote]').forEach(b => b.addEventListener('click', () => emote(b.dataset.emote)));
 hudPeople.addEventListener('click', () => { const open = hudList.hidden; hudList.hidden = !open; hudPeople.setAttribute('aria-expanded', String(open)); if (open) renderList(); });
 function where(x, z) { let best = null, bd = 3.4; EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - x, e.pos.z - z); if (d < bd) { bd = d; best = e; } }); return best ? 'at ' + best.title : 'wandering the rotunda'; }
@@ -700,18 +767,18 @@ function countText() {
   if (n === 1 && meIn) return 'Just you here right now';
   return `${n} explorer${n === 1 ? '' : 's'} here now`;
 }
-bus.addEventListener('status', () => { hudCount.textContent = countText(); hud.dataset.status = presence.status; });
+bus.addEventListener('status', () => { hudCount.textContent = countText(); hud.dataset.status = presence.status; lobbySync(); });
 bus.addEventListener('visitor', () => { hudSync(); });
 
 // remote visitors
 const remotes = new Map();
 function addRemote(m) {
-  const fig = makeFigure(m.look), g = new THREE.Group(); g.add(fig.group);
-  const label = makeLabel(cleanName(m.name) || 'Visitor'); label.position.y = 1.95; g.add(label);
+  const person = makePerson(castOf(m.look)), g = new THREE.Group(); g.add(person.group);
+  const label = makeLabel(cleanName(m.name) || 'Visitor'); label.position.y = 2.08; g.add(label);
   g.position.set(+m.x || 0, 0, +m.z || 8); scene.add(g);
-  return { g, fig, label, name: m.name, look: JSON.stringify(m.look), cur: g.position, target: new THREE.Vector3(+m.x || 0, 0, +m.z || 8), h: +m.h || 0, hT: +m.h || 0, walk: 0, phase: 0, wave: 0, emote: null };
+  return { g, person, label, name: m.name, look: JSON.stringify(m.look), cur: g.position, target: new THREE.Vector3(+m.x || 0, 0, +m.z || 8), h: +m.h || 0, hT: +m.h || 0, walk: 0, phase: 0, wave: 0, emote: null };
 }
-function dropRemote(id) { const r = remotes.get(id); if (!r) return; scene.remove(r.g); r.label.userData.dispose(); if (r.emote) r.emote.s.userData.dispose(); remotes.delete(id); }
+function dropRemote(id) { const r = remotes.get(id); if (!r) return; scene.remove(r.g); r.person.dispose(); r.label.userData.dispose(); if (r.emote) r.emote.s.userData.dispose(); remotes.delete(id); }
 bus.addEventListener('roster', ({ detail }) => {
   const v = visitor();
   for (const id of [...remotes.keys()]) if (!detail.has(id) || (v && id === v.id)) dropRemote(id);
@@ -721,19 +788,21 @@ bus.addEventListener('roster', ({ detail }) => {
     if (r && (r.name !== m.name || r.look !== JSON.stringify(m.look))) { dropRemote(id); r = null; }
     if (!r) remotes.set(id, addRemote(m));
   });
-  hudCount.textContent = countText();
+  hudCount.textContent = countText(); lobbySync();
   if (!hudList.hidden) renderList();
 });
 bus.addEventListener('move', ({ detail: d }) => { const r = remotes.get(d.id); if (!r) return; r.target.set(+d.x || 0, 0, +d.z || 0); r.hT = +d.h || 0; });
 function showEmote(holder, kind) {
   if (holder.emote) { holder.emote.g.remove(holder.emote.s); holder.emote.s.userData.dispose(); }
-  const s = makeEmote(kind); s.position.y = 2.35; holder.emote = { s, g: holder.g, t: 0 }; holder.g.add(s);
-  if (kind === 'wave') holder.wave = 2.2;
+  const s = makeEmote(kind); s.position.y = 2.45; holder.emote = { s, g: holder.g, t: 0 }; holder.g.add(s);
+  const person = holder.person || (holder === meHolder ? mePerson : null);
+  if (kind === 'wave' && person) person.wave();
 }
 bus.addEventListener('emote', ({ detail: d }) => { const r = remotes.get(d.id); if (r && EMOTES[d.kind]) showEmote(r, d.kind); });
 const meHolder = { g: meG, emote: null, wave: 0 };
 function emote(kind) {
-  begin(); showEmote(meHolder, kind); P.wave = meHolder.wave; presence.emote(kind);
+  if (stage !== 'play') return;
+  showEmote(meHolder, kind); presence.emote(kind);
   if (kind === 'wave' && P.pos.distanceTo(Gd.pos) < 5 && !tour) waveT = 0;   // she waves back
 }
 presence.start();
@@ -757,6 +826,7 @@ function drawMap() {
   mctx.fillStyle = '#1d1a16'; mctx.beginPath(); mctx.moveTo(0, -8 * u); mctx.lineTo(5.5 * u, 6 * u); mctx.lineTo(-5.5 * u, 6 * u); mctx.closePath(); mctx.fill(); mctx.restore();
 }
 mapCv.addEventListener('click', e => {
+  if (stage !== 'play') return;
   const r = mapCv.getBoundingClientRect(), s = r.width, k = (s / 2 - 8 * s / mapCv.width) / R;
   const x = (e.clientX - r.left - s / 2) / k, z = (e.clientY - r.top - s / 2) / k;
   pauseTour(true);
@@ -816,11 +886,11 @@ function frame(now) {
   if (mv.lengthSq() > 0) { mv.normalize(); speed = 2.6; P.pos.addScaledVector(mv, speed * dt); P.heading += angDiff(Math.atan2(mv.x, mv.z), P.heading) * (1 - Math.pow(0.0005, dt)); }
   else { speed = steer(P, dt, 2.4); if (speed < 0) speed = 0; if (!speed && P.focus) P.heading += angDiff(Math.atan2(P.focus.pos.x - P.pos.x, P.focus.pos.z - P.pos.z), P.heading) * (1 - Math.pow(0.02, dt)); }
   keepIn(P, [Gd.pos]);
-  meG.position.copy(P.pos); meG.rotation.y = P.heading; meG.visible = blendB < 0.6;
+  meG.position.copy(P.pos); meG.rotation.y = P.heading; meG.visible = stage !== 'title' && blendB < 0.6;
   P.walk += ((speed ? Math.min(1, speed / 2.2) : 0) - P.walk) * (1 - Math.pow(0.002, dt));
   P.phase += dt * 9.5 * Math.min(1, P.walk * 3);
-  meHolder.wave = Math.max(0, meHolder.wave - dt);
-  meFig.pose(P.walk, P.phase, Math.min(1, meHolder.wave * 3) * (meHolder.wave > 0 ? 1 : 0), t);
+  const lookAtGuide = stage === 'intro' ? Math.max(-0.5, Math.min(0.5, angDiff(Math.atan2(Gd.pos.x - P.pos.x, Gd.pos.z - P.pos.z), P.heading))) : 0;
+  mePerson.pose(P.walk, P.phase, lookAtGuide, t, dt);
   presence.move(P.pos.x, P.pos.z, P.heading, now);
 
   // ---- other visitors ----
@@ -831,10 +901,9 @@ function frame(now) {
     if (v > 0.15) r.hT = Math.atan2(r.cur.x - before.x, r.cur.z - before.z);
     r.h += angDiff(r.hT, r.h) * (1 - Math.pow(0.002, dt)); r.g.rotation.y = r.h;
     r.walk += (Math.min(1, v / 2.2) - r.walk) * (1 - Math.pow(0.002, dt)); r.phase += dt * 9.5 * Math.min(1, r.walk * 3);
-    r.wave = Math.max(0, r.wave - dt);
-    r.fig.pose(r.walk, r.phase, r.wave > 0 ? Math.min(1, r.wave * 3) : 0, t);
+    r.person.pose(r.walk, r.phase, 0, t, dt);
   });
-  [meHolder, ...remotes.values()].forEach(h => { if (h.emote) { h.emote.t += dt; h.emote.s.position.y = 2.35 + Math.min(0.25, h.emote.t * 0.6); h.emote.s.material.opacity = Math.min(1, (2.6 - h.emote.t) * 2); if (h.emote.t > 2.6) { h.g.remove(h.emote.s); h.emote.s.userData.dispose(); h.emote = null; } } });
+  [meHolder, ...remotes.values()].forEach(h => { if (h.emote) { h.emote.t += dt; h.emote.s.position.y = 2.45 + Math.min(0.25, h.emote.t * 0.6); h.emote.s.material.opacity = Math.min(1, (2.6 - h.emote.t) * 2); if (h.emote.t > 2.6) { h.g.remove(h.emote.s); h.emote.s.userData.dispose(); h.emote = null; } } });
 
   // ---- the guide ----
   let gSpeed = 0;
@@ -851,14 +920,14 @@ function frame(now) {
   if (tour && tour.arrived && !tour.paused) { tour.wait += dt; if (tour.wait > TOUR_WAIT) { if (tour.i >= STOPS.length - 1) stopTour(); else goStop(tour.i + 1); } }
   // the guide offers a tour again when you come back to her
   const gd = P.pos.distanceTo(Gd.pos);
-  if (!tour && started && roaming()) {
+  if (!tour && started && roaming() && stage === 'play') {
     if (gd > 4) awayT += dt;
     if (gd < 2.4 && awayT > 6 && !bubbleMode) { say('again'); awayT = 0; }
     if (bubbleMode === 'again' && gd > 5) say(null);
   }
 
   // ---- rotunda camera (follows you) ----
-  if (rig || introT > 0) introT = Math.min(1, introT + dt / (reduce ? 0.01 : 3.2));
+  if (stage === 'play' && (rig || introT > 0)) introT = Math.min(1, introT + dt / (reduce ? 0.01 : 3.2));
   if (speed && mv.lengthSq() > 0 && mv.dot(camFwd) > -0.3) camYaw += angDiff(P.heading + Math.PI, camYaw) * (1 - Math.pow(0.25, dt));
   else if (speed && P.target) camYaw += angDiff(P.heading + Math.PI, camYaw) * (1 - Math.pow(0.5, dt));
   if (!down) camYawUser *= Math.pow(0.4, dt);
@@ -866,10 +935,21 @@ function frame(now) {
   const follow = tmp.set(P.pos.x + Math.sin(yaw) * dist, height, P.pos.z + Math.cos(yaw) * dist);
   const fr = Math.hypot(follow.x, follow.z); if (fr > R - 0.6) { follow.x *= (R - 0.6) / fr; follow.z *= (R - 0.6) / fr; }
   const e3 = 1 - Math.pow(1 - introT, 3);
-  roamCam.lerp(new THREE.Vector3(0, 5.6, 12.6).lerp(follow, e3), 1 - Math.pow(0.02, dt));
-  const lookGoal = new THREE.Vector3(0, 1.4, -4).lerp(new THREE.Vector3(P.pos.x, 1.15, P.pos.z), e3);
-  if (active && !speed) lookGoal.lerp(new THREE.Vector3(active.pos.x, 1.4, active.pos.z), 0.35 * e3);
-  roamLook.lerp(lookGoal, 1 - Math.pow(0.01, dt));
+  if (stage === 'play') {
+    roamCam.lerp(new THREE.Vector3(0, 5.6, 12.6).lerp(follow, e3), 1 - Math.pow(0.02, dt));
+    const lookGoal = new THREE.Vector3(0, 1.4, -4).lerp(new THREE.Vector3(P.pos.x, 1.15, P.pos.z), e3);
+    if (active && !speed) lookGoal.lerp(new THREE.Vector3(active.pos.x, 1.4, active.pos.z), 0.35 * e3);
+    roamLook.lerp(lookGoal, 1 - Math.pow(0.01, dt));
+  } else if (stage === 'intro') {   // over your shoulder, looking at the guide
+    const dir = new THREE.Vector3(P.pos.x - Gd.pos.x, 0, P.pos.z - Gd.pos.z).normalize(), right = new THREE.Vector3(dir.z, 0, -dir.x);
+    const back = small() ? 2.9 : 2.1;
+    roamCam.lerp(P.pos.clone().addScaledVector(dir, back).addScaledVector(right, small() ? 0.5 : 0.85).setY(small() ? 2.0 : 1.8), 1 - Math.pow(0.03, dt));
+    roamLook.lerp(Gd.pos.clone().setY(small() ? 1.25 : 1.4).addScaledVector(right, -0.15), 1 - Math.pow(0.02, dt));
+  } else {                          // title + character select: a slow orbit of the rotunda
+    const a = t * 0.05;
+    roamCam.lerp(new THREE.Vector3(Math.sin(a) * 8.8, 4.4, Math.cos(a) * 8.8), 1 - Math.pow(0.3, dt));
+    roamLook.lerp(new THREE.Vector3(0, 1.5, 0), 1 - Math.pow(0.3, dt));
+  }
 
   // ---- the wing ----
   const facing = rail(sy - journey.offsetTop);
@@ -893,7 +973,7 @@ function frame(now) {
 
   walkAmt += ((bodySpeed ? Math.min(1, bodySpeed / 2.2) : 0) - walkAmt) * (1 - Math.pow(0.002, dt));
   phase += dt * 9.5 * Math.min(1, walkAmt * 3) * (0.75 + 0.25 * walkAmt);
-  idleT = bodySpeed || tour || bubbleMode ? 0 : idleT + dt;
+  idleT = bodySpeed || tour || bubbleMode || stage !== 'play' ? 0 : idleT + dt;
   if (idleT > 14 && !clip.action && !reduce && roaming()) { playClip(Math.random() < 0.6 ? 'dance' : 'excited'); idleT = -8; }
 
   if (rig) {
@@ -934,7 +1014,7 @@ function frame(now) {
 
   // ---- placard: the tour stop, or the exhibit you're standing at ----
   let near = null, nd = 3.3;
-  if (roaming()) EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - P.pos.x, e.pos.z - P.pos.z); if (d < nd) { nd = d; near = e; } });
+  if (roaming() && stage === 'play') EXHIBITS.forEach(e => { const d = Math.hypot(e.pos.x - P.pos.x, e.pos.z - P.pos.z); if (d < nd) { nd = d; near = e; } });
   showPlacard(tour ? (tour.arrived || active === STOPS[tour.i] ? STOPS[tour.i] : null) : near);
   EXHIBITS.forEach(e => { const k = e === active ? 1.08 : 1; e.obj.scale.lerp(new THREE.Vector3(k, k, k), 0.08); });
 

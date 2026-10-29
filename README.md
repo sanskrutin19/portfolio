@@ -2,7 +2,12 @@
 
 **Live:** https://portfolio-green-nine-58.vercel.app
 
-The home page is a small 3D game: **the Museum of Things That Think**. Visitors make their own avatar (name, hair, skin tone, outfit, extras) and walk it round a rotunda with WASD or the arrow keys, or by clicking or tapping the floor. Seven exhibits, each a system I built, stand lit on plinths under glass. Walk up to one and its museum placard appears; press E to enter its own art-directed 3D world with a live demo. My real 3D avatar is the guide: she greets you and offers a guided tour (with back, pause, next and exit) or lets you explore freely. A minimap shows where everyone is.
+The home page plays like a game: **the Museum of Things That Think**.
+
+1. **Title screen.** "Enter the museum", with a live count of who's inside.
+2. **Character select.** Pick one of twelve realistic people (Microsoft Rocketbox, MIT licence) and type your name, which floats above your head.
+3. **The intro.** My own 3D avatar greets you by name, introduces the museum and asks: guided tour, or roam freely?
+4. **Play.** Walk with WASD, the arrow keys or a tap on the floor. Seven exhibits, each a system I built, stand lit on plinths under glass. Walk up to one and its placard appears; press E to enter its own art-directed 3D world with a live demo. The tour has back, pause, next and exit; a minimap shows where everyone is.
 
 **Live visitors.** With the backend connected ([setup](supabase/README.md)), other people in the museum appear in real time with their names, and you can wave or cheer at each other. There's a moderated visitor wall and suggestion wall, and a museum archive that shows only real counts. Without the backend these features stay hidden; nothing is simulated. The Sound Room plays my About story as kinetic lyrics on a glass speaker.
 
@@ -35,8 +40,10 @@ assets/css/site.css   design tokens, layout, themes
 assets/js/site.js     navigation, reveals, demos, smooth scroll
 assets/js/minime.js   the 3D avatar: rig, motion, clips, opening scene
 assets/js/museum.js   the 3D museum: rotunda, exhibits, avatar controls, tour, minimap, gallery wing
-assets/js/visitors.js visitor avatars (figurines), name tags, emotes
-assets/js/creator.js  the avatar dialog with a live 3D preview
+assets/js/people.js   the realistic cast visitors choose from (assets/people/*.glb)
+assets/js/humans.js   shared rigging: bone mapping, relaxed rest pose, walk / wave / look
+assets/js/select.js   the character select screen with a live 3D preview
+assets/js/visitors.js name tags and emote bubbles
 assets/js/live.js     visitor identity, real-time presence (Supabase), wall + archive data
 assets/js/wall.js     the visitor wall, suggestion wall and archive
 assets/js/live-config.js  public Supabase URL + anon key (empty = live features off)

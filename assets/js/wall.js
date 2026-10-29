@@ -2,7 +2,7 @@
    Shown only when a backend is configured (live.js). Everything visitors
    write is rendered as text (never HTML) and appears only after review. */
 import { dataReady, wall, visitor, saveVisitor, presence, bus, LOOK_DEFAULT } from './live.js';
-import { SKINS, OUTFITS } from './visitors.js';
+import { thumbOf, castOf } from './people.js';
 
 const section = document.getElementById('wall');
 if (dataReady && section) {
@@ -24,10 +24,8 @@ if (dataReady && section) {
     return new Date(iso).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' });
   };
   const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
-  const figure = look => {
-    const l = look || {}, o = OUTFITS[l.outfit | 0] || OUTFITS[0];
-    const f = el('span', 'wall-fig'); f.setAttribute('aria-hidden', 'true');
-    f.style.setProperty('--skin', SKINS[l.skin | 0] || SKINS[2]); f.style.setProperty('--top', o.top);
+  const figure = look => {   // the visitor's character, as a small portrait
+    const f = el('img', 'wall-fig'); f.src = thumbOf(castOf(look)); f.alt = ''; f.width = 24; f.height = 24; f.loading = 'lazy';
     return f;
   };
 

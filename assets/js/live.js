@@ -24,12 +24,15 @@ const store = {
 const uuid = () => (crypto.randomUUID ? crypto.randomUUID() : 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
   const r = Math.random() * 16 | 0; return (c === 'x' ? r : (r & 3 | 8)).toString(16); }));
 let me = store.get();
-export const LOOK_DEFAULT = { body: 0, style: 0, skin: 2, outfit: 0, acc: 0 };
+// a look is the character a visitor picked from the cast (assets/js/people.js)
+const CAST_IDS = ['f02', 'f03', 'f08', 'f12', 'f15', 'fp02', 'm04', 'm06', 'm08', 'm09', 'm12', 'm17'];
+export const LOOK_DEFAULT = { char: 'f02' };
 export function visitor() { return me; }
 export function cleanName(s) { return String(s || '').replace(/[\u0000-\u001f\u007f<>]/g, '').replace(/\s+/g, ' ').trim().slice(0, 24); }
 export function cleanLook(l) {
-  const n = (v, max) => Math.max(0, Math.min(max, (v | 0)));
-  l = l || {}; return { body: n(l.body, 1), style: n(l.style, 3), skin: n(l.skin, 5), outfit: n(l.outfit, 5), acc: n(l.acc, 3) };
+  l = l || {};
+  if (CAST_IDS.includes(l.char)) return { char: l.char };
+  return { char: l.body === 1 ? 'm08' : 'f02' };   // looks saved before the realistic cast
 }
 export function saveVisitor({ name, look, shown }) {
   me = { id: (me && me.id) || uuid(), name: cleanName(name) || 'Visitor', look: cleanLook(look), shown: shown !== false, since: (me && me.since) || Date.now() };
@@ -86,7 +89,8 @@ let status = 'off';
 const roster = new Map();
 function setStatus(s) { if (s !== status) { status = s; bus.dispatchEvent(new CustomEvent('status', { detail: s })); } }
 function emitRoster() { bus.dispatchEvent(new CustomEvent('roster', { detail: roster })); }
-const meta = () => me && me.shown ? { id: me.id, name: me.name, look: me.look, x: +pos.x.toFixed(2), z: +pos.z.toFixed(2), h: +pos.h.toFixed(2) } : null;
+let inside = false;   // tracked only once the visitor has actually walked in (not on the title screen)
+const meta = () => me && me.shown && inside ? { id: me.id, name: me.name, look: me.look, x: +pos.x.toFixed(2), z: +pos.z.toFixed(2), h: +pos.h.toFixed(2) } : null;
 
 function supabaseTransport() {
   let ch = null, tracked = false;
@@ -145,18 +149,19 @@ let lastSent = 0, lastPos = '';
 export const presence = {
   get status() { return status; },
   roster,
+  setInside(v) { inside = !!v; if (transport) transport.retrack(); },
   start() { if (transport && status === 'off') Promise.resolve(transport.start()).catch(() => setStatus('offline')); },
   retrack() { if (transport) transport.retrack(); },
   untrack() { if (transport) transport.untrack(); },
   // called every frame with the player's position; sends ~6×/s while moving
   move(x, z, h, now) {
     pos = { x, z, h };
-    if (!transport || !me || !me.shown || status !== 'live') return;
+    if (!transport || !me || !me.shown || !inside || status !== 'live') return;
     const key = x.toFixed(2) + z.toFixed(2) + h.toFixed(1);
     if (key === lastPos || now - lastSent < 160) return;
     lastSent = now; lastPos = key;
     transport.send('mv', { id: me.id, x: +x.toFixed(2), z: +z.toFixed(2), h: +h.toFixed(2) });
     if (!this._t || now - this._t > 8000) { this._t = now; transport.retrack(); }   // refresh presence for late joiners
   },
-  emote(kind) { if (transport && me && me.shown) transport.send('em', { id: me.id, kind }); }
+  emote(kind) { if (transport && me && me.shown && inside) transport.send('em', { id: me.id, kind }); }
 };

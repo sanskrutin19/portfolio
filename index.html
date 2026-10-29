@@ -94,15 +94,26 @@
     <section class="museum" id="home" aria-labelledby="mu-title">
       <canvas class="museum-canvas" id="museum-canvas" aria-label="A 3D museum of seven exhibits of Sanskruti's work. Walk your own avatar between them; Sanskruti's avatar is your guide." role="img"></canvas>
 
-      <div class="mu-intro">
-        <p class="mu-kicker">The museum of things that think</p>
-        <h1 class="mu-title" id="mu-title">Sanskruti <em>Naik</em></h1>
-        <p class="mu-sub">AI / ML engineer. Seven exhibits, each a real system I built. Make an avatar, walk in, and I’ll show you round.</p>
+      <!-- 1 · the title screen -->
+      <div class="mu-intro mu-titlescreen">
+        <p class="mu-kicker">A playable portfolio · Sanskruti Naik, AI / ML engineer</p>
+        <h1 class="mu-title" id="mu-title">The Museum of <em>Things That Think</em></h1>
+        <p class="mu-sub">Seven exhibits, each a real system I built. Choose your character, meet me inside, and take the tour, or wander on your own.</p>
         <div class="mu-actions">
-          <button type="button" class="mu-btn mu-btn-main" id="mu-enter">Enter the museum</button>
-          <button type="button" class="mu-btn" id="mu-tour" aria-pressed="false">Guided tour</button>
-          <a class="mu-btn" href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a>
-          <a class="mu-btn mu-btn-ghost" href="#about">Skip the museum ↓</a>
+          <button type="button" class="mu-btn mu-btn-main mu-btn-big" id="mu-enter">Enter the museum  ▸</button>
+          <button type="button" class="mu-btn" id="mu-newchar" hidden>New character</button>
+        </div>
+        <p class="mu-lobby mono" hidden><i class="hud-dot" aria-hidden="true"></i><span></span></p>
+        <p class="mu-alt"><a href="#about">Skip to the portfolio ↓</a> · <a href="resume.pdf" target="_blank" rel="noopener">Résumé ↗</a></p>
+      </div>
+
+      <!-- 3 · the guide's introduction, game-style -->
+      <div class="mu-dialog" role="dialog" aria-modal="false" aria-labelledby="dlg-who" hidden>
+        <div class="dlg-card">
+          <p class="dlg-who mono" id="dlg-who">Sanskruti <span>· your guide</span></p>
+          <p class="dlg-text" aria-live="polite"></p>
+          <div class="dlg-choices"></div>
+          <div class="dlg-foot"><button type="button" class="dlg-skip">Skip intro</button><button type="button" class="dlg-next">Next  ▸</button></div>
         </div>
       </div>
 
@@ -149,6 +160,7 @@
           <button type="button" class="hud-btn" data-emote="heart" aria-label="Send a heart" title="Send a heart">♥</button>
           <button type="button" class="hud-btn hud-edit">Your avatar</button>
         </div>
+        <button type="button" class="hud-btn hud-tour" id="mu-tour" aria-pressed="false">Guided tour</button>
         <button type="button" class="hud-btn hud-note" data-open-note>✉ Write to Sanskruti</button>
       </div>
 
@@ -810,26 +822,32 @@
     <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="7" r="3.2"/><path d="M6.5 20v-3.2a5.5 5.5 0 0 1 11 0V20"/><path class="slash" d="M4 4l16 16"/></svg>
   </button>
 
-  <!-- make your avatar (creator.js) -->
-  <dialog class="creator" id="creator" aria-labelledby="cr-title">
-    <form method="dialog" class="cr-form">
-      <div class="cr-stage"><canvas class="cr-preview" aria-label="Preview of your avatar" role="img"></canvas></div>
-      <div class="cr-controls">
-        <p class="mono cr-kicker">Before you go in</p>
-        <h2 class="cr-title" id="cr-title">Make your <em>avatar</em></h2>
-        <label class="cr-name"><span class="mono">Display name</span><input id="cr-name" maxlength="24" autocomplete="nickname" placeholder="What should we call you?" required></label>
-        <fieldset><legend class="mono">Body</legend><div class="cr-row" id="cr-body"></div></fieldset>
-        <fieldset><legend class="mono">Hair</legend><div class="cr-row" id="cr-style"></div></fieldset>
-        <fieldset><legend class="mono">Skin tone</legend><div class="cr-row cr-swatches" id="cr-skin"></div></fieldset>
-        <fieldset><legend class="mono">Outfit</legend><div class="cr-row cr-swatches" id="cr-outfit"></div></fieldset>
-        <fieldset><legend class="mono">Extra</legend><div class="cr-row" id="cr-acc"></div></fieldset>
-        <label class="cr-check" data-live-only><input type="checkbox" id="cr-shown" checked> Let other visitors see me in the museum</label>
-        <p class="cr-note">Your name and look are saved in this browser so you can come back as yourself. <span data-live-only>While you’re inside, other visitors see your name, your avatar and where you’re standing. Nothing else is shared.</span></p>
-        <div class="cr-actions">
-          <button type="submit" class="mu-btn mu-btn-main cr-submit">Enter the museum</button>
-          <button type="button" class="mu-btn cr-cancel">Cancel</button>
-          <button type="button" class="cr-forget" id="cr-forget" hidden>Forget me on this device</button>
+  <!-- 2 · character select (select.js) -->
+  <dialog class="select" id="select" aria-labelledby="sel-title">
+    <form class="sel-form" novalidate>
+      <div class="sel-stage">
+        <canvas class="sel-preview" aria-label="Your character" role="img"></canvas>
+        <p class="sel-caption mono"></p>
+        <p class="sel-loading mono" hidden>Loading…</p>
+      </div>
+      <div class="sel-side">
+        <p class="mono sel-kicker">Step 1 of 2 · Who are you today?</p>
+        <h2 class="sel-title" id="sel-title">Choose your <em>character</em></h2>
+        <div class="sel-tabs" role="group" aria-label="Show">
+          <button type="button" class="sel-tab" data-filter="all" aria-pressed="true">All</button>
+          <button type="button" class="sel-tab" data-filter="f" aria-pressed="false">Women</button>
+          <button type="button" class="sel-tab" data-filter="m" aria-pressed="false">Men</button>
         </div>
+        <fieldset class="sel-grid"><legend class="sr-only">Characters</legend></fieldset>
+        <label class="sel-name"><span class="mono">Step 2 of 2 · Your name (shown above your head)</span><input id="sel-name" maxlength="24" autocomplete="nickname" placeholder="What should we call you?" required></label>
+        <label class="sel-check" data-live-only><input type="checkbox" id="sel-shown" checked> Let other visitors see me in the museum</label>
+        <p class="sel-note">Saved in this browser so you come back as yourself. <span data-live-only>Inside, other visitors see your character, your name and where you’re standing. Nothing else is shared.</span></p>
+        <div class="sel-actions">
+          <button type="submit" class="mu-btn mu-btn-main mu-btn-big sel-go">Enter the museum  ▸</button>
+          <button type="button" class="mu-btn sel-back">Back</button>
+          <button type="button" class="sel-forget" id="sel-forget" hidden>Forget me on this device</button>
+        </div>
+        <p class="sel-credit">Characters: Microsoft Rocketbox (MIT licence).</p>
       </div>
     </form>
   </dialog>
