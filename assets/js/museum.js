@@ -583,7 +583,7 @@ function say(mode, extra) {
 /* ---------------- the game: title → character select → intro → play ---------------- */
 let stage = 'title';
 function setStage(s) {
-  stage = s; sec.dataset.stage = s; root.classList.toggle('stage-title', s === 'title');
+  stage = s; sec.dataset.stage = s; root.classList.toggle('game-title', s === 'title');
   if (meLabel) meLabel.visible = s === 'play';
   presence.setInside(s === 'intro' || s === 'play');
   if (s !== 'title') sec.classList.add('mu-entered');

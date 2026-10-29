@@ -1632,9 +1632,9 @@ body { font-family: var(--f-sans); }
   .mu-toasts { top: 130px; }
 }
 /* the menu bar reads light over the dark title screen */
-.stage-title .nav:not(.scrolled) { background: transparent; border-color: transparent; }
-.stage-title .nav:not(.scrolled) .wordmark, .stage-title .nav:not(.scrolled) .nav-links a:not(.nav-resume a), .stage-title .nav:not(.scrolled) .menu-btn { color: #f4ecdf; }
-.stage-title .nav:not(.scrolled) .nav-links a[aria-current], .stage-title .nav:not(.scrolled) .nav-links a.active { background: rgba(244,236,223,.14); }
+.game-title .nav:not(.scrolled) { background: transparent; border-color: transparent; }
+.game-title .nav:not(.scrolled) .wordmark, .game-title .nav:not(.scrolled) .nav-links a:not(.nav-resume a), .game-title .nav:not(.scrolled) .menu-btn { color: #f4ecdf; }
+.game-title .nav:not(.scrolled) .nav-links a[aria-current], .game-title .nav:not(.scrolled) .nav-links a.active { background: rgba(244,236,223,.14); }
 /* phones: compact START bar, HUD steps aside while a placard is open */
 @media (max-width: 760px) {
   .sel-bar { flex-wrap: nowrap; align-items: center; gap: .45rem; }
@@ -1656,3 +1656,24 @@ body { font-family: var(--f-sans); }
 .mu-error code { font: .8rem var(--f-mono); color: #f1d9a8; word-break: break-word; }
 .mu-error .mu-btn { margin-top: .9rem; }
 .mu-error:not([hidden]) ~ .mu-fallback, .no3d .mu-fallback { position: relative; bottom: auto; left: auto; right: auto; margin: 1.2rem var(--gutter) 2rem; }
+/* the nav collapses to a menu earlier, so its links never wrap onto two lines */
+.nav-links a { white-space: nowrap; }
+@media (max-width: 1180px) {
+  .nav-links { position: fixed; inset: 0; z-index: 1; flex-direction: column; align-items: flex-start; justify-content: center; gap: .4rem; padding: 90px var(--gutter) 40px; background: var(--bg); clip-path: inset(0 0 100% 0); visibility: hidden; transition: clip-path .6s var(--ease-in-out), visibility 0s .6s; }
+  .nav-links.open { clip-path: inset(0 0 0 0); visibility: visible; transition: clip-path .6s var(--ease-in-out), visibility 0s 0s; }
+  .nav-links a { font-size: clamp(2rem, 6vw, 3.2rem); letter-spacing: -.05em; color: var(--text); padding: 0 .2rem; text-transform: none; font-family: var(--f-display); }
+  .game-title .nav:not(.scrolled) .nav-links.open a:not(.nav-resume a) { color: var(--text); }
+  .nav-resume a { margin: 1rem 0 0; font-size: 1rem; }
+  .menu-btn { display: inline-block; background: var(--chip); color: var(--chip-text); border: 0; padding: .15rem .4rem; font-size: .82rem; }
+  .game-title .nav:not(.scrolled) .menu-btn { background: rgba(244,236,223,.14); }
+  body.menu-open { overflow: hidden; }
+}
+/* the title screen fits short or zoomed windows: sized by height too, never under the nav */
+.mu-titlescreen { place-content: safe center; overflow-y: auto; padding-top: 92px; padding-bottom: 72px; }
+.mu-titlescreen .mu-title { font-size: clamp(2.2rem, min(7.6vw, 10.5vh), 7rem); }
+@media (max-height: 820px) {
+  .gm-pre { margin-bottom: .5rem; } .gm-tag { margin-top: .6rem; }
+  .gm-menu { margin-top: 1.3rem; gap: .35rem; }
+  .gm-item { padding: .6rem 1rem; } .gm-primary { padding: .8rem 1rem; }
+  .gm-press { margin-top: .9rem; }
+}
