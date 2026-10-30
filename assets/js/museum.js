@@ -29,7 +29,7 @@ const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 const EXHIBITS = [
   { id: 'rag', no: '01', ang: 180, title: 'The Archive That Thinks', proj: 'Tender Intelligence · offline RAG · internship',
     desc: 'An archive that reads hundreds of tender pages and answers with the exact sentence and page it came from. Hours of review become minutes.', live: 'https://promptivo.live/app' },
-  { id: 'chat', no: '02', ang: 130, title: 'The Sealed Artifact', proj: 'SecureChat · end-to-end encryption',
+  { id: 'chat', no: '02', ang: 130, title: 'The Sealed Artifact', proj: 'SecureChat · end-to-end encryption · internship',
     desc: 'Messages, calls and 500 MB files sealed with the Signal Protocol, and still usable with no connection.' },
   { id: 'geo', no: '03', ang: 80, title: 'The Orbital Record', proj: 'Construction detection · internship, geospatial AI',
     desc: 'Satellite eyes that watch a pipeline corridor every five days and flag new construction. Built during my internship for a client, so what you see here is an illustration.' },
@@ -37,7 +37,7 @@ const EXHIBITS = [
     desc: 'A diagnosis that shows its work: a phone app that names the disease and highlights the part of the leaf that told it so.' },
   { id: 'xai', no: '05', ang: 280, title: 'The Talking Alarm', proj: 'XAI-Care · explainable fall detection',
     desc: 'A fall alarm that explains every alert to the caregiver, with Grad-CAM and SHAP.' },
-  { id: 'water', no: '06', ang: 30, title: 'The Field Log', proj: 'Water Survey · offline-first app',
+  { id: 'water', no: '06', ang: 30, title: 'The Field Log', proj: 'Water Survey · offline-first app · internship',
     desc: 'A field notebook that never needs signal: records wait offline and sync themselves when the network returns.' },
   { id: 'sound', no: '07', ang: 330, title: 'The Sound Room', proj: 'About me',
     desc: 'The story behind the exhibits, played as lyrics on a glass speaker.', about: true }
