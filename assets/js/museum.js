@@ -27,7 +27,7 @@ const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
 /* ---------------- exhibits ---------------- */
 const EXHIBITS = [
-  { id: 'rag', no: '01', ang: 180, title: 'The Archive That Thinks', proj: 'Tender Intelligence · offline RAG',
+  { id: 'rag', no: '01', ang: 180, title: 'The Archive That Thinks', proj: 'Tender Intelligence · offline RAG · internship',
     desc: 'An archive that reads hundreds of tender pages and answers with the exact sentence and page it came from. Hours of review become minutes.', live: 'https://promptivo.live/app' },
   { id: 'chat', no: '02', ang: 130, title: 'The Sealed Artifact', proj: 'SecureChat · end-to-end encryption',
     desc: 'Messages, calls and 500 MB files sealed with the Signal Protocol, and still usable with no connection.' },
